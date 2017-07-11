@@ -22,11 +22,11 @@ const storage = Storage({
  * @param {function} The callback function.
  */
 exports.validateSourceFile = function (req, res) {
-  console.log(req.params, req.query);
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
   }
+  
   validate(url, function (errors) {
     if (!errors || errors.length === 0) {
       res.status(200).end();

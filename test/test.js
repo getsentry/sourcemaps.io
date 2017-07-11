@@ -10,6 +10,21 @@ const path = '/static/app.js';
 const url = `${host}${path}`;
 
 describe('validate', function () {
+  it('should download both source files and source maps', function (done) {
+    nock(host)
+      .get(path)
+      .reply(200, '//#sourceMappingURL=app.js.map');
+
+    nock(host)
+      .get('/static/app.js.map')
+      .reply(200, '{"version": 3}');
+  
+    validate(url, function (errors) {
+      assert.equal(errors.length, 0);
+      done();
+    });
+  });
+
   it('should detect missing sourceMappingURL', function (done) {
     nock(host)
       .get(path)
