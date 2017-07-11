@@ -3,7 +3,11 @@ const assert = require('assert');
 
 const validate = require('../lib/validate');
 
-const {SourceMapNotFoundError} = require('../lib/errors');
+const {
+  SourceMapNotFoundError,
+  UnableToFetchMinifiedError,
+  UnableToFetchSourceMapError
+} = require('../lib/errors');
 
 const host = 'https://example.org';
 const path = '/static/app.js';
@@ -18,14 +22,43 @@ describe('validate', function () {
     nock(host)
       .get('/static/app.js.map')
       .reply(200, '{"version": 3}');
-  
+
     validate(url, function (errors) {
       assert.equal(errors.length, 0);
       done();
     });
   });
 
-  it('should detect missing sourceMappingURL', function (done) {
+  it('should report a source file does not return 200', function (done) {
+    nock(host)
+      .get(path)
+      .reply(401, 'Not Authenticated');
+
+    validate(url, function (errors) {
+      assert.equal(errors.length, 1);
+      assert.equal(errors[0].constructor, UnableToFetchMinifiedError);
+      done();
+    });
+  });
+
+
+  it('should report a source map file does not return 200', function (done) {
+    nock(host)
+      .get(path)
+      .reply(200, '//#sourceMappingURL=app.js.map');
+
+    nock(host)
+      .get('/static/app.js.map')
+      .reply(401, 'Not Authenticated');
+
+    validate(url, function (errors) {
+      assert.equal(errors.length, 1);
+      assert.equal(errors[0].constructor, UnableToFetchSourceMapError);
+      done();
+    });
+  });
+
+  it('should report missing sourceMappingURL', function (done) {
     nock(host)
       .get(path)
       .reply(200, 'function(){}();');
