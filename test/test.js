@@ -6,7 +6,8 @@ const validate = require('../lib/validate');
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
-  UnableToFetchSourceMapError
+  UnableToFetchSourceMapError,
+  InvalidSourceMapFormatError
 } = require('../lib/errors');
 
 const host = 'https://example.org';
@@ -41,6 +42,17 @@ describe('validate', function () {
     });
   });
 
+  it('should report missing sourceMappingURL', function (done) {
+    nock(host)
+      .get(path)
+      .reply(200, 'function(){}();');
+
+    validate(url, function (errors) {
+      assert.equal(errors.length, 1);
+      assert.equal(errors[0].constructor, SourceMapNotFoundError);
+      done();
+    });
+  });
 
   it('should report a source map file does not return 200', function (done) {
     nock(host)
@@ -58,14 +70,18 @@ describe('validate', function () {
     });
   });
 
-  it('should report missing sourceMappingURL', function (done) {
-    nock(host)
+  it('should report a source map file that does not parse', function (done) {
+      nock(host)
       .get(path)
-      .reply(200, 'function(){}();');
+      .reply(200, '//#sourceMappingURL=app.js.map');
+
+    nock(host)
+      .get('/static/app.js.map')
+      .reply(200, '!@#(!*@#(*&@');
 
     validate(url, function (errors) {
       assert.equal(errors.length, 1);
-      assert.equal(errors[0].constructor, SourceMapNotFoundError);
+      assert.equal(errors[0].constructor, InvalidSourceMapFormatError);
       done();
     });
   });
