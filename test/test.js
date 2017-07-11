@@ -30,6 +30,21 @@ describe('validate', function () {
     });
   });
 
+  it('should resolve absolute sourceMappiingURLs', function (done) {
+    nock(host)
+      .get(path)
+      .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
+
+    nock('https://127.0.0.1:8000')
+      .get('/static/app.js.map')
+      .reply(200, '{"version": 3}');
+
+    validate(url, function (errors) {
+      assert.equal(errors.length, 0);
+      done();
+    });
+  });
+
   it('should report a source file does not return 200', function (done) {
     nock(host)
       .get(path)
