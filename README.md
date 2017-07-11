@@ -1,4 +1,4 @@
-# sourcemaps.io next
+# sourcemaps.io next [![Build Status](https://travis-ci.org/benvinegar/sourcemapsio-next.svg?branch=master)](https://travis-ci.org/benvinegar/sourcemapsio-next)
 
 A very WIP re-write of sourcemaps.io using NodeJS and Google Cloud Functions.
 
