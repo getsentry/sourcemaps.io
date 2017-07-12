@@ -22,6 +22,9 @@ const storage = Storage({
  * @param {function} The callback function.
  */
 exports.validateSourceFile = function (req, res) {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'POST')
+
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
@@ -42,9 +45,8 @@ exports.validateSourceFile = function (req, res) {
       res.status(500).send(err);
     });
     stream.on('finish', () => {
-      res.status(200).end();
+      res.status(200).send(objectName);
     });
     stream.end(JSON.stringify(errors), 'utf8');
-
   });
 };

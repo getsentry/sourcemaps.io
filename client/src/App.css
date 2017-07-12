@@ -1,0 +1,22 @@
+.social {
+  margin: 30px auto 0;
+  width: 480px;
+  text-align: center;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+.social > p {
+  padding-top: 10px;
+}
+
+.jumbotron {
+    margin: 60px 0;
+    text-align: center;
+}
+.jumbotron h1 {
+    font-size: 72px;
+    line-height: 1;
+}
+.container {
+    width: 750px;
+}
