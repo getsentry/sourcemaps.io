@@ -26,47 +26,59 @@ describe('validate', function() {
     });
   });
 
-  it('should resolve absolute sourceMappingURLs', function(done) {
-    nock(host)
-      .get(path)
-      .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
+  describe('source map location', function () {
+    it('should resolve absolute sourceMappingURLs', function(done) {
+      nock(host)
+        .get(path)
+        .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
 
-    nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, '{"version": 3}');
+      nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, '{"version": 3}');
 
-    validate(url, function(errors) {
-      assert.equal(errors.length, 0);
-      done();
+      validate(url, function(errors) {
+        assert.equal(errors.length, 0);
+        done();
+      });
     });
-  });
 
-  it('should resolve X-SourceMap headers', function(done) {
-    nock(host)
-      .get(path)
-      .reply(200, 'function(){}();', {
-        'X-SourceMap': 'app.js.map'
+    it('should resolve SourceMap headers', function(done) {
+      nock(host)
+        .get(path)
+        .reply(200, 'function(){}();', {
+          'SourceMap': 'app.js.map'
+        });
+
+      nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
+
+      validate(url, function(errors) {
+        assert.equal(errors.length, 0);
+        done();
+      })
+    });
+
+    it('should resolve X-SourceMap headers', function(done) {
+      nock(host)
+        .get(path)
+        .reply(200, 'function(){}();', {
+          'X-SourceMap': 'app.js.map'
+        });
+
+      nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
+
+      validate(url, function(errors) {
+        assert.equal(errors.length, 0);
+        done();
+      })
+    });
+
+    it('should report missing sourceMappingURL', function(done) {
+      nock(host).get(path).reply(200, 'function(){}();');
+
+      validate(url, function(errors) {
+        assert.equal(errors.length, 1);
+        assert.equal(errors[0].constructor, SourceMapNotFoundError);
+        done();
       });
-
-    nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
-
-    validate(url, function(errors) {
-      assert.equal(errors.length, 0);
-      done();
-    })
-  });
-
-  it('should resolve SourceMap headers', function(done) {
-    nock(host)
-      .get(path)
-      .reply(200, 'function(){}();', {
-        'SourceMap': 'app.js.map'
-      });
-
-    nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
-
-    validate(url, function(errors) {
-      assert.equal(errors.length, 0);
-      done();
-    })
+    });
   });
 
   it('should report a source file does not return 200', function(done) {
@@ -75,16 +87,6 @@ describe('validate', function() {
     validate(url, function(errors) {
       assert.equal(errors.length, 1);
       assert.equal(errors[0].constructor, UnableToFetchMinifiedError);
-      done();
-    });
-  });
-
-  it('should report missing sourceMappingURL', function(done) {
-    nock(host).get(path).reply(200, 'function(){}();');
-
-    validate(url, function(errors) {
-      assert.equal(errors.length, 1);
-      assert.equal(errors[0].constructor, SourceMapNotFoundError);
       done();
     });
   });
