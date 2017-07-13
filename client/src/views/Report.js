@@ -63,11 +63,12 @@ class Report extends Component {
               </ul>
               <h3>Errors</h3>
               <ul>
-                {report.errors.map(Entry)}
+                {report.errors.length ? report.errors.map(Entry) : <span>No errors</span>}
               </ul>
               <h3>Warnings</h3>
-              {report.warnings.map(Entry)}
-              <ul />
+              <ul>
+                {report.warnings.length ? report.warnings.map(Entry) : <span>No warnings</span>}
+              </ul>
             </div>}
         </div>;
   }
