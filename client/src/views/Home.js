@@ -6,6 +6,17 @@ const VALIDATE_URL = process.env.REACT_APP_VALIDATE_URL;
 
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
+function Loader() {
+  return (
+    <div style={{height: '200px'}}>
+      <Spinner
+        name="cube-grid"
+        style={{position: 'relative', margin: '0 auto', top: '90px'}}
+      />
+    </div>
+  );
+}
+
 class Home extends Component {
   constructor() {
     super();
@@ -32,7 +43,7 @@ class Home extends Component {
   }
   render() {
     return this.state.loading
-      ? <div><Spinner name="cube-grid" /></div>
+      ? <Loader/>
       : <div>
           <div>
             <p className="lead">Source Maps are hard. Make sure you did it right.</p>
