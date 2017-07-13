@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import queryString from 'query-string';
 
+import Loader from './Loader';
+
 function Entry(props) {
   let {name, message, resolutions} = props;
   return (
@@ -42,30 +44,32 @@ class Report extends Component {
 
   render() {
     const {reportUrl, report} = this.state;
-    return (
-      <div>
-        <h1>Report</h1>
-        {report &&
-          <div>
-            <p>{report.url}</p>
-            <h3>Sources</h3>
-            <ul>
-              {report.sources.map(src =>
-                <li key={src}>
-                  {src}
-                </li>
-              )}
-            </ul>
-            <h3>Errors</h3>
-            <ul>
-              {report.errors.map(Entry)}
-            </ul>
-            <h3>Warnings</h3>
-            {report.warnings.map(Entry)}
-            <ul />
-          </div>}
-      </div>
-    );
+    return !report
+      ? <Loader />
+      : <div>
+          <h1>Report</h1>
+          {report &&
+            <div>
+              <p>
+                {report.url}
+              </p>
+              <h3>Sources</h3>
+              <ul>
+                {report.sources.map(src =>
+                  <li key={src}>
+                    {src}
+                  </li>
+                )}
+              </ul>
+              <h3>Errors</h3>
+              <ul>
+                {report.errors.map(Entry)}
+              </ul>
+              <h3>Warnings</h3>
+              {report.warnings.map(Entry)}
+              <ul />
+            </div>}
+        </div>;
   }
 }
 

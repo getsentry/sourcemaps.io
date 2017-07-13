@@ -2,21 +2,22 @@ import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import Spinner from 'react-spinkit';
 
+import Loader from './Loader';
+
 const VALIDATE_URL = process.env.REACT_APP_VALIDATE_URL;
 
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
-function Loader() {
+function Example(props) {
+  let {children, url} = props;
   return (
-    <div style={{height: '200px'}}>
-      <Spinner
-        name="cube-grid"
-        style={{position: 'relative', margin: '0 auto', top: '90px'}}
-      />
-    </div>
+    <li>
+      <a href={url}>
+        {children}
+      </a>
+    </li>
   );
 }
-
 class Home extends Component {
   constructor() {
     super();
@@ -43,34 +44,30 @@ class Home extends Component {
   }
   render() {
     return this.state.loading
-      ? <Loader/>
+      ? <Loader />
       : <div>
-          <div>
-            <p className="lead">Source Maps are hard. Make sure you did it right.</p>
-            <form
-              action="/validate"
-              className="form-inline"
-              onSubmit={evt => this.handleSubmit(evt)}>
-              <div className="input-append">
+          <div className="row">
+            <form action="/validate" onSubmit={evt => this.handleSubmit(evt)}>
+              <div className="col-md-10 form-group">
                 <input
                   type="text"
-                  className="span6"
+                  className="form-control"
                   name="url"
                   value={this.state.targetUrl}
                   onChange={evt => this.setState({targetUrl: evt.target.value})}
                   placeholder={TARGET_URL_PLACEHOLDER}
                 />
-                <button className="btn">Validate</button>
+              </div>
+              <div className="col-md-2">
+                <button className="btn btn-default">Validate</button>
               </div>
             </form>
           </div>
           <h2>Examples</h2>
           <ul>
-            <li>
-              <a href="/validate?url=http%3A%2F%2Fcode.jquery.com%2Fjquery-1.9.1.min.js">
-                jQuery
-              </a>
-            </li>
+            <Example url="/validate?url=http%3A%2F%2Fcode.jquery.com%2Fjquery-1.9.1.min.js">
+              jQuery
+            </Example>
             <li>
               <a href="/validate?url=http%3A%2F%2Fdocumentcloud.github.io%2Fbackbone%2Fbackbone-min.js">
                 Backbone.js

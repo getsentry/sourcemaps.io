@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
 import Spinner from 'react-spinkit';
 
-import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
 
 import Home from './views/Home';
