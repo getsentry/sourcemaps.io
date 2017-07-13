@@ -31,10 +31,6 @@ exports.validateSourceFile = function(req, res) {
   }
 
   validate(url, function(errors) {
-    if (!errors || errors.length === 0) {
-      res.status(200).end();
-    }
-
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
