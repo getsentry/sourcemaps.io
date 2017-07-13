@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#000000">
     <!--
       manifest.json provides metadata used when your web app is added to the
@@ -22,10 +23,19 @@
     <title>React App</title>
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
+    <div class="jumbotron" style="margin-top:0">
+      <div class="container">
+        <h1>Source Map Validator</h1>
+      </div>
+    </div>
+    <div class="container">
+      <div id="root"></div>
+      <hr />
+      <div>
+        Source Map Validator brought to you by
+        <a href="https://sentry.io">Sentry</a>
+      </div>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -36,5 +46,8 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
   </body>
 </html>
