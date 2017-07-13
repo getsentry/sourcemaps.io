@@ -18,7 +18,7 @@ class Home extends Component {
     const {history} = this.props;
 
     evt.preventDefault();
-    fetch(`${VALIDATE_URL}?url=${url}`, {
+    fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
     }).then(response => {
       response.text().then(reportUrl => {
@@ -30,8 +30,8 @@ class Home extends Component {
     return (
       <div>
         <div className="jumbotron">
-          <h1>SourceMap Validator</h1>
-          <p className="lead">SourceMaps are hard. Make sure you did it right.</p>
+          <h1>Source Map Validator</h1>
+          <p className="lead">Source Maps are hard. Make sure you did it right.</p>
           <form
             action="/validate"
             className="form-inline"
@@ -72,12 +72,6 @@ class Home extends Component {
             </a>
           </li>
         </ul>
-
-        <hr />
-
-        <p>
-          Brought to you by <a href="https://sentry.io">Sentry</a>
-        </p>
       </div>
     );
   }

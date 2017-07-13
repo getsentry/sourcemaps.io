@@ -18,6 +18,13 @@ class App extends Component {
         <div className="container">
           <Route exact path="/" component={Home}/>
           <Route path="/report" component={Report}/>
+
+
+          <hr />
+
+          <p>
+            Source Map Validator brought to you by <a href="https://sentry.io">Sentry</a>
+          </p>
         </div>
       </Router>
     );

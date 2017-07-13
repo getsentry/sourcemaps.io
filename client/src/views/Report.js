@@ -41,12 +41,13 @@ class Report extends Component {
   }
 
   render() {
-    const {report} = this.state;
+    const {reportUrl, report} = this.state;
     return (
       <div>
         <h1>Report</h1>
         {report &&
           <div>
+            <p>{report.url}</p>
             <h3>Sources</h3>
             <ul>
               {report.sources.map(src =>
