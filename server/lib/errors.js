@@ -16,31 +16,42 @@ function UnableToFetchError(url) {
 
 function UnableToFetchMinifiedError(url) {
   UnableToFetchError.call(this);
-  this.resolutions = [
-    'Is your url correct?'
-  ];
+  this.resolutions = ['Is your url correct?'];
 }
 
 function UnableToFetchSourceMapError(url) {
   UnableToFetchError.call(this);
-  this.resolutions = [
-    'SourceMap declaration found, but could not load the file.'
-  ];
+  this.resolutions = ['SourceMap declaration found, but could not load the file.'];
 }
 
-function InvalidSourceMapFormatError(url) {
+function InvalidJSONError(url, error) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
-  this.message = `Invalid SourceMap format ${url}`;
-  this.resolutions = [
-    'Everything is broken. Is this really a Source Map?'
-  ];
+  let message = 'Does not parse as JSON';
+  if (error && error.message) {
+    message += `: ${error.message}`;
+  }
+  this.message = message;
+  this.resolutions = ['Everything is broken. Is this really a Source Map?'];
+}
+
+function InvalidSourceMapFormatError(url, error) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  let message = `Invalid SourceMap format`;
+  if (error && error.message) {
+    message += `: ${error.message}`;
+  }
+  this.message = message;
+
+  this.resolutions = ['Everything is broken. Is this really a Source Map?'];
 }
 
 module.exports = {
-    SourceMapNotFoundError: SourceMapNotFoundError,
-    UnableToFetchError: UnableToFetchError,
-    UnableToFetchMinifiedError: UnableToFetchMinifiedError,
-    UnableToFetchSourceMapError: UnableToFetchSourceMapError,
-    InvalidSourceMapFormatError: InvalidSourceMapFormatError
-}
+  SourceMapNotFoundError: SourceMapNotFoundError,
+  UnableToFetchError: UnableToFetchError,
+  UnableToFetchMinifiedError: UnableToFetchMinifiedError,
+  UnableToFetchSourceMapError: UnableToFetchSourceMapError,
+  InvalidSourceMapFormatError: InvalidSourceMapFormatError,
+  InvalidJSONError: InvalidJSONError
+};

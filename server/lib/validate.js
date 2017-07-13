@@ -1,11 +1,13 @@
 const request = require('request');
 const urljoin = require('url-join');
+const {SourceMapConsumer} = require('source-map');
 
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   UnableToFetchSourceMapError,
-  InvalidSourceMapFormatError
+  InvalidSourceMapFormatError,
+  InvalidJSONError
 } = require('./errors');
 
 function getSourceMapLocation(response, body) {
@@ -83,7 +85,15 @@ function getSourceMap(url, callback) {
     try {
       rawSourceMap = JSON.parse(body);
     } catch (err) {
-      errors.push(new InvalidSourceMapFormatError(url));
+      errors.push(new InvalidJSONError(url, err));
+      return void callback(errors);
+    }
+
+    let sourceMapConsumer;
+    try {
+      sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
+    } catch (err) {
+      errors.push(new InvalidSourceMapFormatError(url, err))
       return void callback(errors);
     }
 

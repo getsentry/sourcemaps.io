@@ -3,11 +3,21 @@ const assert = require('assert');
 
 const validate = require('../lib/validate');
 
+const RAW_SOURCE_MAP = JSON.stringify({
+  version: 3,
+  file: 'min.js',
+  names: ['bar', 'baz', 'n'],
+  sources: ['one.js', 'two.js'],
+  sourceRoot: 'http://example.com/www/js/',
+  mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
+});
+
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   UnableToFetchSourceMapError,
-  InvalidSourceMapFormatError
+  InvalidSourceMapFormatError,
+  InvalidJSONError
 } = require('../lib/errors');
 
 const host = 'https://example.org';
@@ -18,7 +28,7 @@ describe('validate', function() {
   it('should download both source files and source maps', function(done) {
     nock(host).get(path).reply(200, '//#sourceMappingURL=app.js.map');
 
-    nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
+    nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
     validate(url, function(errors) {
       assert.equal(errors.length, 0);
@@ -32,7 +42,7 @@ describe('validate', function() {
         .get(path)
         .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
 
-      nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, '{"version": 3}');
+      nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
       validate(url, function(errors) {
         assert.equal(errors.length, 0);
@@ -47,7 +57,7 @@ describe('validate', function() {
           'SourceMap': 'app.js.map'
         });
 
-      nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
+      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
       validate(url, function(errors) {
         assert.equal(errors.length, 0);
@@ -62,7 +72,7 @@ describe('validate', function() {
           'X-SourceMap': 'app.js.map'
         });
 
-      nock(host).get('/static/app.js.map').reply(200, '{"version": 3}');
+      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
       validate(url, function(errors) {
         assert.equal(errors.length, 0);
@@ -103,14 +113,28 @@ describe('validate', function() {
     });
   });
 
-  it('should report a source map file that does not parse', function(done) {
+  it('should report a source map file that is no valid JSON', function(done) {
     nock(host).get(path).reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, '!@#(!*@#(*&@');
 
     validate(url, function(errors) {
       assert.equal(errors.length, 1);
+      assert.equal(errors[0].constructor, InvalidJSONError);
+      assert.equal(errors[0].message, 'Does not parse as JSON: Unexpected token ! in JSON at position 0')
+      done();
+    });
+  });
+
+  it('should report a source map file that does not parse as a Source Map', function(done) {
+    nock(host).get(path).reply(200, '//#sourceMappingURL=app.js.map');
+
+    nock(host).get('/static/app.js.map').reply(200, '{"version":"3"}');
+
+    validate(url, function(errors) {
+      assert.equal(errors.length, 1);
       assert.equal(errors[0].constructor, InvalidSourceMapFormatError);
+      assert.equal(errors[0].message, 'Invalid SourceMap format: "sources" is a required argument.')
       done();
     });
   });
