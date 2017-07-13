@@ -43,7 +43,7 @@ class Report extends Component {
   }
 
   render() {
-    const {reportUrl, report} = this.state;
+    const {report} = this.state;
     return !report
       ? <Loader />
       : <div>
