@@ -23,13 +23,19 @@ function getSourceMapLocation(response, body) {
     return null;
   }
 
-  const last = lines[lines.length - 1];
-  const match = last.match(/sourceMappingURL\=(\S+)$/);
-  if (!match) {
-    return null;
+  // consider anything in last 5 lines; browsers and tools like sentry.io
+  // are similarly generous
+  const last = lines.slice(-5);
+  const DIRECTIVE_RE = /sourceMappingURL\=(\S+)$/;
+
+  let line, match;
+  while (last.length) {
+    line = last.pop();
+    match = line.match(DIRECTIVE_RE);
+    if (match) return match[1];
   }
 
-  return match[1];
+  return null;
 }
 
 function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
@@ -60,11 +66,11 @@ function getSourceFile(url, callback) {
 
     const resolvedSourceMappingURL = resolveSourceMappingURL(url, sourceMappingURL);
 
-    getSourceMap(resolvedSourceMappingURL, function(sourceMapErrors) {
+    getSourceMap(resolvedSourceMappingURL, function(sourceMapErrors, sources) {
       if (sourceMapErrors && sourceMapErrors.length) {
         errors.push.apply(errors, sourceMapErrors);
       }
-      callback(errors);
+      callback(errors, sources);
     });
   });
 }
@@ -93,11 +99,11 @@ function getSourceMap(url, callback) {
     try {
       sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
     } catch (err) {
-      errors.push(new InvalidSourceMapFormatError(url, err))
+      errors.push(new InvalidSourceMapFormatError(url, err));
       return void callback(errors);
     }
 
-    callback(errors);
+    callback(errors, sourceMapConsumer.sources);
   });
 }
 

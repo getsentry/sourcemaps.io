@@ -3,15 +3,6 @@ const assert = require('assert');
 
 const validate = require('../lib/validate');
 
-const RAW_SOURCE_MAP = JSON.stringify({
-  version: 3,
-  file: 'min.js',
-  names: ['bar', 'baz', 'n'],
-  sources: ['one.js', 'two.js'],
-  sourceRoot: 'http://example.com/www/js/',
-  mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
-});
-
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
@@ -24,14 +15,27 @@ const host = 'https://example.org';
 const path = '/static/app.js';
 const url = `${host}${path}`;
 
+const RAW_SOURCE_MAP = JSON.stringify({
+  version: 3,
+  file: 'min.js',
+  names: ['bar', 'baz', 'n'],
+  sources: ['one.js', 'two.js'],
+  sourceRoot: `${host}/static/`,
+  mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
+});
+
 describe('validate', function() {
   it('should download both source files and source maps', function(done) {
     nock(host).get(path).reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-    validate(url, function(errors) {
+    validate(url, function(errors, sources) {
       assert.equal(errors.length, 0);
+      assert.deepEqual(sources, [
+        `${host}/static/one.js`, // note: source-map resolves these
+        `${host}/static/two.js`
+      ]);
       done();
     });
   });
@@ -50,6 +54,18 @@ describe('validate', function() {
       });
     });
 
+    it('should locate sourceMappingURLs that aren\'t on the last line', function(done) {
+      nock(host)
+        .get(path)
+        .reply(200, '//#sourceMappingURL=app.js.map\n\n');
+
+      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+
+      validate(url, function(errors) {
+        assert.equal(errors.length, 0);
+        done();
+      });
+    });
     it('should resolve SourceMap headers', function(done) {
       nock(host)
         .get(path)
