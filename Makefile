@@ -8,6 +8,13 @@ build:
 	npm install --prefix ./client
 	npm run build --prefix ./client
 
+# Required environment variables
+#
+# GCLOUD_PROJECT - project id
+# GCLOUD_APP_BUCKET - google cloud functions staging bucket id
+# GCLOUD_DATA_BUCKET - report storage (JSON) bucket id
+# GCLOUD_WWW_BUCKET - static website deployment bucket id
+
 deploy: build
 	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > config.json
 	gcloud config set project ${GCLOUD_PROJECT}
