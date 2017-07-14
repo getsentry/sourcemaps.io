@@ -4,7 +4,7 @@ _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-v
 
 ![image](https://user-images.githubusercontent.com/2153/28230025-2d1c756e-689a-11e7-8e57-e1078820103c.png)
 
-[sourcemaps.io](https://sourcemaps.io) is a web application that takes a URL for a target transpiled/minified JavaScript file (e.g. `https://example.com/js/app.min.js`), and verifies:
+[sourcemaps.io](http://v2.sourcemaps.io) is a web application that takes a URL for a target transpiled/minified JavaScript file (e.g. `https://example.com/js/app.min.js`), and verifies:
 
 * `sourceMappingURL` or `[X-]SourceMap` header is present
 * Both the transiled/minified file and source map file are reachable via HTTP
@@ -30,7 +30,7 @@ make server
 
 ## Deploy to Google Cloud Platform
 
-This repository is already configured to automatically deploy to https://sourcemaps.io. But for posterity, this documents how to configure your own Google Cloud deployment environment and how to use the deploy scripts.
+This repository is already configured to automatically deploy to http://v2.sourcemaps.io. But for posterity, this documents how to configure your own Google Cloud deployment environment and how to use the deploy scripts.
 
 ### Configure your Project
 
