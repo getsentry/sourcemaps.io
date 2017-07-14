@@ -11,6 +11,11 @@ try {
   throw new Error('Missing config.json; see README');
 }
 
+if (config.SENTRY_DSN) {
+  const Raven = require('raven');
+  Raven.config(config.SENTRY_DSN).install();
+}
+
 const storage = Storage({
   projectId: config.PROJECT
 });

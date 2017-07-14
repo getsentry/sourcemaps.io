@@ -58,7 +58,7 @@ deploy-data: deploy-config
 
 # Deploy server[less] code
 deploy-server: deploy-config
-	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > server/config.json
+	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}","SENTRY_DSN":"${SENTRY_DSN}"}' > server/config.json
 	gcloud beta functions deploy ${GCLOUD_FN_NAME} --local-path server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
