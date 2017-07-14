@@ -1,4 +1,4 @@
-.PHONY: test test-install server build deploy
+.PHONY: test test-install server build-www deploy-config deploy-www deploy-reports deploy-server deploy
 
 GCLOUD_FN_NAME=validateSourceFile
 GCLOUD_REGION=us-central1
@@ -44,6 +44,9 @@ deploy-www: build-www
 	gsutil -m rsync -R -d client/build gs://${GCLOUD_WWW_BUCKET}
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_WWW_BUCKET}
 
+deploy-data:
+	gsutil acl ch -u AllUsers:R gs://${GCLOUD_DATA_BUCKET}
+
 # Deploy server[less] code
 deploy-server:
 	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > server/config.json
@@ -52,4 +55,4 @@ deploy-server:
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 
 # Deploy all
-deploy: build-www deploy-config deploy-server deploy-www
+deploy: build-www deploy-config deploy-server deploy-data deploy-www
