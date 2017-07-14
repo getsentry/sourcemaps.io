@@ -12,6 +12,9 @@ jobs:
       script:
         - make test
     - stage: deploy
+      branches:
+        only:
+          - master
       language: python
       env:
         - TRAVIS_NODE_VERSION="6" PATH=$PATH:${HOME}/google-cloud-sdk/bin
