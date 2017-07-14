@@ -21,8 +21,7 @@ make test
 ### Run a local server for client (React) development
 
 ```bash
-REACT_APP_VALIDATE_URL="https://us-central1-sourcemapsio.cloudfunctions.net/validateSourceFile" \
-  make server
+make server
 ```
 
 **NOTE:** Right now there is no local backend server for local development. When working in React, you will be communicating with the deployed, production server.
