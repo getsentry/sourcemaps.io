@@ -19,7 +19,7 @@ install:
 - npm install --prefix ./server
 - gcloud config set project sourcemapsio
 - cd server
-- echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_BUCKET}"}' > config.json
+- echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > config.json
 script:
 - npm test
-- gcloud beta functions deploy validateSourceFile --stage-bucket ${GCLOUD_PROJECT} --trigger-http
+- gcloud beta functions deploy validateSourceFile --stage-bucket ${GCLOUR_APP_BUCKET} --trigger-http
