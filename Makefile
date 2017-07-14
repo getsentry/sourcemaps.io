@@ -41,7 +41,7 @@ deploy-config:
 
 # Deploy static website
 deploy-www: build-www
-	gsutil rsync -R client/build gs://${GCLOUD_WWW_BUCKET}
+	gsutil -m rsync -R -d client/build gs://${GCLOUD_WWW_BUCKET}
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_WWW_BUCKET}
 
 # Deploy server[less] code
