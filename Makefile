@@ -1,5 +1,7 @@
-.PHONY: test test-install server build-www deploy-config deploy-www deploy-reports deploy-server deploy
+.PHONY: test test-install server build-www deploy-config deploy-www deploy-data deploy-server deploy
 
+# default to sourcemaps.io production values
+#
 GCLOUD_FN_NAME=validateSourceFile
 GCLOUD_REGION=us-central1
 REACT_APP_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
@@ -30,28 +32,35 @@ server:
 #   GCLOUD_WWW_BUCKET - static website deployment bucket id
 
 # Create a production build of the React www app intended
-# for deployment (see deploy)
+# for deployment (see deploy-www)
 build-www:
 	npm install --prefix ./client
 	REACT_APP_VALIDATE_URL=${REACT_APP_VALIDATE_URL} \
 		npm run build --prefix ./client
 
 deploy-config:
+	@echo "GCLOUD_PROJECT: ${GCLOUD_PROJECT}"
+	@echo "GCLOUD_REGION: ${GCLOUD_REGION}"
+	@echo "GCLOUD_FN_NAME: ${GCLOUD_FN_NAME}"
+	@echo "GCLOUD_APP_BUCKET: ${GCLOUD_APP_BUCKET}"
+	@echo "GCLOUD_DATA_BUCKET: ${GCLOUD_DATA_BUCKET}"
+	@echo "GCLOUD_WWW_BUCKET: ${GCLOUD_WWW_BUCKET}"
 	gcloud config set project ${GCLOUD_PROJECT}
 
 # Deploy static website
-deploy-www: build-www
+deploy-www: deploy-config build-www
 	gsutil -m rsync -R -d client/build gs://${GCLOUD_WWW_BUCKET}
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_WWW_BUCKET}
 
-deploy-data:
+# Deploy reports (basically just set perms)
+deploy-data: deploy-config
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_DATA_BUCKET}
 
 # Deploy server[less] code
-deploy-server:
+deploy-server: deploy-config
 	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > server/config.json
 	gcloud beta functions deploy ${GCLOUD_FN_NAME} --local-path server \
-		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http
+		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 
 # Deploy all

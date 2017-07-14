@@ -6,7 +6,7 @@ let config = null;
 try {
   // NOTE: this must use `require` (vs fs.readFile[Sync]) or gcloud
   //       won't transfer config.json as part of a function deployment
-  config = require('./config.json');
+  config = require(__dirname + '/config.json');
 } catch (e) {
   throw new Error('Missing config.json; see README');
 }
