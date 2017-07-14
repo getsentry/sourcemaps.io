@@ -1,7 +1,14 @@
-language: node_js
+sudo: false
+language: python
+cache:
+  directories:
+  - "$HOME/google-cloud-sdk/"
+env:
+  - TRAVIS_NODE_VERSION="6"
+  - GAE_PYTHONPATH=${HOME}/.cache/google_appengine PATH=$PATH:${HOME}/google-cloud-sdk/bin PYTHONPATH=${PYTHONPATH}:${GAE_PYTHONPATH} CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
 install:
-  - cd server && npm install
-node_js:
-  - "6"
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
+  - npm install --prefix ./server
 script:
-  - npm test
+  - npm test --prefix ./server
