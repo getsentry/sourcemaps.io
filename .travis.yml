@@ -22,6 +22,7 @@ jobs:
         - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
           && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
           install $TRAVIS_NODE_VERSION
+        - ls -l "${HOME}/google-cloud-sdk"
         - if [ ! -d "${HOME}/google-cloud-sdk" ]; then
             curl https://sdk.cloud.google.com | bash;
           fi
