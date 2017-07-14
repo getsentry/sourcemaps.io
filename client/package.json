@@ -1,6 +1,4 @@
 {
-  "name": "client",
-  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "query-string": "^4.3.4",
