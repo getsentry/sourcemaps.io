@@ -2,7 +2,6 @@ sudo: false
 cache:
   directories:
     - node_modules
-    - "$HOME/google-cloud-sdk/"
 language: python
 env:
   - TRAVIS_NODE_VERSION="6" GAE_PYTHONPATH=${HOME}/.cache/google_appengine PATH=$PATH:${HOME}/google-cloud-sdk/bin
