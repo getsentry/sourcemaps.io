@@ -18,7 +18,8 @@ install:
   install $TRAVIS_NODE_VERSION
 - npm install --prefix ./server
 - gcloud config set project sourcemapsio
-script:
 - cd server
+- echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_BUCKET}"}' > config.json
+script:
 - npm test
-- gcloud beta functions deploy validateSourceFile --stage-bucket sourcemapsio-app --trigger-http
+- gcloud beta functions deploy validateSourceFile --stage-bucket ${GCLOUD_PROJECT} --trigger-http
