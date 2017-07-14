@@ -4,7 +4,7 @@ _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-v
 
 [sourcemaps.io](https://sourcemaps.io) is a web application that takes a URL for a target transpiled/minified JavaScript file (e.g. `https://example.com/js/app.min.js`), and verifies:
 
-* `sourceMappingURL` or `[X-]SourceMap` are present
+* `sourceMappingURL` or `[X-]SourceMap` header is present
 * Both the transiled/minified file and source map file are reachable via HTTP
 * The resolved source map is valid JSON, and parses using Mozilla's [source-map](https://github.com/mozilla/source-map) library
 * Lines and columns line up as expected
