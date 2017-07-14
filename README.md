@@ -2,6 +2,8 @@
 
 _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-validator) using React, Node, and Google Cloud Functions._
 
+![image](https://user-images.githubusercontent.com/2153/28230025-2d1c756e-689a-11e7-8e57-e1078820103c.png)
+
 [sourcemaps.io](https://sourcemaps.io) is a web application that takes a URL for a target transpiled/minified JavaScript file (e.g. `https://example.com/js/app.min.js`), and verifies:
 
 * `sourceMappingURL` or `[X-]SourceMap` header is present
