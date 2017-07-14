@@ -1,24 +1,40 @@
+.PHONY: test test-install server build deploy
+
+GCLOUD_FN_NAME=validateSourceFile
+GCLOUD_REGION=us-central1
+REACT_APP_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
+
+# Run unit tests
 test: test-install
 	npm test --prefix ./server
 
 test-install:
 	npm install --prefix ./server
 
-build:
+# Launch a local development server for working on the
+# React www app (points at deployed/production validation fn)
+server:
+	REACT_APP_VALIDATE_URL=${REACT_APP_VALIDATE_URL} \
+		npm run start --prefix ./client
+
+# Create a production build of the React www app intended
+# for deployment (see deploy)
+build-www:
 	npm install --prefix ./client
-	npm run build --prefix ./client
+	REACT_APP_VALIDATE_URL=${REACT_APP_VALIDATE_URL} \
+		npm run build --prefix ./client
 
-# Required environment variables
+# Deploy to google cloud
 #
-# GCLOUD_PROJECT - project id
-# GCLOUD_APP_BUCKET - google cloud functions staging bucket id
-# GCLOUD_DATA_BUCKET - report storage (JSON) bucket id
-# GCLOUD_WWW_BUCKET - static website deployment bucket id
-
-deploy: build
+# Required environment variables for deployment:
+#   GCLOUD_PROJECT - project id
+#   GCLOUD_APP_BUCKET - google cloud functions staging bucket id
+#   GCLOUD_DATA_BUCKET - report storage (JSON) bucket id
+#   GCLOUD_WWW_BUCKET - static website deployment bucket id
+deploy: build-www
 	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > server/config.json
 	gcloud config set project ${GCLOUD_PROJECT}
-	gcloud beta functions deploy validateSourceFile --local-path server \
+	gcloud beta functions deploy ${GCLOUD_FN_NAME} --local-path server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 	gsutil rsync -R client/build gs://${GCLOUD_WWW_BUCKET}
