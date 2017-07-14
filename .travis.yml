@@ -26,13 +26,5 @@ jobs:
         - tar -xzf credentials.tar.gz
         - mkdir -p lib
         - gcloud auth activate-service-account --key-file client-secret.json
-      install:
-
-        - gcloud config set project ${GCLOUD_PROJECT}
-        - echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}"}' > config.json
-        - npm install --prefix ./client
       script:
         - make deploy
-        - gcloud beta functions deploy validateSourceFile --stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http
-        - npm run build --prefix ./client
-        - gsutil rsync -R client/build gs://$GCLOUD_WWW_BUCKET
