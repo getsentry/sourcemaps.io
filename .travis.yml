@@ -1,4 +1,7 @@
 sudo: false
+cache:
+  directories:
+    - "$HOME/google-cloud-sdk"
 jobs:
   include:
     - stage: test
