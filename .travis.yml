@@ -19,4 +19,6 @@ install:
 - npm install --prefix ./server
 - gcloud config set project sourcemapsio
 script:
-- npm test --prefix ./server
+- cd server
+- npm test
+- gcloud beta functions deploy validateSourceFile --stage-bucket sourcemapsio-app --trigger-http
