@@ -7,7 +7,9 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 if (process.env.REACT_APP_SENTRY_DSN) {
-  Raven.config(process.env.REACT_APP_SENTRY_DSN).install();
+  Raven.config(process.env.REACT_APP_SENTRY_DSN, {
+      release: process.env.REACT_APP_GIT_SHA
+  }).install();
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));

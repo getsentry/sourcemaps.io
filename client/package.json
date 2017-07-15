@@ -12,8 +12,8 @@
     "react-scripts": "1.0.10"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts start",
+    "build": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
