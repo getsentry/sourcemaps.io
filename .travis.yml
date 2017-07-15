@@ -31,4 +31,4 @@ jobs:
           install $TRAVIS_NODE_VERSION
       script:
         - make deploy
-        - ./travis/sentry-release.sh
+        - .travis/sentry-release.sh
