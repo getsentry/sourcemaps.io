@@ -47,11 +47,27 @@ function InvalidSourceMapFormatError(url, error) {
   this.resolutions = ['Everything is broken. Is this really a Source Map?'];
 }
 
+function BadTokenError(source, options) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  this.source = source;
+
+  const {token, expected, line, column} = options;
+  this.token = token;
+  this.expected = expected;
+  this.line = line;
+  this.column = column;
+
+  this.message = 'Mismatched token in source map';
+  this.resolutions = [];
+}
+
 module.exports = {
   SourceMapNotFoundError: SourceMapNotFoundError,
   UnableToFetchError: UnableToFetchError,
   UnableToFetchMinifiedError: UnableToFetchMinifiedError,
   UnableToFetchSourceMapError: UnableToFetchSourceMapError,
   InvalidSourceMapFormatError: InvalidSourceMapFormatError,
-  InvalidJSONError: InvalidJSONError
+  InvalidJSONError: InvalidJSONError,
+  BadTokenError: BadTokenError
 };

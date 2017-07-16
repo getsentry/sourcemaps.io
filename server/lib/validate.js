@@ -7,8 +7,54 @@ const {
   UnableToFetchMinifiedError,
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
-  InvalidJSONError
+  InvalidJSONError,
+  BadTokenError
 } = require('./errors');
+
+function validateMappings(sourceMapConsumer) {
+  const sourceCache = {};
+  const errors = [];
+
+  sourceMapConsumer.eachMapping(function(mapping) {
+    // If we don't have a token name for this mapping, skip
+    if (!mapping.name) {
+      return;
+    }
+
+    const {source} = mapping;
+    let sourceLines;
+    if (sourceCache.hasOwnProperty(source)) {
+      sourceLines = sourceCache[source];
+    } else {
+      const sourceContent = sourceMapConsumer.sourceContentFor(mapping.source);
+      if (!sourceContent) {
+        // TODO: blow up
+        return;
+      }
+      sourceLines = sourceContent.split(/\n/);
+      sourceCache[mapping.source] = sourceLines;
+    }
+
+    let origLine;
+    try {
+      origLine = sourceLines[mapping.originalLine - 1];
+    } catch (e) {
+      // TODO: line/col/source info
+      console.log('no line found');
+    }
+
+    const sourceToken = origLine.slice(mapping.originalColumn, mapping.originalColumn + mapping.name.length); //mapping.name.length);
+    if (sourceToken.trim() !== mapping.name) {
+      errors.push(new BadTokenError(mapping.source, {
+        token: sourceToken,
+        expected: mapping.name,
+        line: mapping.originalLine,
+        column: mapping.originalColumn
+      }));
+    }
+  });
+  return errors;
+}
 
 function getSourceMapLocation(response, body) {
   // First, look for Source Map HTTP headers
@@ -102,6 +148,9 @@ function getSourceMap(url, callback) {
       errors.push(new InvalidSourceMapFormatError(url, err));
       return void callback(errors);
     }
+
+    let validateErrors = validateMappings(sourceMapConsumer);
+    errors.push.apply(errors, validateErrors);
 
     callback(errors, sourceMapConsumer.sources);
   });

@@ -5,6 +5,7 @@
     "raven": "^2.1.0",
     "request": "^2.81.0",
     "source-map": "^0.5.6",
+    "uglify-js": "^3.0.25",
     "url-join": "^2.0.2"
   },
   "devDependencies": {
@@ -12,6 +13,7 @@
     "nock": "^9.0.13"
   },
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha"
+    "test-build": "node build-fixtures.js",
+    "test": "npm run test-build && node_modules/mocha/bin/mocha"
   }
 }
