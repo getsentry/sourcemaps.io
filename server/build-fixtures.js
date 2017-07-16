@@ -7,8 +7,16 @@ const path = require('path');
 const UglifyJS = require('uglify-js');
 
 const fixtureDir = path.join(__dirname, 'test', 'fixtures');
-const outDir = path.join(fixtureDir, 'build');
+const buildDir = path.join(fixtureDir, 'build');
 const source = fs.readFileSync(path.join(fixtureDir, 'add.js'), 'utf8');
+
+try {
+  fs.mkdirSync(buildDir);
+} catch (e) {
+  if (!e.message.startsWith('EEXIST')) {
+    throw e;
+  }
+}
 
 /**
  * Little utility function to replace the last line of a Uglify-minfiied
@@ -36,8 +44,8 @@ let output = UglifyJS.minify(source, {
   }
 });
 
-fs.writeFileSync(path.join(outDir, 'add.dist.js'), output.code);
-fs.writeFileSync(path.join(outDir, 'add.dist.js.map'), output.map);
+fs.writeFileSync(path.join(buildDir, 'add.dist.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.dist.js.map'), output.map);
 
 //------------------------------------------------------
 // case 2: fuzzed input sourcesContent
@@ -52,5 +60,5 @@ sourceMap.sourcesContent = sourceMap.sourcesContent.map(source => {
 
 output.code = replaceSourceMappingURL(output.code, 'add.fuzzinput.js.map');
 
-fs.writeFileSync(path.join(outDir, 'add.fuzzinput.js'), output.code);
-fs.writeFileSync(path.join(outDir, 'add.fuzzinput.js.map'), JSON.stringify(sourceMap));
+fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js.map'), JSON.stringify(sourceMap));
