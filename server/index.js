@@ -1,4 +1,4 @@
-const validateSourceFile = require('./lib/validate');
+const {validateSourceFile} = require('./lib/validate');
 const Storage = require('@google-cloud/storage');
 
 let config = null;
@@ -41,7 +41,12 @@ exports.validateSourceFile = function(req, res) {
     const objectName = Date.now() + '_' + encodeURIComponent(url);
     const file = bucket.file(objectName);
 
-    const stream = file.createWriteStream();
+    const stream = file.createWriteStream({
+      gzip: true,
+      metadata: {
+        contentType: 'text/plain; charset=utf-8'
+      }
+    });
     stream.on('error', err => {
       res.status(500).send(err);
     });
@@ -60,6 +65,6 @@ exports.validateSourceFile = function(req, res) {
       sources: sources || [],
       warnings: [] // TODO
     };
-    stream.end(JSON.stringify(report), 'utf8');
+    stream.end(JSON.stringify(report));
   });
 };
