@@ -196,7 +196,7 @@ describe('validateSourceFile', function() {
         assert.equal(errors[0].constructor, BadTokenError);
         assert.equal(
           errors[0].message,
-          'Mismatched token in source map'
+          'Expected token not in correct location'
         );
         done();
       });
