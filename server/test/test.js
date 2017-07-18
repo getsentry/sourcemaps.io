@@ -3,7 +3,7 @@ const path = require('path');
 const nock = require('nock');
 const assert = require('assert');
 
-const validate = require('../lib/validate');
+const {validateSourceFile, validateMappings} = require('../lib/validate');
 
 const {
   SourceMapNotFoundError,
@@ -27,13 +27,13 @@ const RAW_SOURCE_MAP = JSON.stringify({
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 });
 
-describe('validate', function() {
+describe('validateSourceFile', function() {
   it('should download both source files and source maps', function(done) {
     nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-    validate(url, function(errors, sources) {
+    validateSourceFile(url, function(errors, sources) {
       assert.equal(errors.length, 0);
       assert.deepEqual(sources, [
         `${host}/static/one.js`, // note: source-map resolves these
@@ -51,7 +51,7 @@ describe('validate', function() {
 
       nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 0);
         done();
       });
@@ -62,7 +62,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 0);
         done();
       });
@@ -74,7 +74,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 0);
         done();
       });
@@ -87,7 +87,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 0);
         done();
       });
@@ -96,7 +96,7 @@ describe('validate', function() {
     it('should report missing sourceMappingURL', function(done) {
       nock(host).get(appPath).reply(200, 'function(){}();');
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, SourceMapNotFoundError);
         done();
@@ -108,7 +108,7 @@ describe('validate', function() {
     it('should report a source file does not return 200', function(done) {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchMinifiedError);
         done();
@@ -120,7 +120,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(401, 'Not Authenticated');
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchSourceMapError);
         done();
@@ -134,7 +134,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(200, '!@#(!*@#(*&@');
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidJSONError);
         assert.equal(
@@ -152,7 +152,7 @@ describe('validate', function() {
 
       nock(host).get('/static/app.js.map').reply(200, '{"version":"3"}');
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidSourceMapFormatError);
         assert.equal(
@@ -174,7 +174,7 @@ describe('validate', function() {
         .get('/static/add.dist.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 0);
         done();
       });
@@ -191,7 +191,7 @@ describe('validate', function() {
         .get('/static/add.fuzzinput.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validate(url, function(errors) {
+      validateSourceFile(url, function(errors) {
         assert.notEqual(errors.length, 0);
         assert.equal(errors[0].constructor, BadTokenError);
         assert.equal(
@@ -201,6 +201,31 @@ describe('validate', function() {
         done();
       });
     });
+  });
+});
+
+describe('validateMappings', function () {
+  it('should stop at 100 errors', function () {
+    let sourceMapConsumer = {
+      eachMapping: function (callback) {
+        // mock source map consumer with 200 entries;
+        // each one should fail
+        for (let i = 0; i < 200; i++) {
+          callback({
+            source: 'app.js',
+            name: 'foo',
+            originalLine: 10,
+            originalColumn: 10
+          })
+        }
+      },
+      sourceContentFor: function (source) {
+        return 'lol();';
+      }
+    }
+    // assert `validateMappings` stopped at 100 entries
+    const errors = validateMappings(sourceMapConsumer);
+    assert.equal(errors.length, 100);
   });
 });
 

@@ -1,5 +1,4 @@
-const fs = require('fs');
-const validate = require('./lib/validate');
+const validateSourceFile = require('./lib/validate');
 const Storage = require('@google-cloud/storage');
 
 let config = null;
@@ -35,7 +34,7 @@ exports.validateSourceFile = function(req, res) {
     res.status(500).send('URL not specified');
   }
 
-  validate(url, function(errors, sources) {
+  validateSourceFile(url, function(errors, sources) {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
