@@ -47,6 +47,18 @@ function InvalidSourceMapFormatError(url, error) {
   this.resolutions = ['Everything is broken. Is this really a Source Map?'];
 }
 
+function LineNotFoundError(source, options) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  this.source = source;
+
+  const {line, column} = options;
+  this.line = line;
+  this.column = column;
+  this.message = 'Line not found in source file';
+  this.resolutions = [];
+}
+
 function BadTokenError(source, options) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
@@ -58,16 +70,17 @@ function BadTokenError(source, options) {
   this.line = line;
   this.column = column;
 
-  this.message = 'Mismatched token in source map';
+  this.message = 'Expected token not in correct location';
   this.resolutions = [];
 }
 
 module.exports = {
-  SourceMapNotFoundError: SourceMapNotFoundError,
-  UnableToFetchError: UnableToFetchError,
-  UnableToFetchMinifiedError: UnableToFetchMinifiedError,
-  UnableToFetchSourceMapError: UnableToFetchSourceMapError,
-  InvalidSourceMapFormatError: InvalidSourceMapFormatError,
-  InvalidJSONError: InvalidJSONError,
-  BadTokenError: BadTokenError
+  SourceMapNotFoundError,
+  UnableToFetchError,
+  UnableToFetchMinifiedError,
+  UnableToFetchSourceMapError,
+  InvalidSourceMapFormatError,
+  InvalidJSONError,
+  LineNotFoundError,
+  BadTokenError
 };

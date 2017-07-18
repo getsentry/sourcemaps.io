@@ -8,14 +8,45 @@ const {
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
+  LineNotFoundError,
   BadTokenError
 } = require('./errors');
 
+const MAX_MAPPING_ERRORS = 100;
+
+function validateMapping(mapping, sourceLines) {
+  let origLine;
+  try {
+    origLine = sourceLines[mapping.originalLine - 1];
+  } catch (e) {
+  }
+
+  if (!origLine) {
+    return new LineNotFoundError(mapping.source, {
+      line: mapping.originalLine,
+      column: mapping.originalColumn
+    });
+  }
+
+  const sourceToken = origLine.slice(mapping.originalColumn, mapping.originalColumn + mapping.name.length); //mapping.name.length);
+  if (sourceToken.trim() !== mapping.name) {
+    return new BadTokenError(mapping.source, {
+      token: sourceToken,
+      expected: mapping.name,
+      line: mapping.originalLine,
+      column: mapping.originalColumn
+    });
+  }
+}
 function validateMappings(sourceMapConsumer) {
-  const sourceCache = {};
   const errors = [];
+  const sourceCache = {};
 
   sourceMapConsumer.eachMapping(function(mapping) {
+    if (errors.length >= MAX_MAPPING_ERRORS) {
+      return;
+    }
+
     // If we don't have a token name for this mapping, skip
     if (!mapping.name) {
       return;
@@ -35,22 +66,9 @@ function validateMappings(sourceMapConsumer) {
       sourceCache[mapping.source] = sourceLines;
     }
 
-    let origLine;
-    try {
-      origLine = sourceLines[mapping.originalLine - 1];
-    } catch (e) {
-      // TODO: line/col/source info
-      console.log('no line found');
-    }
-
-    const sourceToken = origLine.slice(mapping.originalColumn, mapping.originalColumn + mapping.name.length); //mapping.name.length);
-    if (sourceToken.trim() !== mapping.name) {
-      errors.push(new BadTokenError(mapping.source, {
-        token: sourceToken,
-        expected: mapping.name,
-        line: mapping.originalLine,
-        column: mapping.originalColumn
-      }));
+    const error = validateMapping(mapping, sourceLines);
+    if (error) {
+      errors.push(error);
     }
   });
   return errors;
@@ -91,7 +109,7 @@ function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
     : urljoin(urlBase, sourceMappingURL);
 }
 
-function getSourceFile(url, callback) {
+function validateSourceFile(url, callback) {
   const errors = [];
   request(url, function(error, response, body) {
     if (error) {
@@ -112,7 +130,7 @@ function getSourceFile(url, callback) {
 
     const resolvedSourceMappingURL = resolveSourceMappingURL(url, sourceMappingURL);
 
-    getSourceMap(resolvedSourceMappingURL, function(sourceMapErrors, sources) {
+    validateSourceMap(resolvedSourceMappingURL, function(sourceMapErrors, sources) {
       if (sourceMapErrors && sourceMapErrors.length) {
         errors.push.apply(errors, sourceMapErrors);
       }
@@ -121,7 +139,7 @@ function getSourceFile(url, callback) {
   });
 }
 
-function getSourceMap(url, callback) {
+function validateSourceMap(url, callback) {
   const errors = [];
   request(url, function(error, response, body) {
     if (error) {
@@ -156,4 +174,7 @@ function getSourceMap(url, callback) {
   });
 }
 
-module.exports = getSourceFile;
+module.exports = {
+  validateSourceFile,
+  validateMappings
+}
