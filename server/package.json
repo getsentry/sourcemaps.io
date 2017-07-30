@@ -8,12 +8,15 @@
     "url-join": "^2.0.2"
   },
   "devDependencies": {
+    "express": "^4.15.3",
     "mocha": "^3.4.2",
     "nock": "^9.0.13",
+    "nodemon": "^1.11.0",
     "uglify-js": "^3.0.25"
   },
   "scripts": {
     "test-build": "node build-fixtures.js",
-    "test": "npm run test-build && node_modules/mocha/bin/mocha"
+    "test": "npm run test-build && node_modules/mocha/bin/mocha",
+    "start": "node_modules/.bin/nodemon dev.js"
   }
 }
