@@ -8,14 +8,12 @@ REACT_APP_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions
 
 # Run unit tests
 test: test-install
+	node_modules/.bin/eslint server
 	npm test --prefix ./server
 
 test-install:
-	npm install --prefix ./server
-
-lint:
 	npm install
-	node_modules/.bin/eslint server
+	node_modules/.bin/lerna bootstrap
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)
