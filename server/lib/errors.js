@@ -50,7 +50,7 @@ function InvalidSourceMapFormatError(url, error) {
 function ResourceTimeoutError(url, duration) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
-  this.message = `Resource timed out (exceeded ${duration}ms).`;
+  this.message = `Resource timed out (exceeded ${duration}ms): ${url}`;
   this.resolutions = ['Is your URL correct?'];
 }
 
