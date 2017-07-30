@@ -1,10 +1,12 @@
-.PHONY: test test-install lint server build-www deploy-config deploy-www deploy-data deploy-server deploy
+.PHONY: test test-install client-server backend-server build-www deploy-config deploy-www deploy-data deploy-server deploy
 
 # default to sourcemaps.io production values
 #
 GCLOUD_FN_NAME=validateSourceFile
 GCLOUD_REGION=us-central1
-REACT_APP_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
+GCLOUD_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
+LOCAL_VALIDATE_URL=http://127.0.0.1:3001/${GCLOUD_FN_NAME}
+
 
 # Run unit tests
 test: test-install
@@ -17,9 +19,12 @@ test-install:
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)
-server:
-	REACT_APP_VALIDATE_URL=${REACT_APP_VALIDATE_URL} \
+client-server: test-install
+	REACT_APP_VALIDATE_URL=${LOCAL_VALIDATE_URL} \
 		npm run start --prefix ./client
+
+backend-server: test-install deploy-config
+	npm run start --prefix ./server
 
 #------------------------------------------------------------------
 # Deploy recipes (to Google Cloud Platform)
@@ -48,6 +53,7 @@ deploy-config:
 	@echo "GCLOUD_DATA_BUCKET: ${GCLOUD_DATA_BUCKET}"
 	@echo "GCLOUD_WWW_BUCKET: ${GCLOUD_WWW_BUCKET}"
 	gcloud config set project ${GCLOUD_PROJECT}
+	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}","SENTRY_DSN":"${SENTRY_DSN}"}' > server/config.json
 
 # Deploy static website
 deploy-www: deploy-config build-www
@@ -61,7 +67,6 @@ deploy-data: deploy-config
 
 # Deploy server[less] code
 deploy-server: deploy-config
-	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}","SENTRY_DSN":"${SENTRY_DSN}"}' > server/config.json
 	gcloud beta functions deploy ${GCLOUD_FN_NAME} --local-path server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}

@@ -23,10 +23,24 @@ make test
 ### Run a local server for client (React) development
 
 ```bash
-make server
+make client-server
 ```
 
-**NOTE:** Right now there is no local backend server for local development. When working in React, you will be communicating with the deployed, production server.
+### Run a local server for backend development
+
+A local development server will serve the validation function for development.
+
+```bash
+make backend-server
+```
+
+**NOTE:** Right now the local server still writes JSON reports to a production Google Cloud Storage bucket. You must have the following shell variables exported (see _Deploy to Google Cloud Platform_ below).
+
+```
+export GCLOUD_PROJECT=myproject-server
+export GCLOUD_DATA_BUCKET=myproject-reports
+make backend-server
+```
 
 ## Deploy to Google Cloud Platform
 
