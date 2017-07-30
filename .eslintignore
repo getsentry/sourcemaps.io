@@ -1,0 +1,3 @@
+**/node_modules
+server/test/fixtures/add.js
+server/test/fixtures/build

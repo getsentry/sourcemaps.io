@@ -9,6 +9,8 @@
     "comma-dangle": ["error", {
       "arrays": "never"
     }],
-    "func-names": 0
+    "func-names": 0,
+    "consistent-return": ["error", {"treatUndefinedAsUnspecified": true}],
+    "no-void": 0
   }
 }
