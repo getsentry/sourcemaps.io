@@ -1,4 +1,4 @@
-.PHONY: test test-install server build-www deploy-config deploy-www deploy-data deploy-server deploy
+.PHONY: test test-install lint server build-www deploy-config deploy-www deploy-data deploy-server deploy
 
 # default to sourcemaps.io production values
 #
@@ -12,6 +12,10 @@ test: test-install
 
 test-install:
 	npm install --prefix ./server
+
+lint:
+	npm install
+	node_modules/.bin/eslint server
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)

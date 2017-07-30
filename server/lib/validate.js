@@ -122,7 +122,7 @@ function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
 
 function validateSourceFile(url, callback) {
   const errors = [];
-  request(url, {timeout: MAX_TIMEOUT}, function(error, response, body) {
+  request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
         errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));
@@ -158,7 +158,7 @@ function validateSourceFile(url, callback) {
 
 function validateSourceMap(url, callback) {
   const errors = [];
-  request(url, {timeout: MAX_TIMEOUT}, function(error, response, body) {
+  request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
         errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));

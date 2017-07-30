@@ -10,6 +10,7 @@ jobs:
       node_js:
         - "6"
       script:
+        - make lint
         - make test
     - stage: deploy
       language: python
