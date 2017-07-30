@@ -4,29 +4,34 @@ import queryString from 'query-string';
 import Loader from './Loader';
 
 function Entry(props) {
-  let {name, message, resolutions} = props;
+  const {name, message, resolutions} = props;
+
+  const htmlMessage = message.replace(/(https?\S+)/g, '<a href="$1">$1</a>');
   return (
     <li key={name}>
       <h4>
         {name}
       </h4>
-      <p>
-        {message}
-      </p>
+      <p dangerouslySetInnerHTML={{__html: htmlMessage}} />
       {resolutions &&
         <div>
           <h5>Resolutions</h5>
           <ul>
             {resolutions.map((res, i) =>
-              <li key={i}>
-                {res}
-              </li>
+              <li key={i} dangerouslySetInnerHTML={{__html: res}} />
             )}
           </ul>
         </div>}
     </li>
   );
 }
+
+Entry.propTypes = {
+  name: React.propTypes.string,
+  message: React.propTypes.string,
+  resolutions: React.propTypes.array
+};
+
 class Report extends Component {
   constructor(props) {
     super(props);
@@ -35,8 +40,8 @@ class Report extends Component {
   }
 
   componentDidMount() {
-    fetch(this.state.reportUrl).then(response => {
-      response.json().then(report => {
+    fetch(this.state.reportUrl).then((response) => {
+      response.json().then((report) => {
         this.setState({report});
       });
     });
@@ -47,11 +52,11 @@ class Report extends Component {
     return !report
       ? <Loader />
       : <div>
-          <h1>Report</h1>
-          {report &&
+        <h1>Report</h1>
+        {report &&
             <div>
               <p>
-                {report.url}
+                <a href={report.url}>{report.url}</a>
               </p>
               <h3>Sources</h3>
               <ul>
@@ -70,8 +75,12 @@ class Report extends Component {
                 {report.warnings.length ? report.warnings.map(Entry) : <span>No warnings</span>}
               </ul>
             </div>}
-        </div>;
+      </div>;
   }
 }
+
+Report.propTypes = {
+  location: React.propTypes.object
+};
 
 export default Report;
