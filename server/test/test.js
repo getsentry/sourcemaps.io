@@ -30,8 +30,7 @@ const RAW_SOURCE_MAP = JSON.stringify({
 
 describe('validateSourceFile', function() {
   it('should download both source files and source maps', function(done) {
-    nock(host).get(appPath)
-      .reply(200, '//#sourceMappingURL=app.js.map');
+    nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
@@ -115,8 +114,23 @@ describe('validateSourceFile', function() {
       validateSourceFile(url, function(errors) {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
+        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js')
         done();
       });
+    });
+
+    it('should report a source map that times out', function(done) {
+      this.timeout(6000);
+
+      nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
+
+      nock(host).get('/static/app.js.map').socketDelay(5001).reply(200, RAW_SOURCE_MAP);
+      validateSourceFile(url, function(errors) {
+        assert.equal(errors.length, 1);
+        assert.equal(errors[0].constructor, ResourceTimeoutError);
+        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map')
+        done();
+      })
     });
 
     it('should report a source file does not return 200', function(done) {
@@ -208,20 +222,17 @@ describe('validateSourceFile', function() {
       validateSourceFile(url, function(errors) {
         assert.notEqual(errors.length, 0);
         assert.equal(errors[0].constructor, BadTokenError);
-        assert.equal(
-          errors[0].message,
-          'Expected token not in correct location'
-        );
+        assert.equal(errors[0].message, 'Expected token not in correct location');
         done();
       });
     });
   });
 });
 
-describe('validateMappings', function () {
-  it('should stop at 100 errors', function () {
+describe('validateMappings', function() {
+  it('should stop at 100 errors', function() {
     let sourceMapConsumer = {
-      eachMapping: function (callback) {
+      eachMapping: function(callback) {
         // mock source map consumer with 200 entries;
         // each one should fail
         for (let i = 0; i < 200; i++) {
@@ -230,13 +241,13 @@ describe('validateMappings', function () {
             name: 'foo',
             originalLine: 10,
             originalColumn: 10
-          })
+          });
         }
       },
-      sourceContentFor: function (source) {
+      sourceContentFor: function(source) {
         return 'lol();';
       }
-    }
+    };
     // assert `validateMappings` stopped at 100 entries
     const errors = validateMappings(sourceMapConsumer);
     assert.equal(errors.length, 100);

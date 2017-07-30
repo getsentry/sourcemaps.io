@@ -123,7 +123,7 @@ function validateSourceFile(url, callback) {
         return void callback(errors);
       }
 
-      return; // TODO: handle this
+      return void console.log(error);
     }
 
     if (response && response.statusCode !== 200) {
@@ -150,8 +150,12 @@ function validateSourceFile(url, callback) {
 
 function validateSourceMap(url, callback) {
   const errors = [];
-  request(url, function(error, response, body) {
+  request(url, {timeout: MAX_TIMEOUT}, function(error, response, body) {
     if (error) {
+      if (error.message === 'ESOCKETTIMEDOUT') {
+        errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));
+        return void callback(errors);
+      }
       return void console.log(error);
     }
 
