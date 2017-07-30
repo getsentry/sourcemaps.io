@@ -21,7 +21,9 @@ function validateMapping(mapping, sourceLines) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
-  } catch (e) {}
+  } catch (e) {
+    /** eslint no-empty:0 */
+  }
 
   if (!origLine) {
     return new LineNotFoundError(mapping.source, {
@@ -33,7 +35,8 @@ function validateMapping(mapping, sourceLines) {
   const sourceToken = origLine.slice(
     mapping.originalColumn,
     mapping.originalColumn + mapping.name.length
-  ); //mapping.name.length);
+  );
+
   if (sourceToken.trim() !== mapping.name) {
     return new BadTokenError(mapping.source, {
       token: sourceToken,
@@ -42,12 +45,13 @@ function validateMapping(mapping, sourceLines) {
       column: mapping.originalColumn
     });
   }
+  return null;
 }
 function validateMappings(sourceMapConsumer) {
   const errors = [];
   const sourceCache = {};
 
-  sourceMapConsumer.eachMapping(function(mapping) {
+  sourceMapConsumer.eachMapping((mapping) => {
     if (errors.length >= MAX_MAPPING_ERRORS) {
       return;
     }
@@ -59,7 +63,7 @@ function validateMappings(sourceMapConsumer) {
 
     const {source} = mapping;
     let sourceLines;
-    if (sourceCache.hasOwnProperty(source)) {
+    if ({}.hasOwnProperty.call(sourceCache, source)) {
       sourceLines = sourceCache[source];
     } else {
       const sourceContent = sourceMapConsumer.sourceContentFor(mapping.source);
@@ -82,7 +86,7 @@ function validateMappings(sourceMapConsumer) {
 function getSourceMapLocation(response, body) {
   // First, look for Source Map HTTP headers
   const sourceMapHeader =
-    response.headers['x-sourcemap'] || response.headers['sourcemap'];
+    response.headers['x-sourcemap'] || response.headers.sourcemap;
 
   if (sourceMapHeader) return sourceMapHeader;
 
@@ -95,9 +99,11 @@ function getSourceMapLocation(response, body) {
   // consider anything in last 5 lines; browsers and tools like sentry.io
   // are similarly generous
   const last = lines.slice(-5);
-  const DIRECTIVE_RE = /sourceMappingURL\=(\S+)$/;
+  const DIRECTIVE_RE = /sourceMappingURL=(\S+)$/;
 
-  let line, match;
+  let line;
+  let match;
+
   while (last.length) {
     line = last.pop();
     match = line.match(DIRECTIVE_RE);
@@ -108,7 +114,7 @@ function getSourceMapLocation(response, body) {
 }
 
 function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
-  const urlBase = sourceUrl.replace(/\/[^\/]+$/, '');
+  const urlBase = sourceUrl.replace(/\/[^/]+$/, '');
   return sourceMappingURL.startsWith('http')
     ? sourceMappingURL
     : urljoin(urlBase, sourceMappingURL);
@@ -128,20 +134,22 @@ function validateSourceFile(url, callback) {
 
     if (response && response.statusCode !== 200) {
       errors.push(new UnableToFetchMinifiedError(url));
-      return void callback(errors);
+      callback(errors);
+      return;
     }
 
     const sourceMappingURL = getSourceMapLocation(response, body);
     if (!sourceMappingURL) {
       errors.push(new SourceMapNotFoundError(url));
-      return void callback(errors);
+      callback(errors);
+      return;
     }
 
     const resolvedSourceMappingURL = resolveSourceMappingURL(url, sourceMappingURL);
 
-    validateSourceMap(resolvedSourceMappingURL, function(sourceMapErrors, sources) {
+    validateSourceMap(resolvedSourceMappingURL, (sourceMapErrors, sources) => {
       if (sourceMapErrors && sourceMapErrors.length) {
-        errors.push.apply(errors, sourceMapErrors);
+        errors.push(...sourceMapErrors);
       }
       callback(errors, sources);
     });
@@ -161,7 +169,8 @@ function validateSourceMap(url, callback) {
 
     if (response && response.statusCode !== 200) {
       errors.push(new UnableToFetchSourceMapError(url));
-      return void callback(errors);
+      callback(errors);
+      return;
     }
 
     let rawSourceMap;
@@ -169,7 +178,8 @@ function validateSourceMap(url, callback) {
       rawSourceMap = JSON.parse(body);
     } catch (err) {
       errors.push(new InvalidJSONError(url, err));
-      return void callback(errors);
+      callback(errors);
+      return;
     }
 
     let sourceMapConsumer;
@@ -177,11 +187,11 @@ function validateSourceMap(url, callback) {
       sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
     } catch (err) {
       errors.push(new InvalidSourceMapFormatError(url, err));
-      return void callback(errors);
+      callback(errors);
     }
 
-    let validateErrors = validateMappings(sourceMapConsumer);
-    errors.push.apply(errors, validateErrors);
+    const validateErrors = validateMappings(sourceMapConsumer);
+    errors.push(...validateErrors);
 
     callback(errors, sourceMapConsumer.sources);
   });

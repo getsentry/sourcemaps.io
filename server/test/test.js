@@ -28,13 +28,13 @@ const RAW_SOURCE_MAP = JSON.stringify({
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 });
 
-describe('validateSourceFile', function() {
-  it('should download both source files and source maps', function(done) {
+describe('validateSourceFile', () => {
+  it('should download both source files and source maps', (done) => {
     nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-    validateSourceFile(url, function(errors, sources) {
+    validateSourceFile(url, (errors, sources) => {
       assert.equal(errors.length, 0);
       assert.deepEqual(sources, [
         `${host}/static/one.js`, // note: source-map resolves these
@@ -44,60 +44,60 @@ describe('validateSourceFile', function() {
     });
   });
 
-  describe('source map location', function() {
-    it('should resolve absolute sourceMappingURLs', function(done) {
+  describe('source map location', () => {
+    it('should resolve absolute sourceMappingURLs', (done) => {
       nock(host)
         .get(appPath)
         .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
 
       nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
     });
 
-    it("should locate sourceMappingURLs that aren't on the last line", function(done) {
+    it("should locate sourceMappingURLs that aren't on the last line", (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map\n\n');
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
     });
-    it('should resolve SourceMap headers', function(done) {
+    it('should resolve SourceMap headers', (done) => {
       nock(host).get(appPath).reply(200, 'function(){}();', {
         SourceMap: 'app.js.map'
       });
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
     });
 
-    it('should resolve X-SourceMap headers', function(done) {
+    it('should resolve X-SourceMap headers', (done) => {
       nock(host).get(appPath).reply(200, 'function(){}();', {
         'X-SourceMap': 'app.js.map'
       });
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
     });
 
-    it('should report missing sourceMappingURL', function(done) {
+    it('should report missing sourceMappingURL', (done) => {
       nock(host).get(appPath).reply(200, 'function(){}();');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, SourceMapNotFoundError);
         done();
@@ -136,19 +136,19 @@ describe('validateSourceFile', function() {
     it('should report a source file does not return 200', function(done) {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchMinifiedError);
         done();
       });
     });
 
-    it('should report a source map file does not return 200', function(done) {
+    it('should report a source map file does not return 200', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').reply(401, 'Not Authenticated');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchSourceMapError);
         done();
@@ -156,13 +156,13 @@ describe('validateSourceFile', function() {
     });
   }); // http failures
 
-  describe('parsing failures', function() {
-    it('should report a source map file that is no valid JSON', function(done) {
+  describe('parsing failures', () => {
+    it('should report a source map file that is no valid JSON', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').reply(200, '!@#(!*@#(*&@');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidJSONError);
         assert.equal(
@@ -173,14 +173,14 @@ describe('validateSourceFile', function() {
       });
     });
 
-    it('should report a source map file that does not parse as a Source Map', function(
+    it('should report a source map file that does not parse as a Source Map', (
       done
-    ) {
+    ) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').reply(200, '{"version":"3"}');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidSourceMapFormatError);
         assert.equal(
@@ -192,8 +192,8 @@ describe('validateSourceFile', function() {
     });
   }); // parsing failures
 
-  describe('mappings', function() {
-    it('should parse and validate every mapping', function(done) {
+  describe('mappings', () => {
+    it('should parse and validate every mapping', (done) => {
       const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.dist.js');
       const mapFilePath = `${minFilePath}.map`;
 
@@ -202,15 +202,15 @@ describe('validateSourceFile', function() {
         .get('/static/add.dist.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
     });
 
-    it("should detect invalid mappings where tokens don't match source content", function(
+    it("should detect invalid mappings where tokens don't match source content", (
       done
-    ) {
+    ) => {
       const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzinput.js');
       const mapFilePath = `${minFilePath}.map`;
 
@@ -219,7 +219,7 @@ describe('validateSourceFile', function() {
         .get('/static/add.fuzzinput.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.notEqual(errors.length, 0);
         assert.equal(errors[0].constructor, BadTokenError);
         assert.equal(errors[0].message, 'Expected token not in correct location');
@@ -254,8 +254,8 @@ describe('validateMappings', function() {
   });
 });
 
-describe('errors', function() {
-  it('should stringify nicely', function() {
+describe('errors', () => {
+  it('should stringify nicely', () => {
     assert.deepEqual(JSON.parse(JSON.stringify(new SourceMapNotFoundError(url))), {
       name: 'SourceMapNotFoundError',
       message: 'Unable to locate a SourceMap in https://example.org/static/app.js',
