@@ -15,12 +15,12 @@ function UnableToFetchError(url) {
 }
 
 function UnableToFetchMinifiedError(url) {
-  UnableToFetchError.call(this);
+  UnableToFetchError.call(this, url);
   this.resolutions = ['Is your URL correct?'];
 }
 
 function UnableToFetchSourceMapError(url) {
-  UnableToFetchError.call(this);
+  UnableToFetchError.call(this, url);
   this.resolutions = ['SourceMap declaration found, but could not load the file.'];
 }
 

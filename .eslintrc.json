@@ -1,0 +1,14 @@
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "global-require": 0,
+    "object-curly-spacing": 0,
+    "no-use-before-define": 0,
+    "no-plusplus": 0,
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/test/*.js"]}],
+    "comma-dangle": ["error", {
+      "arrays": "never"
+    }],
+    "func-names": 0
+  }
+}
