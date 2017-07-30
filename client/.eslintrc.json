@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "../.eslintrc.json",
+    "plugin:react/recommended"
+  ],
+  "plugins": [
+    "react"
+  ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "browser": true
+  },
+  "globals": {
+    "React": false
+  },
+  "rules": {
+     "react/jsx-uses-vars": 1
+  }
+}
