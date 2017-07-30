@@ -57,7 +57,7 @@ exports.validateSourceFile = function (req, res) {
         // need to encode a second time for inclusion as a URL
         `https://storage.googleapis.com/${config.STORAGE_BUCKET}/${encodeURIComponent(
           objectName,
-        )}`,
+        )}`
       );
     });
 

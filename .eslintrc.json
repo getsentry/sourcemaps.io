@@ -7,7 +7,8 @@
     "no-plusplus": 0,
     "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/test/*.js"]}],
     "comma-dangle": ["error", {
-      "arrays": "never"
+      "arrays": "ignore",
+      "functions": "ignore"
     }],
     "func-names": 0,
     "consistent-return": ["error", {"treatUndefinedAsUnspecified": true}],
