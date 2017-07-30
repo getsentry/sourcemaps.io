@@ -2,6 +2,8 @@ const request = require('request');
 const urljoin = require('url-join');
 const {SourceMapConsumer} = require('source-map');
 
+const MAX_TIMEOUT = 5000;
+
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
@@ -9,7 +11,8 @@ const {
   InvalidSourceMapFormatError,
   InvalidJSONError,
   LineNotFoundError,
-  BadTokenError
+  BadTokenError,
+  ResourceTimeoutError
 } = require('./errors');
 
 const MAX_MAPPING_ERRORS = 100;
@@ -18,8 +21,7 @@ function validateMapping(mapping, sourceLines) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
-  } catch (e) {
-  }
+  } catch (e) {}
 
   if (!origLine) {
     return new LineNotFoundError(mapping.source, {
@@ -28,7 +30,10 @@ function validateMapping(mapping, sourceLines) {
     });
   }
 
-  const sourceToken = origLine.slice(mapping.originalColumn, mapping.originalColumn + mapping.name.length); //mapping.name.length);
+  const sourceToken = origLine.slice(
+    mapping.originalColumn,
+    mapping.originalColumn + mapping.name.length
+  ); //mapping.name.length);
   if (sourceToken.trim() !== mapping.name) {
     return new BadTokenError(mapping.source, {
       token: sourceToken,
@@ -111,10 +116,14 @@ function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
 
 function validateSourceFile(url, callback) {
   const errors = [];
-  request(url, function(error, response, body) {
+  request(url, {timeout: MAX_TIMEOUT}, function(error, response, body) {
     if (error) {
-      console.log(error);
-      return;
+      if (error.message === 'ESOCKETTIMEDOUT') {
+        errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));
+        return void callback(errors);
+      }
+
+      return; // TODO: handle this
     }
 
     if (response && response.statusCode !== 200) {
@@ -177,4 +186,4 @@ function validateSourceMap(url, callback) {
 module.exports = {
   validateSourceFile,
   validateMappings
-}
+};

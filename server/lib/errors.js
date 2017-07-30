@@ -16,7 +16,7 @@ function UnableToFetchError(url) {
 
 function UnableToFetchMinifiedError(url) {
   UnableToFetchError.call(this);
-  this.resolutions = ['Is your url correct?'];
+  this.resolutions = ['Is your URL correct?'];
 }
 
 function UnableToFetchSourceMapError(url) {
@@ -38,13 +38,20 @@ function InvalidJSONError(url, error) {
 function InvalidSourceMapFormatError(url, error) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
-  let message = `Invalid SourceMap format`;
+  let message = 'Invalid SourceMap format';
   if (error && error.message) {
     message += `: ${error.message}`;
   }
   this.message = message;
 
   this.resolutions = ['Everything is broken. Is this really a Source Map?'];
+}
+
+function ResourceTimeoutError(url, duration) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  this.message = `Resource timed out (exceeded ${duration}ms).`;
+  this.resolutions = ['Is your URL correct?'];
 }
 
 function LineNotFoundError(source, options) {
@@ -82,5 +89,6 @@ module.exports = {
   InvalidSourceMapFormatError,
   InvalidJSONError,
   LineNotFoundError,
-  BadTokenError
+  BadTokenError,
+  ResourceTimeoutError
 };
