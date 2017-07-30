@@ -11,7 +11,8 @@ const {
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
-  BadTokenError
+  BadTokenError,
+  ResourceTimeoutError
 } = require('../lib/errors');
 
 const host = 'https://example.org';
@@ -29,7 +30,8 @@ const RAW_SOURCE_MAP = JSON.stringify({
 
 describe('validateSourceFile', function() {
   it('should download both source files and source maps', function(done) {
-    nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
+    nock(host).get(appPath)
+      .reply(200, '//#sourceMappingURL=app.js.map');
 
     nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
@@ -105,6 +107,18 @@ describe('validateSourceFile', function() {
   }); // source map location
 
   describe('http failures', function() {
+    it('should report a source file that times out', function(done) {
+      this.timeout(6000);
+
+      nock(host).get(appPath).socketDelay(5001).reply(200, '<html></html>');
+
+      validateSourceFile(url, function(errors) {
+        assert.equal(errors.length, 1);
+        assert.equal(errors[0].constructor, ResourceTimeoutError);
+        done();
+      });
+    });
+
     it('should report a source file does not return 200', function(done) {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
 
