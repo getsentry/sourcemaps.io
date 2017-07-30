@@ -105,35 +105,31 @@ describe('validateSourceFile', () => {
     });
   }); // source map location
 
-  describe('http failures', function() {
-    it('should report a source file that times out', function(done) {
-      this.timeout(6000);
-
+  describe('http failures', () => {
+    it('should report a source file that times out', (done) => {
       nock(host).get(appPath).socketDelay(5001).reply(200, '<html></html>');
 
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
-        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js')
+        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js');
         done();
       });
-    });
+    }).timeout(6000);
 
-    it('should report a source map that times out', function(done) {
-      this.timeout(6000);
-
+    it('should report a source map that times out', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').socketDelay(5001).reply(200, RAW_SOURCE_MAP);
-      validateSourceFile(url, function(errors) {
+      validateSourceFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
-        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map')
+        assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map');
         done();
-      })
-    });
+      });
+    }).timeout(6000);
 
-    it('should report a source file does not return 200', function(done) {
+    it('should report a source file does not return 200', (done) => {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
 
       validateSourceFile(url, (errors) => {
@@ -229,10 +225,10 @@ describe('validateSourceFile', () => {
   });
 });
 
-describe('validateMappings', function() {
-  it('should stop at 100 errors', function() {
-    let sourceMapConsumer = {
-      eachMapping: function(callback) {
+describe('validateMappings', () => {
+  it('should stop at 100 errors', () => {
+    const sourceMapConsumer = {
+      eachMapping(callback) {
         // mock source map consumer with 200 entries;
         // each one should fail
         for (let i = 0; i < 200; i++) {
@@ -244,7 +240,7 @@ describe('validateMappings', function() {
           });
         }
       },
-      sourceContentFor: function(source) {
+      sourceContentFor() {
         return 'lol();';
       }
     };
