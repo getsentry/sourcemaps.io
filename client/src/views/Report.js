@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
 import Loader from './Loader';
@@ -27,9 +28,9 @@ function Entry(props) {
 }
 
 Entry.propTypes = {
-  name: React.propTypes.string,
-  message: React.propTypes.string,
-  resolutions: React.propTypes.array
+  name: PropTypes.string,
+  message: PropTypes.string,
+  resolutions: PropTypes.array
 };
 
 class Report extends Component {
@@ -80,7 +81,7 @@ class Report extends Component {
 }
 
 Report.propTypes = {
-  location: React.propTypes.object
+  location: PropTypes.object
 };
 
 export default Report;
