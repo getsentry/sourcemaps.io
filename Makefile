@@ -15,7 +15,8 @@ test: test-install
 
 test-install:
 	npm install
-	node_modules/.bin/lerna bootstrap
+	npm install --prefix ./server
+	npm install --prefix ./client
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)
