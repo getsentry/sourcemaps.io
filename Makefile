@@ -43,7 +43,7 @@ backend-server: test-install deploy-config
 # for deployment (see deploy-www)
 build-www:
 	npm install --prefix ./client
-	REACT_APP_VALIDATE_URL=${REACT_APP_VALIDATE_URL} \
+	REACT_APP_VALIDATE_URL=${GCLOUD_VALIDATE_URL} \
 		npm run build --prefix ./client
 
 deploy-config:
