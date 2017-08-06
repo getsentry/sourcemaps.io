@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {withRouter} from 'react-router-dom';
 
 import Loader from './Loader';
@@ -8,7 +9,7 @@ const VALIDATE_URL = process.env.REACT_APP_VALIDATE_URL;
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
 function Example(props) {
-  let {name, url, version, onClick} = props;
+  const {name, url, version, onClick} = props;
   return (
     <li>
       <a href={url} onClick={onClick}>
@@ -17,6 +18,13 @@ function Example(props) {
     </li>
   );
 }
+
+Example.propTypes = {
+  name: PropTypes.string,
+  url: PropTypes.string,
+  version: PropTypes.version,
+  onClick: PropTypes.func
+};
 
 const EXAMPLES = [
   {
@@ -60,8 +68,8 @@ class Home extends Component {
 
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
-    }).then(response => {
-      response.text().then(reportUrl => {
+    }).then((response) => {
+      response.text().then((reportUrl) => {
         history.push(`/report?reportUrl=${encodeURIComponent(reportUrl)}`);
       });
     });
@@ -79,31 +87,35 @@ class Home extends Component {
     return this.state.loading
       ? <Loader />
       : <div>
-          <div className="row">
-            <form action="/validate" onSubmit={evt => this.handleSubmit(evt)}>
-              <div className="col-md-10 form-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  name="url"
-                  value={this.state.targetUrl}
-                  onChange={evt => this.setState({targetUrl: evt.target.value})}
-                  placeholder={TARGET_URL_PLACEHOLDER}
-                />
-              </div>
-              <div className="col-md-2">
-                <button className="btn btn-default">Validate</button>
-              </div>
-            </form>
-          </div>
-          <h2>Examples</h2>
-          <ul>
-            {EXAMPLES.map(ex =>
-              <Example {...ex} onClick={(evt) => this.handleExampleClick(evt, ex.url)} />
-            )}
-          </ul>
-        </div>;
+        <div className="row">
+          <form action="/validate" onSubmit={evt => this.handleSubmit(evt)}>
+            <div className="col-md-10 form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="url"
+                value={this.state.targetUrl}
+                onChange={evt => this.setState({targetUrl: evt.target.value})}
+                placeholder={TARGET_URL_PLACEHOLDER}
+              />
+            </div>
+            <div className="col-md-2">
+              <button className="btn btn-default">Validate</button>
+            </div>
+          </form>
+        </div>
+        <h2>Examples</h2>
+        <ul>
+          {EXAMPLES.map((ex, index) =>
+            <Example key={index} {...ex} onClick={evt => this.handleExampleClick(evt, ex.url)} />
+          )}
+        </ul>
+      </div>;
   }
 }
+
+Home.propTypes = {
+  history: PropTypes.object
+};
 
 export default withRouter(Home);

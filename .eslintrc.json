@@ -12,6 +12,7 @@
     }],
     "func-names": 0,
     "consistent-return": ["error", {"treatUndefinedAsUnspecified": true}],
-    "no-void": 0
+    "no-void": 0,
+    "class-methods-use-this" : 0
   }
 }

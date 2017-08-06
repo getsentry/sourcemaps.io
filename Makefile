@@ -10,7 +10,7 @@ LOCAL_VALIDATE_URL=http://127.0.0.1:3001/${GCLOUD_FN_NAME}
 
 # Run unit tests
 test: test-install
-	node_modules/.bin/eslint server
+	node_modules/.bin/eslint server client
 	npm test --prefix ./server
 
 test-install:
