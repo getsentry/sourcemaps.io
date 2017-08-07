@@ -60,7 +60,7 @@ exports.validateSourceFile = function (req, res) {
         )}`
       );
     });
-
+    console.log(errors);
     const report = {
       url,
       errors,

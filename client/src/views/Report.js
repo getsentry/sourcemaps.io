@@ -4,12 +4,12 @@ import queryString from 'query-string';
 
 import Loader from './Loader';
 
-function Entry(props) {
+function Entry(props, index) {
   const {name, message, resolutions} = props;
 
   const htmlMessage = message.replace(/(https?\S+)/g, '<a href="$1">$1</a>');
   return (
-    <li key={name}>
+    <li key={index}>
       <h4>
         {name}
       </h4>
@@ -23,14 +23,32 @@ function Entry(props) {
             )}
           </ul>
         </div>}
+      {'column' in props && 'line' in props &&
+        <div>
+          <div>
+            {props.source}, Line {props.line}, Column {props.column}
+          </div>
+          <div>
+            Expected <code>{props.expected}</code>
+          </div>
+          <div>
+            Got <code>{props.token}</code>
+          </div>
+        </div>
+      }
     </li>
   );
 }
 
 Entry.propTypes = {
-  name: PropTypes.string,
-  message: PropTypes.string,
-  resolutions: PropTypes.array
+  name: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  resolutions: PropTypes.array,
+  source: PropTypes.string,
+  column: PropTypes.number,
+  line: PropTypes.line,
+  expected: PropTypes.string,
+  token: PropTypes.string
 };
 
 class Report extends Component {
