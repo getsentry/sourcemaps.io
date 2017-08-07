@@ -37,7 +37,9 @@ function replaceSourceMappingURL(src, sourceMappingURL) {
 // end-to-end source map example with properly mapped
 // tokens and sourcesContent
 //------------------------------------------------------
-const output = UglifyJS.minify(source, {
+const output = UglifyJS.minify({
+  'add.js': source
+}, {
   sourceMap: {
     filename: 'add.dist.js',
     url: 'add.dist.js.map',
