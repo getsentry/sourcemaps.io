@@ -113,11 +113,11 @@ function getSourceMapLocation(response, body) {
   return null;
 }
 
-function resolveSourceMappingURL(sourceUrl, sourceMappingURL) {
-  const urlBase = sourceUrl.replace(/\/[^/]+$/, '');
-  return sourceMappingURL.startsWith('http')
-    ? sourceMappingURL
-    : urljoin(urlBase, sourceMappingURL);
+function resolveUrl(baseUrl, targetUrl) {
+  const urlBase = baseUrl.replace(/\/[^/]+$/, '');
+  return targetUrl.startsWith('http')
+    ? targetUrl
+    : urljoin(urlBase, targetUrl);
 }
 
 function validateSourceFile(url, callback) {
@@ -145,7 +145,7 @@ function validateSourceFile(url, callback) {
       return;
     }
 
-    const resolvedSourceMappingURL = resolveSourceMappingURL(url, sourceMappingURL);
+    const resolvedSourceMappingURL = resolveUrl(url, sourceMappingURL);
 
     validateSourceMap(resolvedSourceMappingURL, (sourceMapErrors, sources) => {
       if (sourceMapErrors && sourceMapErrors.length) {
@@ -156,19 +156,37 @@ function validateSourceFile(url, callback) {
   });
 }
 
-function validateSourceMap(url, callback) {
+function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
+  let resolvedUrl = sourceUrl;
+
+  if (rawSourceMap.sourceRoot !== undefined) {
+    resolvedUrl = rawSourceMap.sourceRoot + sourceUrl;
+  }
+
+  // From the spec:
+  //   If the sources are not absolute URLs after prepending of the “sourceRoot”,
+  //   the sources are resolved relative to the SourceMap (like resolving script
+  //   src in a html document).
+
+  if (!resolvedUrl.startsWith('http')) {
+    resolvedUrl = resolveUrl(sourceMapUrl, sourceUrl);
+  }
+  return resolvedUrl;
+}
+
+function validateSourceMap(sourceMapUrl, callback) {
   const errors = [];
-  request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
+  request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
-        errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));
+        errors.push(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
         return void callback(errors);
       }
       return void console.log(error);
     }
 
     if (response && response.statusCode !== 200) {
-      errors.push(new UnableToFetchSourceMapError(url));
+      errors.push(new UnableToFetchSourceMapError(sourceMapUrl));
       callback(errors);
       return;
     }
@@ -177,7 +195,7 @@ function validateSourceMap(url, callback) {
     try {
       rawSourceMap = JSON.parse(body);
     } catch (err) {
-      errors.push(new InvalidJSONError(url, err));
+      errors.push(new InvalidJSONError(sourceMapUrl, err));
       callback(errors);
       return;
     }
@@ -186,7 +204,7 @@ function validateSourceMap(url, callback) {
     try {
       sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
     } catch (err) {
-      errors.push(new InvalidSourceMapFormatError(url, err));
+      errors.push(new InvalidSourceMapFormatError(sourceMapUrl, err));
       callback(errors);
     }
 
@@ -195,12 +213,15 @@ function validateSourceMap(url, callback) {
 
     // Resolve source map sources relative to target URL
     // e.g. add.js => https://example.com/static/add.js
-    const resolvedSources = sourceMapConsumer.sources.map(sourceUrl => resolveSourceMappingURL(url, sourceUrl));
+    const resolvedSources = sourceMapConsumer.sources
+      .map(sourceUrl => resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap));
+
     callback(errors, resolvedSources);
   });
 }
 
 module.exports = {
   validateSourceFile,
-  validateMappings
+  validateMappings,
+  resolveSourceMapSource
 };

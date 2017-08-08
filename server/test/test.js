@@ -3,7 +3,7 @@ const path = require('path');
 const nock = require('nock');
 const assert = require('assert');
 
-const {validateSourceFile, validateMappings} = require('../lib/validate');
+const {validateSourceFile, validateMappings, resolveSourceMapSource} = require('../lib/validate');
 
 const {
   SourceMapNotFoundError,
@@ -19,14 +19,16 @@ const host = 'https://example.org';
 const appPath = '/static/app.js';
 const url = `${host}${appPath}`;
 
-const RAW_SOURCE_MAP = JSON.stringify({
+const OBJ_SOURCE_MAP = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
   sources: ['one.js', 'two.js'],
   sourceRoot: `${host}/static/`,
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
-});
+};
+
+const RAW_SOURCE_MAP = JSON.stringify(OBJ_SOURCE_MAP);
 
 describe('validateSourceFile', () => {
   it('should download both source files and source maps', (done) => {
@@ -247,6 +249,35 @@ describe('validateMappings', () => {
     // assert `validateMappings` stopped at 100 entries
     const errors = validateMappings(sourceMapConsumer);
     assert.equal(errors.length, 100);
+  });
+});
+
+describe('resolveSourceMapSource', () => {
+  it('should prepend sourceRoot if present', () => {
+    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    sourceMap.sourceRoot = 'https://example2.com/dist/';
+    assert.equal(
+      resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),
+      'https://example2.com/dist/one.js'
+    );
+  });
+
+  it('should resolve relative to source map URL if sourceRoot is absent', () => {
+    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    delete sourceMap.sourceRoot;
+    assert.equal(
+      resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),
+      `${host}/static/one.js`
+    );
+  });
+
+  it('should resolve relative to source map URL if resulting URL is not absolute', () => {
+    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    sourceMap.sourceRoot = '/some/path/'; // completely tossed out, according to spec
+    assert.equal(
+      resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),
+      `${host}/static/one.js`
+    );
   });
 });
 
