@@ -90,7 +90,7 @@ class Report extends Component {
                   {report.url}
                 </a>
               </p>
-              <h3>Sources</h3>
+              <h3>Sources <span className="badge badge-success">{report.sources.length}</span></h3>
               <ul>
                 {report.sources.map(src =>
                   <li key={src}>
@@ -98,15 +98,13 @@ class Report extends Component {
                   </li>
                 )}
               </ul>
-              <h3>Errors</h3>
+              <h3>Errors <span className="badge">{report.errors.length}</span></h3>
               <ul>
-                {report.errors.length ? report.errors.map(Entry) : <span>No errors</span>}
+                {report.errors.map(Entry)}
               </ul>
-              <h3>Warnings</h3>
+              <h3>Warnings <span className="badge">{report.warnings.length}</span></h3>
               <ul>
-                {report.warnings.length
-                  ? report.warnings.map(Entry)
-                  : <span>No warnings</span>}
+                {report.warnings.map(Entry)}
               </ul>
             </div>}
       </div>;
