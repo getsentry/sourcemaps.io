@@ -23,7 +23,8 @@ function Entry(props, index) {
             )}
           </ul>
         </div>}
-      {'column' in props && 'line' in props &&
+      {'column' in props &&
+        'line' in props &&
         <div>
           <div>
             {props.source}, Line {props.line}, Column {props.column}
@@ -34,8 +35,7 @@ function Entry(props, index) {
           <div>
             Got <code>{props.token}</code>
           </div>
-        </div>
-      }
+        </div>}
     </li>
   );
 }
@@ -66,16 +66,29 @@ class Report extends Component {
     });
   }
 
+  renderAlert() {
+    const {report} = this.state;
+    if (!report) return null;
+
+    return report.errors.length === 0
+      ? <div className="alert alert-success"><strong>Bingo.</strong> Everything looks good.</div>
+      : <div className="alert alert-danger"><strong>Ouch.</strong> Check the errors below.</div>;
+  }
+
   render() {
     const {report} = this.state;
+
     return !report
       ? <Loader />
       : <div>
+        {this.renderAlert()}
         <h1>Report</h1>
         {report &&
             <div>
               <p>
-                <a href={report.url}>{report.url}</a>
+                <a href={report.url}>
+                  {report.url}
+                </a>
               </p>
               <h3>Sources</h3>
               <ul>
@@ -91,7 +104,9 @@ class Report extends Component {
               </ul>
               <h3>Warnings</h3>
               <ul>
-                {report.warnings.length ? report.warnings.map(Entry) : <span>No warnings</span>}
+                {report.warnings.length
+                  ? report.warnings.map(Entry)
+                  : <span>No warnings</span>}
               </ul>
             </div>}
       </div>;
