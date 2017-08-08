@@ -159,7 +159,7 @@ function validateSourceFile(url, callback) {
 function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
   let resolvedUrl = sourceUrl;
 
-  if (rawSourceMap.sourceRoot !== undefined) {
+  if (!resolvedUrl.startsWith('http') && rawSourceMap.sourceRoot !== undefined) {
     resolvedUrl = rawSourceMap.sourceRoot + sourceUrl;
   }
 
