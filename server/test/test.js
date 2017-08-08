@@ -262,6 +262,15 @@ describe('resolveSourceMapSource', () => {
     );
   });
 
+  it('should not prepend sourceRoot if input URLs are absolute', () => {
+    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    sourceMap.sourceRoot = 'https://example2.com/dist/';
+    assert.equal(
+      resolveSourceMapSource('https://example3.com/dist/one.js', `${host}/static/app.min.js.map`, sourceMap),
+      'https://example3.com/dist/one.js'
+    );
+  });
+
   it('should resolve relative to source map URL if sourceRoot is absent', () => {
     const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
     delete sourceMap.sourceRoot;
