@@ -82,12 +82,12 @@ class Report extends Component {
       ? <Loader />
       : <div>
         {this.renderAlert()}
-        <h1>Report</h1>
+        <h2>Report</h2>
         {report &&
             <div>
               <p>
                 <a href={report.url}>
-                  {report.url}
+                  <h4>{report.url}</h4>
                 </a>
               </p>
               <h3>Sources <span className="badge badge-success">{report.sources.length}</span></h3>
