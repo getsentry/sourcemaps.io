@@ -193,7 +193,10 @@ function validateSourceMap(url, callback) {
     const validateErrors = validateMappings(sourceMapConsumer);
     errors.push(...validateErrors);
 
-    callback(errors, sourceMapConsumer.sources);
+    // Resolve source map sources relative to target URL
+    // e.g. add.js => https://example.com/static/add.js
+    const resolvedSources = sourceMapConsumer.sources.map(sourceUrl => resolveSourceMappingURL(url, sourceUrl));
+    callback(errors, resolvedSources);
   });
 }
 

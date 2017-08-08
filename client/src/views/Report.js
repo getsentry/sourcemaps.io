@@ -93,9 +93,7 @@ class Report extends Component {
               <h3>Sources <span className="badge badge-success">{report.sources.length}</span></h3>
               <ul>
                 {report.sources.map(src =>
-                  <li key={src}>
-                    {src}
-                  </li>
+                  <li key={src}><a href={src}>{src}</a></li>
                 )}
               </ul>
               <h3>Errors <span className="badge">{report.errors.length}</span></h3>
