@@ -12,11 +12,15 @@ function UnableToFetchError(url) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
   this.message = `Unable to fetch ${url}`;
+  this.resolutions = ['Is your URL correct?'];
+}
+
+function UnableToFetchSourceError(url) {
+  UnableToFetchError.call(this, url);
 }
 
 function UnableToFetchMinifiedError(url) {
   UnableToFetchError.call(this, url);
-  this.resolutions = ['Is your URL correct?'];
 }
 
 function UnableToFetchSourceMapError(url) {
@@ -85,6 +89,7 @@ module.exports = {
   SourceMapNotFoundError,
   UnableToFetchError,
   UnableToFetchMinifiedError,
+  UnableToFetchSourceError,
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
