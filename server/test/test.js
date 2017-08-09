@@ -8,6 +8,7 @@ const {validateTargetFile, validateMappings, resolveSourceMapSource} = require('
 
 const {
   SourceMapNotFoundError,
+  UnableToFetchSourceError,
   UnableToFetchMinifiedError,
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
@@ -20,7 +21,7 @@ const host = 'https://example.org';
 const appPath = '/static/app.js';
 const url = `${host}${appPath}`;
 
-const OBJ_SOURCE_MAP = {
+const DEFAULT_SOURCE_MAP = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
@@ -28,17 +29,25 @@ const OBJ_SOURCE_MAP = {
   sourceRoot: `${host}/static/`,
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
+const RAW_DEFAULT_SOURCE_MAP = JSON.stringify(DEFAULT_SOURCE_MAP);
 
 const ONE_JS = ' ONE.foo = function (bar) {\n   return baz(bar);\n };';
 const TWO_JS = ' TWO.inc = function (n) {\n   return n + 1;\n };';
 
-const RAW_SOURCE_MAP = JSON.stringify(OBJ_SOURCE_MAP);
+const INLINE_SOURCE_MAP = Object.assign(
+  {
+    sourcesContent: [ONE_JS, TWO_JS]
+  },
+  DEFAULT_SOURCE_MAP
+);
+const RAW_INLINE_SOURCE_MAP = JSON.stringify(INLINE_SOURCE_MAP);
+
 
 describe('validateTargetFile', () => {
   it('should download the target minified file, source maps, and external source files', (done) => {
     const scope = nock(host)
       .get(appPath).reply(200, '//#sourceMappingURL=app.js.map')
-      .get('/static/app.js.map').reply(200, RAW_SOURCE_MAP)
+      .get('/static/app.js.map').reply(200, RAW_DEFAULT_SOURCE_MAP)
       .get('/static/one.js').reply(200, ONE_JS)
       .get('/static/two.js').reply(200, TWO_JS);
 
@@ -61,7 +70,7 @@ describe('validateTargetFile', () => {
         .get(appPath)
         .reply(200, '//#sourceMappingURL=https://127.0.0.1:8000/static/app.js.map');
 
-      nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+      nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
 
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
@@ -72,7 +81,7 @@ describe('validateTargetFile', () => {
     it("should locate sourceMappingURLs that aren't on the last line", (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map\n\n');
 
-      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+      nock(host).get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
 
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
@@ -84,7 +93,7 @@ describe('validateTargetFile', () => {
         SourceMap: 'app.js.map'
       });
 
-      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+      nock(host).get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
 
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
@@ -97,7 +106,7 @@ describe('validateTargetFile', () => {
         'X-SourceMap': 'app.js.map'
       });
 
-      nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+      nock(host).get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
 
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
@@ -131,7 +140,7 @@ describe('validateTargetFile', () => {
     it('should report a source map that times out', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
-      nock(host).get('/static/app.js.map').socketDelay(5001).reply(200, RAW_SOURCE_MAP);
+      nock(host).get('/static/app.js.map').socketDelay(5001).reply(200, RAW_DEFAULT_SOURCE_MAP);
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
@@ -150,10 +159,6 @@ describe('validateTargetFile', () => {
       });
     });
 
-    // it('should report a source file that does not return 200', (done) => {
-    //   nock(host).get(`${host}/static/one.js`).reply(401, 'Not Authenticated');
-    // });
-
     it('should report a source map file does not return 200', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
@@ -162,6 +167,22 @@ describe('validateTargetFile', () => {
       validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchSourceMapError);
+        done();
+      });
+    });
+
+    it('should report a source file that does not return 200', (done) => {
+      const scope = nock(host)
+        .get(appPath).reply(200, '//#sourceMappingURL=app.js.map')
+        .get('/static/app.js.map').reply(200, RAW_DEFAULT_SOURCE_MAP)
+        .get('/static/one.js').reply(200, ONE_JS)
+        .get('/static/two.js').reply(401, 'Not authenticated');
+
+      validateTargetFile(url, (errors) => {
+        // verify all mocked requests satisfied
+        scope.done();
+        assert.equal(errors.length, 1);
+        assert.equal(errors[0].constructor, UnableToFetchSourceError);
         done();
       });
     });
@@ -269,7 +290,7 @@ describe('validateMappings', () => {
 
 describe('resolveSourceMapSource', () => {
   it('should prepend sourceRoot if present', () => {
-    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     sourceMap.sourceRoot = 'https://example2.com/dist/';
     assert.equal(
       resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),
@@ -278,7 +299,7 @@ describe('resolveSourceMapSource', () => {
   });
 
   it('should not prepend sourceRoot if input URLs are absolute', () => {
-    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     sourceMap.sourceRoot = 'https://example2.com/dist/';
     assert.equal(
       resolveSourceMapSource('https://example3.com/dist/one.js', `${host}/static/app.min.js.map`, sourceMap),
@@ -287,7 +308,7 @@ describe('resolveSourceMapSource', () => {
   });
 
   it('should resolve relative to source map URL if sourceRoot is absent', () => {
-    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     delete sourceMap.sourceRoot;
     assert.equal(
       resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),
@@ -296,7 +317,7 @@ describe('resolveSourceMapSource', () => {
   });
 
   it('should resolve relative to source map URL if resulting URL is not absolute', () => {
-    const sourceMap = Object.assign({}, OBJ_SOURCE_MAP);
+    const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     sourceMap.sourceRoot = '/some/path/'; // completely tossed out, according to spec
     assert.equal(
       resolveSourceMapSource('one.js', `${host}/static/app.min.js.map`, sourceMap),

@@ -9,6 +9,7 @@ const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   UnableToFetchSourceMapError,
+  UnableToFetchSourceError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
   LineNotFoundError,
@@ -226,9 +227,11 @@ function validateSourceMap(sourceMapUrl, callback) {
         return [sourceUrl, resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)];
       });
 
-    const validateMappingsCallback = (_sourceMapConsumer) => {
+    const validateMappingsCallback = (_sourceMapConsumer, validationErrors = []) => {
       const mappingErrors = validateMappings(_sourceMapConsumer);
+
       errors.push(...mappingErrors);
+      errors.push(...validationErrors);
 
       callback(errors, resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
     };
@@ -260,21 +263,25 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
         if (err) {
           console.log(err);
         }
+        if (response && response.statusCode !== 200) {
+          cb(null, new UnableToFetchSourceError(resolvedUrl));
+        }
         generator.setSourceContent(sourceUrl, body);
-        cb();
+        cb(null);
       });
     };
   });
 
   // TODO: explore parallelizing requests (want to make sure we don't accidentally
   // open 100+ connections and exhaust cloud function memory)
-  async.series(requests, (err) => {
+  async.series(requests, (err, validationErrors) => {
     if (err) {
       console.log(err);
     }
     // Generate the new source map consumer with updated sources
     const fullSourceMapConsumer = SourceMapConsumer(generator.toJSON());
-    callback(fullSourceMapConsumer);
+
+    callback(fullSourceMapConsumer, validationErrors.filter(_err => _err));
   });
 }
 
