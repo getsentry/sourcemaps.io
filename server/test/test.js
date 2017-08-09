@@ -1,9 +1,10 @@
+/* eslint newline-per-chained-call:0 */
 const fs = require('fs');
 const path = require('path');
 const nock = require('nock');
 const assert = require('assert');
 
-const {validateSourceFile, validateMappings, resolveSourceMapSource} = require('../lib/validate');
+const {validateTargetFile, validateMappings, resolveSourceMapSource} = require('../lib/validate');
 
 const {
   SourceMapNotFoundError,
@@ -28,15 +29,23 @@ const OBJ_SOURCE_MAP = {
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
 
+const ONE_JS = ' ONE.foo = function (bar) {\n   return baz(bar);\n };';
+const TWO_JS = ' TWO.inc = function (n) {\n   return n + 1;\n };';
+
 const RAW_SOURCE_MAP = JSON.stringify(OBJ_SOURCE_MAP);
 
-describe('validateSourceFile', () => {
-  it('should download both source files and source maps', (done) => {
-    nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
+describe('validateTargetFile', () => {
+  it('should download the target minified file, source maps, and external source files', (done) => {
+    const scope = nock(host)
+      .get(appPath).reply(200, '//#sourceMappingURL=app.js.map')
+      .get('/static/app.js.map').reply(200, RAW_SOURCE_MAP)
+      .get('/static/one.js').reply(200, ONE_JS)
+      .get('/static/two.js').reply(200, TWO_JS);
 
-    nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
+    validateTargetFile(url, (errors, sources) => {
+      // verify all mocked requests satisfied
+      scope.done();
 
-    validateSourceFile(url, (errors, sources) => {
       assert.equal(errors.length, 0);
       assert.deepEqual(sources, [
         `${host}/static/one.js`, // note: source-map resolves these
@@ -54,7 +63,7 @@ describe('validateSourceFile', () => {
 
       nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
@@ -65,7 +74,7 @@ describe('validateSourceFile', () => {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
@@ -77,7 +86,7 @@ describe('validateSourceFile', () => {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
@@ -90,7 +99,7 @@ describe('validateSourceFile', () => {
 
       nock(host).get('/static/app.js.map').reply(200, RAW_SOURCE_MAP);
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 0);
         done();
       });
@@ -99,7 +108,7 @@ describe('validateSourceFile', () => {
     it('should report missing sourceMappingURL', (done) => {
       nock(host).get(appPath).reply(200, 'function(){}();');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, SourceMapNotFoundError);
         done();
@@ -108,10 +117,10 @@ describe('validateSourceFile', () => {
   }); // source map location
 
   describe('http failures', () => {
-    it('should report a source file that times out', (done) => {
+    it('should report a target file that times out', (done) => {
       nock(host).get(appPath).socketDelay(5001).reply(200, '<html></html>');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
         assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js');
@@ -123,7 +132,7 @@ describe('validateSourceFile', () => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').socketDelay(5001).reply(200, RAW_SOURCE_MAP);
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, ResourceTimeoutError);
         assert.equal(errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map');
@@ -131,22 +140,26 @@ describe('validateSourceFile', () => {
       });
     }).timeout(6000);
 
-    it('should report a source file does not return 200', (done) => {
+    it('should report a target file does not return 200', (done) => {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchMinifiedError);
         done();
       });
     });
 
+    // it('should report a source file that does not return 200', (done) => {
+    //   nock(host).get(`${host}/static/one.js`).reply(401, 'Not Authenticated');
+    // });
+
     it('should report a source map file does not return 200', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
 
       nock(host).get('/static/app.js.map').reply(401, 'Not Authenticated');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, UnableToFetchSourceMapError);
         done();
@@ -160,7 +173,7 @@ describe('validateSourceFile', () => {
 
       nock(host).get('/static/app.js.map').reply(200, '!@#(!*@#(*&@');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidJSONError);
         assert.equal(
@@ -178,7 +191,7 @@ describe('validateSourceFile', () => {
 
       nock(host).get('/static/app.js.map').reply(200, '{"version":"3"}');
 
-      validateSourceFile(url, (errors) => {
+      validateTargetFile(url, (errors) => {
         assert.equal(errors.length, 1);
         assert.equal(errors[0].constructor, InvalidSourceMapFormatError);
         assert.equal(
@@ -191,37 +204,39 @@ describe('validateSourceFile', () => {
   }); // parsing failures
 
   describe('mappings', () => {
-    it('should parse and validate every mapping', (done) => {
-      const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.dist.js');
-      const mapFilePath = `${minFilePath}.map`;
+    describe('inline sources', () => {
+      it('should parse and validate every mapping', (done) => {
+        const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.inlineSources.js');
+        const mapFilePath = `${minFilePath}.map`;
 
-      nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
-      nock(host)
-        .get('/static/add.dist.js.map')
-        .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
+        nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
+        nock(host)
+          .get('/static/add.inlineSources.js.map')
+          .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateSourceFile(url, (errors) => {
-        assert.equal(errors.length, 0);
-        done();
+        validateTargetFile(url, (errors) => {
+          assert.equal(errors.length, 0);
+          done();
+        });
       });
-    });
 
-    it("should detect invalid mappings where tokens don't match source content", (
-      done
-    ) => {
-      const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzinput.js');
-      const mapFilePath = `${minFilePath}.map`;
+      it("should detect invalid mappings where tokens don't match source content", (
+        done
+      ) => {
+        const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzinput.js');
+        const mapFilePath = `${minFilePath}.map`;
 
-      nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
-      nock(host)
-        .get('/static/add.fuzzinput.js.map')
-        .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
+        nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
+        nock(host)
+          .get('/static/add.fuzzinput.js.map')
+          .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateSourceFile(url, (errors) => {
-        assert.notEqual(errors.length, 0);
-        assert.equal(errors[0].constructor, BadTokenError);
-        assert.equal(errors[0].message, 'Expected token not in correct location');
-        done();
+        validateTargetFile(url, (errors) => {
+          assert.notEqual(errors.length, 0);
+          assert.equal(errors[0].constructor, BadTokenError);
+          assert.equal(errors[0].message, 'Expected token not in correct location');
+          done();
+        });
       });
     });
   });
