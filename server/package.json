@@ -2,6 +2,7 @@
   "private": true,
   "dependencies": {
     "@google-cloud/storage": "^1.2.0",
+    "async": "^2.5.0",
     "raven": "^2.1.0",
     "request": "^2.81.0",
     "source-map": "^0.5.6",

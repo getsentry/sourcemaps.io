@@ -1,6 +1,7 @@
 const request = require('request');
+const async = require('async');
 const urljoin = require('url-join');
-const {SourceMapConsumer} = require('source-map');
+const {SourceMapConsumer, SourceMapGenerator} = require('source-map');
 
 const MAX_TIMEOUT = 5000;
 
@@ -120,7 +121,10 @@ function resolveUrl(baseUrl, targetUrl) {
     : urljoin(urlBase, targetUrl);
 }
 
-function validateSourceFile(url, callback) {
+/**
+ * Validates a target transpiled/minified file located at a given url
+ */
+function validateTargetFile(url, callback) {
   const errors = [];
   request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
@@ -174,6 +178,9 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
   return resolvedUrl;
 }
 
+/**
+ * Validates a source map located at the given url
+ */
 function validateSourceMap(sourceMapUrl, callback) {
   const errors = [];
   request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
@@ -208,20 +215,71 @@ function validateSourceMap(sourceMapUrl, callback) {
       callback(errors);
     }
 
-    const validateErrors = validateMappings(sourceMapConsumer);
-    errors.push(...validateErrors);
+    // Build array of tuples of [originalUrl, resolvedUrl] for each source
+    // [
+    //   ['add.js', 'https://example.com/static/add.js'],
+    //   ['sub.js', 'https://example.com/static/sub.js']
+    // ]
 
-    // Resolve source map sources relative to target URL
-    // e.g. add.js => https://example.com/static/add.js
     const resolvedSources = sourceMapConsumer.sources
-      .map(sourceUrl => resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap));
+      .map((sourceUrl) => {
+        return [sourceUrl, resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)];
+      });
 
-    callback(errors, resolvedSources);
+    const validateMappingsCallback = (_sourceMapConsumer) => {
+      const mappingErrors = validateMappings(_sourceMapConsumer);
+      errors.push(...mappingErrors);
+
+      callback(errors, resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
+    };
+
+    // If every source is inlined inside the source map, go directly to
+    // validate mappings ...
+    if (sourceMapConsumer.hasContentsOfAllSources()) {
+      return void validateMappingsCallback(sourceMapConsumer);
+    }
+
+    // ... otherwise, we need to fetch missing sources first.
+    fetchSources(sourceMapConsumer, resolvedSources, validateMappingsCallback);
+  });
+}
+
+function fetchSources(sourceMapConsumer, resolvedSources, callback) {
+  // We're going to generate a new source map consumer, building
+  // on top of the existing one
+  const generator = SourceMapGenerator.fromSourceMap(sourceMapConsumer);
+
+  // Figure out which sources we need to fetch
+  const missingSources = resolvedSources.filter(([sourceUrl]) => {
+    return !sourceMapConsumer.sourceContentFor(sourceUrl, true);
+  });
+
+  const requests = missingSources.map(([sourceUrl, resolvedUrl]) => {
+    return (cb) => {
+      request(resolvedUrl, {timeout: MAX_TIMEOUT}, (err, response, body) => {
+        if (err) {
+          console.log(err);
+        }
+        generator.setSourceContent(sourceUrl, body);
+        cb();
+      });
+    };
+  });
+
+  // TODO: explore parallelizing requests (want to make sure we don't accidentally
+  // open 100+ connections and exhaust cloud function memory)
+  async.series(requests, (err) => {
+    if (err) {
+      console.log(err);
+    }
+    // Generate the new source map consumer with updated sources
+    const fullSourceMapConsumer = SourceMapConsumer(generator.toJSON());
+    callback(fullSourceMapConsumer);
   });
 }
 
 module.exports = {
-  validateSourceFile,
+  validateTargetFile,
   validateMappings,
   resolveSourceMapSource
 };
