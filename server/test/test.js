@@ -324,6 +324,15 @@ describe('resolveSourceMapSource', () => {
       `${host}/static/one.js`
     );
   });
+
+  it('should leave webpack:/// urls as-is', () => {
+    const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
+    delete sourceMap.sourceRoot;
+    assert.equal(
+      resolveSourceMapSource('webpack:///one.js', `${host}/static/app.min.js.map`, sourceMap),
+      'webpack:///one.js'
+    );
+  });
 });
 
 describe('errors', () => {

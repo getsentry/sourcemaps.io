@@ -117,7 +117,7 @@ function getSourceMapLocation(response, body) {
 
 function resolveUrl(baseUrl, targetUrl) {
   const urlBase = baseUrl.replace(/\/[^/]+$/, '');
-  return targetUrl.startsWith('http')
+  return /^(https?|webpack|file):\/\//.test(targetUrl)
     ? targetUrl
     : urljoin(urlBase, targetUrl);
 }
