@@ -37,18 +37,18 @@ function replaceSourceMappingURL(src, sourceMappingURL) {
 // end-to-end source map example with properly mapped
 // tokens and sourcesContent
 //------------------------------------------------------
-const output = UglifyJS.minify({
+let output = UglifyJS.minify({
   'add.js': source
 }, {
   sourceMap: {
-    filename: 'add.dist.js',
-    url: 'add.dist.js.map',
+    filename: 'add.inlineSources.js',
+    url: 'add.inlineSources.js.map',
     includeSources: true
   }
 });
 
-fs.writeFileSync(path.join(buildDir, 'add.dist.js'), output.code);
-fs.writeFileSync(path.join(buildDir, 'add.dist.js.map'), output.map);
+fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js.map'), output.map);
 
 //------------------------------------------------------
 // case 2: fuzzed input sourcesContent
@@ -63,3 +63,22 @@ output.code = replaceSourceMappingURL(output.code, 'add.fuzzinput.js.map');
 
 fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js.map'), JSON.stringify(sourceMap));
+
+//------------------------------------------------------
+// case 3: no inline sources
+//------------------------------------------------------
+
+output = UglifyJS.minify({
+  'add.js': source
+}, {
+  sourceMap: {
+    filename: 'add.externals.js',
+    url: 'add.externals.js.map',
+    includeSources: false
+  }
+});
+
+fs.writeFileSync(path.join(buildDir, 'add.externals.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.externals.js.map'), output.map);
+fs.writeFileSync(path.join(buildDir, 'add.js'), source);
+
