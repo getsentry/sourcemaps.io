@@ -45,7 +45,7 @@ function validateMapping(mapping, sourceLines, generatedLines) {
     return null;
   }
 
-  const {originalColumn, generatedColumn} = mapping;
+  const {generatedColumn} = mapping;
 
 
   let generatedLine;
