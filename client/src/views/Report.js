@@ -4,6 +4,42 @@ import queryString from 'query-string';
 
 import Loader from './Loader';
 
+/**
+ * Error entry for token/mapping errors (includes source code context)
+ */
+function BadTokenEntry(props, index) {
+  const {source, expected, token, originalContext} = props;
+
+  return (
+    <li key={index}>
+      <div>
+        In <code>{source}</code>{':'} Expected <code>{expected}</code> but got <code>{token}</code> on L{props.line}{':'}{props.column}
+      </div>
+      <div>
+        <pre>
+          <ol start={originalContext[0][0]}>
+            {originalContext.map(([line, ctx]) =>
+              <li className={line === props.line ? 'active' : ''} key={line}>{ctx}</li>
+            )}
+          </ol>
+        </pre>
+      </div>
+    </li>
+  );
+}
+
+BadTokenEntry.propTypes = {
+  source: PropTypes.string.isRequired,
+  originalContext: PropTypes.array.isRequired,
+  expected: PropTypes.string.isRequired,
+  token: PropTypes.string.isRequired,
+  line: PropTypes.number.isRequired,
+  column: PropTypes.number.isRequired
+};
+
+/**
+ * Generic error entry
+ */
 function Entry(props, index) {
   const {name, message, resolutions} = props;
 
@@ -24,22 +60,6 @@ function Entry(props, index) {
               <li key={i} dangerouslySetInnerHTML={{__html: res}} />
             )}
           </ul>
-        </div>}
-      {'column' in props &&
-        'line' in props &&
-        <div>
-          <div>
-            In <code>{props.source}</code>{':'} Expected <code>{props.expected}</code> but got <code>{props.token}</code>
-          </div>
-          <div>
-            <pre>
-              <ol start={props.originalContext[0][0]}>
-                {props.originalContext.map(([line, ctx]) =>
-                  <li className={line === props.line ? 'active' : ''} key={line}>{ctx}</li>
-                )}
-              </ol>
-            </pre>
-          </div>
         </div>}
     </li>
   );
@@ -103,7 +123,9 @@ class Report extends Component {
               </ul>
               <h3>Errors <span className="badge">{report.errors.length}</span></h3>
               <ul>
-                {report.errors.map(Entry)}
+                {report.errors.map((err) => {
+                  return err.name === 'BadTokenError' ? BadTokenEntry(err) : Entry(err);
+                })}
               </ul>
               <h3>Warnings <span className="badge">{report.warnings.length}</span></h3>
               <ul>
