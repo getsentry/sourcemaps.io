@@ -14,6 +14,7 @@ const {
   InvalidJSONError,
   LineNotFoundError,
   BadTokenError,
+  BadContentError,
   ResourceTimeoutError
 } = require('./errors');
 
@@ -263,9 +264,16 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
         if (err) {
           console.log(err);
         }
-        if (response && response.statusCode !== 200) {
-          cb(null, new UnableToFetchSourceError(resolvedUrl));
+        if (!response || response.statusCode !== 200) {
+          return void cb(null, new UnableToFetchSourceError(resolvedUrl));
         }
+
+        // Did the source return HTML?
+        const bodyStart = body.slice(0, 200).trim();
+        if (/^<!doctype/i.test(bodyStart)) {
+          return void cb(null, new BadContentError(resolvedUrl));
+        }
+
         generator.setSourceContent(sourceUrl, body);
         cb(null);
       });

@@ -58,6 +58,16 @@ function ResourceTimeoutError(url, duration) {
   this.resolutions = ['Is your URL correct?'];
 }
 
+function BadContentError(url) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  this.message = `File is not JavaScript: ${url}`;
+  this.resolutions = [
+    'Is this URL accessible externally?',
+    'Is this URL accessible without a user session?'
+  ];
+}
+
 function LineNotFoundError(source, options) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
@@ -95,5 +105,6 @@ module.exports = {
   InvalidJSONError,
   LineNotFoundError,
   BadTokenError,
+  BadContentError,
   ResourceTimeoutError
 };

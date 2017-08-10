@@ -14,6 +14,7 @@ const {
   InvalidSourceMapFormatError,
   InvalidJSONError,
   BadTokenError,
+  BadContentError,
   ResourceTimeoutError
 } = require('../lib/errors');
 
@@ -223,6 +224,27 @@ describe('validateTargetFile', () => {
       });
     });
   }); // parsing failures
+
+  describe('content failures', () => {
+    it('should report source files that are not JavaScript', (done) => {
+      const scope = nock(host)
+        .get(appPath).reply(200, '//#sourceMappingURL=app.js.map')
+        .get('/static/app.js.map').reply(200, RAW_DEFAULT_SOURCE_MAP)
+        .get('/static/one.js').reply(200, ONE_JS)
+        .get('/static/two.js').reply(200, '         \n\n\n<!DOCTYPE html><html>lol</html>');
+
+      validateTargetFile(url, (errors) => {
+        scope.done();
+        assert.equal(errors.length, 1);
+        assert.equal(errors[0].constructor, BadContentError);
+        assert.equal(
+          errors[0].message,
+          'File is not JavaScript: https://example.org/static/two.js'
+        );
+        done();
+      });
+    });
+  });
 
   describe('mappings', () => {
     describe('inline sources', () => {
