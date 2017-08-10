@@ -7,14 +7,16 @@ import Loader from './Loader';
 function Entry(props, index) {
   const {name, message, resolutions} = props;
 
-  const htmlMessage = message.replace(/(https?\S+)/g, '<a href="$1">$1</a>');
+  const htmlMessage = (message || '').replace(/(https?\S+)/g, '<a href="$1">$1</a>');
   return (
     <li key={index}>
       <h4>
         {name}
       </h4>
-      <p dangerouslySetInnerHTML={{__html: htmlMessage}} />
-      {resolutions &&
+      {message &&
+        <p dangerouslySetInnerHTML={{__html: htmlMessage}} />
+      }
+      {resolutions && resolutions.length > 0 &&
         <div>
           <h5>Resolutions</h5>
           <ul>
@@ -27,13 +29,16 @@ function Entry(props, index) {
         'line' in props &&
         <div>
           <div>
-            {props.source}, Line {props.line}, Column {props.column}
+            In <code>{props.source}</code>{':'} Expected <code>{props.expected}</code> but got <code>{props.token}</code>
           </div>
           <div>
-            Expected <code>{props.expected}</code>
-          </div>
-          <div>
-            Got <code>{props.token}</code>
+            <pre>
+              <ol start={props.originalContext[0][0]}>
+                {props.originalContext.map(([line, ctx]) =>
+                  <li className={line === props.line ? 'active' : ''} key={line}>{ctx}</li>
+                )}
+              </ol>
+            </pre>
           </div>
         </div>}
     </li>
