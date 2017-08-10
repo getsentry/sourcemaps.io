@@ -85,9 +85,11 @@ function BadTokenError(source, options) {
   this.name = this.constructor.name;
   this.source = source;
 
-  const {token, expected, line, column} = options;
+  const {token, expected, originalContext, generatedContext, line, column} = options;
   this.token = token;
   this.expected = expected;
+  this.generatedContext = generatedContext;
+  this.originalContext = originalContext;
   this.line = line;
   this.column = column;
 

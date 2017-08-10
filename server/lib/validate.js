@@ -20,7 +20,7 @@ const {
 
 const MAX_MAPPING_ERRORS = 100;
 
-function validateMapping(mapping, sourceLines) {
+function validateMapping(mapping, sourceLines, generatedLines) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
@@ -40,17 +40,39 @@ function validateMapping(mapping, sourceLines) {
     mapping.originalColumn + mapping.name.length
   );
 
-  if (sourceToken.trim() !== mapping.name) {
-    return new BadTokenError(mapping.source, {
-      token: sourceToken,
-      expected: mapping.name,
-      line: mapping.originalLine,
-      column: mapping.originalColumn
-    });
+  // Token matches what we expect; everything looks good, bail out
+  if (sourceToken.trim() === mapping.name) {
+    return null;
   }
-  return null;
+
+  const {originalColumn, generatedColumn} = mapping;
+
+
+  let generatedLine;
+  try {
+    generatedLine = generatedLines[mapping.generatedLine - 1];
+  } catch (e) {} // eslint-disable-line no-empty
+
+  // Take 5 lines of original context
+  const contextLines = [];
+  for (let i = Math.max(mapping.originalLine - 3, 0); i < mapping.originalLine + 2 && i < sourceLines.length; i++) {
+    contextLines.push([i + 1, sourceLines[i]]);
+  }
+
+
+  // Take 100 chars of context around generated line
+  const generatedContext = generatedLine.slice(generatedColumn - 50, generatedColumn + 50);
+
+  return new BadTokenError(mapping.source, {
+    token: sourceToken,
+    originalContext: contextLines,
+    generatedContext,
+    expected: mapping.name,
+    line: mapping.originalLine,
+    column: mapping.originalColumn
+  });
 }
-function validateMappings(sourceMapConsumer) {
+function validateMappings(sourceMapConsumer, generatedLines) {
   const errors = [];
   const sourceCache = {};
 
@@ -78,7 +100,7 @@ function validateMappings(sourceMapConsumer) {
       sourceCache[mapping.source] = sourceLines;
     }
 
-    const error = validateMapping(mapping, sourceLines);
+    const error = validateMapping(mapping, sourceLines, generatedLines);
     if (error) {
       errors.push(error);
     }
@@ -153,7 +175,7 @@ function validateTargetFile(url, callback) {
 
     const resolvedSourceMappingURL = resolveUrl(url, sourceMappingURL);
 
-    validateSourceMap(resolvedSourceMappingURL, (sourceMapErrors, sources) => {
+    validateSourceMap(resolvedSourceMappingURL, response.body, (sourceMapErrors, sources) => {
       if (sourceMapErrors && sourceMapErrors.length) {
         errors.push(...sourceMapErrors);
       }
@@ -183,7 +205,7 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
 /**
  * Validates a source map located at the given url
  */
-function validateSourceMap(sourceMapUrl, callback) {
+function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   const errors = [];
   request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
@@ -229,7 +251,8 @@ function validateSourceMap(sourceMapUrl, callback) {
       });
 
     const validateMappingsCallback = (_sourceMapConsumer, validationErrors = []) => {
-      const mappingErrors = validateMappings(_sourceMapConsumer);
+      const generatedLines = generatedContent.split('\n');
+      const mappingErrors = validateMappings(_sourceMapConsumer, generatedLines);
 
       errors.push(...mappingErrors);
       errors.push(...validationErrors);
