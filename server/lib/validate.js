@@ -65,11 +65,15 @@ function validateMapping(mapping, sourceLines, generatedLines) {
 
   return new BadTokenError(mapping.source, {
     token: sourceToken,
-    originalContext: contextLines,
-    generatedContext,
     expected: mapping.name,
-    line: mapping.originalLine,
-    column: mapping.originalColumn
+    mapping: {
+      originalContext: contextLines,
+      originalLine: mapping.originalLine,
+      originalColumn: mapping.originalColumn,
+      generatedContext,
+      generatedLine: mapping.generatedLine,
+      generatedColumn: mapping.generatedColumn
+    }
   });
 }
 function validateMappings(sourceMapConsumer, generatedLines) {

@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
@@ -8,18 +9,41 @@ import Loader from './Loader';
  * Error entry for token/mapping errors (includes source code context)
  */
 function BadTokenEntry(props, index) {
-  const {source, expected, token, originalContext} = props;
-
+  const {source, expected, token, mapping} = props;
+  const {
+    originalContext,
+    originalLine,
+    originalColumn,
+    generatedColumn,
+    generatedLine
+  } = mapping;
   return (
     <li className="entry" key={index}>
+      <ReactTooltip id={`tt_${index}`} effect="solid">
+        Generated location: L{generatedLine}
+        {':'}
+        {generatedColumn}
+      </ReactTooltip>
       <p>
-        In <code>{source}</code>{':'} Expected <code>{expected}</code> but got <code>{token}</code> on L{props.line}{':'}{props.column}
+        In <code>{source}</code>
+        {':'} Expected <code>{expected}</code> but got <code>{token}</code> on{' '}
+        <span data-tip data-for={`tt_${index}`}>
+          L{originalLine}
+          {':'}
+          {originalColumn}
+        </span>
       </p>
       <div>
         <pre className="code">
           <ol start={originalContext[0][0]}>
             {originalContext.map(([line, ctx]) =>
-              <li className={line === props.line ? 'line line-active' : 'line'} key={line}><span>{ctx}</span></li>
+              <li
+                className={line === originalLine ? 'line line-active' : 'line'}
+                key={line}>
+                <span>
+                  {ctx}
+                </span>
+              </li>
             )}
           </ol>
         </pre>
@@ -30,11 +54,9 @@ function BadTokenEntry(props, index) {
 
 BadTokenEntry.propTypes = {
   source: PropTypes.string.isRequired,
-  originalContext: PropTypes.array.isRequired,
   expected: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
-  line: PropTypes.number.isRequired,
-  column: PropTypes.number.isRequired
+  mapping: PropTypes.object.isRequired
 };
 
 /**
@@ -49,10 +71,9 @@ function Entry(props, index) {
       <h4>
         {name}
       </h4>
-      {message &&
-        <p dangerouslySetInnerHTML={{__html: htmlMessage}} />
-      }
-      {resolutions && resolutions.length > 0 &&
+      {message && <p dangerouslySetInnerHTML={{__html: htmlMessage}} />}
+      {resolutions &&
+        resolutions.length > 0 &&
         <div>
           <h5>Resolutions</h5>
           <ul>
@@ -96,8 +117,12 @@ class Report extends Component {
     if (!report) return null;
 
     return report.errors.length === 0
-      ? <div className="alert alert-success"><strong>Bingo.</strong> Everything looks good.</div>
-      : <div className="alert alert-danger"><strong>Ouch.</strong> Check the errors below.</div>;
+      ? <div className="alert alert-success">
+        <strong>Bingo.</strong> Everything looks good.
+      </div>
+      : <div className="alert alert-danger">
+        <strong>Ouch.</strong> Check the errors below.
+      </div>;
   }
 
   render() {
@@ -108,26 +133,40 @@ class Report extends Component {
       : <div>
         {this.renderAlert()}
         <h2>Report</h2>
+
         {report &&
             <div>
               <p>
                 <a href={report.url}>
-                  <h4>{report.url}</h4>
+                  <h4>
+                    {report.url}
+                  </h4>
                 </a>
               </p>
-              <h3>Sources <span className="badge badge-success">{report.sources.length}</span></h3>
+              <h3>
+                Sources{' '}
+                <span className="badge badge-success">{report.sources.length}</span>
+              </h3>
               <ul>
                 {report.sources.map(src =>
-                  <li key={src}><a href={src}>{src}</a></li>
+                  <li key={src}>
+                    <a href={src}>
+                      {src}
+                    </a>
+                  </li>
                 )}
               </ul>
-              <h3>Errors <span className="badge">{report.errors.length}</span></h3>
+              <h3>
+                Errors <span className="badge">{report.errors.length}</span>
+              </h3>
               <ul>
-                {report.errors.map((err) => {
-                  return err.name === 'BadTokenError' ? BadTokenEntry(err) : Entry(err);
+                {report.errors.map((err, index) => {
+                  return err.name === 'BadTokenError' ? BadTokenEntry(err, index) : Entry(err, index);
                 })}
               </ul>
-              <h3>Warnings <span className="badge">{report.warnings.length}</span></h3>
+              <h3>
+                Warnings <span className="badge">{report.warnings.length}</span>
+              </h3>
               <ul>
                 {report.warnings.map(Entry)}
               </ul>
