@@ -11,7 +11,7 @@ function BadTokenEntry(props, index) {
   const {source, expected, token, originalContext} = props;
 
   return (
-    <li key={index}>
+    <li className="entry" key={index}>
       <p>
         In <code>{source}</code>{':'} Expected <code>{expected}</code> but got <code>{token}</code> on L{props.line}{':'}{props.column}
       </p>
@@ -45,7 +45,7 @@ function Entry(props, index) {
 
   const htmlMessage = (message || '').replace(/(https?\S+)/g, '<a href="$1">$1</a>');
   return (
-    <li key={index}>
+    <li className="entry" key={index}>
       <h4>
         {name}
       </h4>

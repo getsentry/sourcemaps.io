@@ -2,6 +2,10 @@ h1 a:hover {
   text-decoration: none;
 }
 
+.entry {
+  margin-bottom: 2em;
+}
+
 pre.code {
   box-shadow: inset 48px 0 0 #fbfbfc, inset 49px 0 0 #ececf0;
   margin-left: 1em;
