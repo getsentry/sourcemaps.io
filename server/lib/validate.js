@@ -165,7 +165,7 @@ function resolveUrl(baseUrl, targetUrl) {
 /**
  * Validates a target transpiled/minified file located at a given url
  */
-function validateTargetFile(url, callback) {
+function validateGeneratedFile(url, callback) {
   const errors = [];
   request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
@@ -334,7 +334,7 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
 }
 
 module.exports = {
-  validateTargetFile,
+  validateGeneratedFile,
   validateMappings,
   resolveSourceMapSource
 };

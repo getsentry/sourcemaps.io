@@ -2,7 +2,7 @@
 
 # default to sourcemaps.io production values
 #
-GCLOUD_FN_NAME=validateSourceFile
+GCLOUD_FN_NAME=validateGeneratedFile
 GCLOUD_REGION=us-central1
 GCLOUD_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
 LOCAL_VALIDATE_URL=http://127.0.0.1:3001/${GCLOUD_FN_NAME}

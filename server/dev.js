@@ -3,13 +3,13 @@
  */
 const express = require('express');
 const path = require('path');
-const {validateSourceFile} = require('.');
+const {validateGeneratedFile} = require('.');
 
 const PORT = 3001;
 
 const app = express();
 
-app.post('/validateSourceFile', validateSourceFile);
+app.post('/validateGeneratedFile', validateGeneratedFile);
 
 
 app.use('/fixtures', express.static(path.join('test', 'fixtures', 'build')));

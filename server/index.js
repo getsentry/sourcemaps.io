@@ -1,5 +1,5 @@
 const path = require('path');
-const {validateTargetFile} = require('./lib/validate');
+const {validateGeneratedFile} = require('./lib/validate');
 const Storage = require('@google-cloud/storage');
 
 let config = null;
@@ -27,7 +27,7 @@ const storage = Storage({
  * @param {object} event The Cloud Functions event.
  * @param {function} The callback function.
  */
-exports.validateSourceFile = function (req, res) {
+exports.validateGeneratedFile = function (req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
@@ -36,7 +36,7 @@ exports.validateSourceFile = function (req, res) {
     res.status(500).send('URL not specified');
   }
 
-  validateTargetFile(url, (errors, sources) => {
+  validateGeneratedFile(url, (errors, sources) => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
