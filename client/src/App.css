@@ -2,6 +2,16 @@ h1 a:hover {
   text-decoration: none;
 }
 
-li.active {
-  background-color: #ccc;
+pre.code {
+  box-shadow: inset 48px 0 0 #fbfbfc, inset 49px 0 0 #ececf0;
+  margin-left: 1em;
+}
+
+.line-active {
+  color: #c7254e;
+  background: #eee;
+}
+
+.line-active span {
+  color: black;
 }

@@ -12,14 +12,14 @@ function BadTokenEntry(props, index) {
 
   return (
     <li key={index}>
-      <div>
+      <p>
         In <code>{source}</code>{':'} Expected <code>{expected}</code> but got <code>{token}</code> on L{props.line}{':'}{props.column}
-      </div>
+      </p>
       <div>
-        <pre>
+        <pre className="code">
           <ol start={originalContext[0][0]}>
             {originalContext.map(([line, ctx]) =>
-              <li className={line === props.line ? 'active' : ''} key={line}>{ctx}</li>
+              <li className={line === props.line ? 'line line-active' : 'line'} key={line}><span>{ctx}</span></li>
             )}
           </ol>
         </pre>
