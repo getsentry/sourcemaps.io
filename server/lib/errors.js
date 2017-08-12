@@ -94,6 +94,10 @@ function BadTokenError(source, options) {
   this.resolutions = [];
 }
 
+function BadColumnError(source, options) {
+  BadTokenError.call(this, source, options);
+}
+
 module.exports = {
   SourceMapNotFoundError,
   UnableToFetchError,
@@ -105,5 +109,6 @@ module.exports = {
   LineNotFoundError,
   BadTokenError,
   BadContentError,
+  BadColumnError,
   ResourceTimeoutError
 };
