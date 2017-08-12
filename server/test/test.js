@@ -276,7 +276,7 @@ describe('validateTargetFile', () => {
           .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
         validateGeneratedFile(url, (report) => {
-          assert.notEqual(report.errors.length, 0);
+          assert.equal(report.errors.length, 0);
           assert.notEqual(report.warnings.length, 0);
           assert.equal(report.warnings[0].constructor, BadColumnError);
           assert.equal(report.warnings[0].message, 'Expected token not in correct location');
