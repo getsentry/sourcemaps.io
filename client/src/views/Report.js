@@ -134,25 +134,33 @@ class Report extends Component {
 
         {report &&
             <div>
-              <h3>
-                Source Map
-              </h3>
-              <ul>
-                <li><a href={report.sourceMap}>{report.sourceMap}</a></li>
-              </ul>
-              <h3>
-                Sources{' '}
-                <span className="badge badge-success">{report.sources.length}</span>
-              </h3>
-              <ul>
-                {report.sources.map(src =>
-                  <li key={src}>
-                    <a href={src}>
-                      {src}
-                    </a>
-                  </li>
-                )}
-              </ul>
+              {report.sourceMap &&
+                <div>
+                  <h3>
+                    Source Map
+                  </h3>
+                  <ul>
+                    <li><a href={report.sourceMap}>{report.sourceMap}</a></li>
+                  </ul>
+                </div>
+              }
+              {report.sources.length > 0 &&
+                <div>
+                  <h3>
+                    Sources{' '}
+                    <span className="badge badge-success">{report.sources.length}</span>
+                  </h3>
+                  <ul>
+                    {report.sources.map(src =>
+                      <li key={src}>
+                        <a href={src}>
+                          {src}
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              }
               <h3>
                 Errors {report.errors.length > 0
                   ? <span className="badge" style={{background: '#b94a48'}}>{report.errors.length}</span>
