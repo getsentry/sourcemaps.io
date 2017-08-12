@@ -114,13 +114,24 @@ class Report extends Component {
     const {report} = this.state;
     if (!report) return null;
 
-    return report.errors.length === 0
-      ? <div className="alert alert-success">
-        <strong>Bingo.</strong> Everything looks good.
+    if (report.errors.length === 0 && report.warnings.length === 0) {
+      return (
+        <div className="alert alert-success">
+          <strong>Bingo.</strong> Everything looks good.
+        </div>
+      );
+    } else if (report.errors.length > 0) {
+      return (
+        <div className="alert alert-danger">
+          <strong>Ouch.</strong> Check the errors below.
+        </div>
+      );
+    }
+    return (
+      <div className="alert alert-warning">
+        <strong>Hmm.</strong> Successful but with warnings.
       </div>
-      : <div className="alert alert-danger">
-        <strong>Ouch.</strong> Check the errors below.
-      </div>;
+    );
   }
 
   render() {
@@ -130,20 +141,23 @@ class Report extends Component {
       ? <Loader />
       : <div>
         {this.renderAlert()}
-        <h2>Report for <a href={report.url}>{report.url}</a></h2>
+        <h2>
+            Report for <a href={report.url}>{report.url}</a>
+        </h2>
 
         {report &&
             <div>
               {report.sourceMap &&
                 <div>
-                  <h3>
-                    Source Map
-                  </h3>
+                  <h3>Source Map</h3>
                   <ul>
-                    <li><a href={report.sourceMap}>{report.sourceMap}</a></li>
+                    <li>
+                      <a href={report.sourceMap}>
+                        {report.sourceMap}
+                      </a>
+                    </li>
                   </ul>
-                </div>
-              }
+                </div>}
               {report.sources.length > 0 &&
                 <div>
                   <h3>
@@ -159,28 +173,35 @@ class Report extends Component {
                       </li>
                     )}
                   </ul>
-                </div>
-              }
+                </div>}
               <h3>
-                Errors {report.errors.length > 0
-                  ? <span className="badge" style={{background: '#b94a48'}}>{report.errors.length}</span>
-                  : <span className="badge">0</span>
-                }
+                Errors{' '}
+                {report.errors.length > 0
+                  ? <span className="badge" style={{background: '#b94a48'}}>
+                    {report.errors.length}
+                  </span>
+                  : <span className="badge">0</span>}
               </h3>
               <ul>
                 {report.errors.map((err, index) => {
-                  return ['BadTokenError', 'BadColumnError'].includes(err.name) ? BadTokenEntry(err, index) : Entry(err, index);
+                  return ['BadTokenError', 'BadColumnError'].includes(err.name)
+                    ? BadTokenEntry(err, index)
+                    : Entry(err, index);
                 })}
               </ul>
               <h3>
-                Warnings {report.warnings.length > 0
-                  ? <span className="badge" style={{background: '#f89406'}}>{report.warnings.length}</span>
-                  : <span className="badge">0</span>
-                }
+                Warnings{' '}
+                {report.warnings.length > 0
+                  ? <span className="badge" style={{background: '#f89406'}}>
+                    {report.warnings.length}
+                  </span>
+                  : <span className="badge">0</span>}
               </h3>
               <ul>
                 {report.warnings.map((err, index) => {
-                  return ['BadTokenError', 'BadColumnError'].includes(err.name) ? BadTokenEntry(err, index) : Entry(err, index);
+                  return ['BadTokenError', 'BadColumnError'].includes(err.name)
+                    ? BadTokenEntry(err, index)
+                    : Entry(err, index);
                 })}
               </ul>
             </div>}
