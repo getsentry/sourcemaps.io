@@ -26,11 +26,9 @@ function BadTokenEntry(props, index) {
       </ReactTooltip>
       <p>
         In <code>{source}</code>
-        {':'} Expected <code>{expected}</code> but got <code>{token}</code> on{' '}
+        {':'} Expected <code>{expected}</code> but got <code>{token}</code> at{' '}
         <span data-tip data-for={`tt_${index}`}>
-          L{originalLine}
-          {':'}
-          {originalColumn}
+          {`L${originalLine}:${originalColumn}`}
         </span>
       </p>
       <div>
@@ -157,7 +155,10 @@ class Report extends Component {
                 )}
               </ul>
               <h3>
-                Errors <span className="badge">{report.errors.length}</span>
+                Errors {report.errors.length > 0
+                  ? <span className="badge" style={{background: '#b94a48'}}>{report.errors.length}</span>
+                  : <span className="badge">0</span>
+                }
               </h3>
               <ul>
                 {report.errors.map((err, index) => {
@@ -165,7 +166,10 @@ class Report extends Component {
                 })}
               </ul>
               <h3>
-                Warnings <span className="badge">{report.warnings.length}</span>
+                Warnings {report.warnings.length > 0
+                  ? <span className="badge" style={{background: '#f89406'}}>{report.warnings.length}</span>
+                  : <span className="badge">0</span>
+                }
               </h3>
               <ul>
                 {report.warnings.map((err, index) => {
