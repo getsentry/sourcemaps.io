@@ -160,7 +160,12 @@ function validateMappings(sourceMapConsumer, generatedLines) {
     }
 
     const error = validateMapping(mapping, sourceLines, generatedLines);
-    if (error) {
+
+    // Treat bad column errors as warnings (since they'll work fine for
+    // most apps)
+    if (error instanceof BadColumnError) {
+      report.pushWarning(error);
+    } else if (error) {
       report.pushError(error);
     }
   });
