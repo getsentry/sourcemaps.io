@@ -161,7 +161,7 @@ class Report extends Component {
               </h3>
               <ul>
                 {report.errors.map((err, index) => {
-                  return err.name === 'BadTokenError' ? BadTokenEntry(err, index) : Entry(err, index);
+                  return ['BadTokenError', 'BadColumnError'].includes(err.name) ? BadTokenEntry(err, index) : Entry(err, index);
                 })}
               </ul>
               <h3>
