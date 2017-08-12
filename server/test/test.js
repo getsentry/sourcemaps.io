@@ -277,8 +277,9 @@ describe('validateTargetFile', () => {
 
         validateGeneratedFile(url, (report) => {
           assert.notEqual(report.errors.length, 0);
-          assert.equal(report.errors[0].constructor, BadColumnError);
-          assert.equal(report.errors[0].message, 'Expected token not in correct location');
+          assert.notEqual(report.warnings.length, 0);
+          assert.equal(report.warnings[0].constructor, BadColumnError);
+          assert.equal(report.warnings[0].message, 'Expected token not in correct location');
           done();
         });
       });

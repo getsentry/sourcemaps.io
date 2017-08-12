@@ -168,7 +168,9 @@ class Report extends Component {
                 Warnings <span className="badge">{report.warnings.length}</span>
               </h3>
               <ul>
-                {report.warnings.map(Entry)}
+                {report.warnings.map((err, index) => {
+                  return ['BadTokenError', 'BadColumnError'].includes(err.name) ? BadTokenEntry(err, index) : Entry(err, index);
+                })}
               </ul>
             </div>}
       </div>;
