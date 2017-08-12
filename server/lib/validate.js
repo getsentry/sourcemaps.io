@@ -4,19 +4,40 @@ const urljoin = require('url-join');
 const {SourceMapConsumer, SourceMapGenerator} = require('source-map');
 
 const MAX_TIMEOUT = 5000;
+const MAX_REPORT_SIZE = 100;
 
 class Report {
-  constructor() {
-    this.warnings = [];
-    this.errors = [];
+  constructor(report = {}) {
+    this.warnings = report.warnings || [];
+    this.errors = report.errors || [];
+    this.sources = report.sources || [];
   }
 
   pushError(...errors) {
     this.errors.push(...errors);
+    return this;
   }
 
   pushWarning(...warnings) {
     this.warnings.push(...warnings);
+    return this;
+  }
+
+  pushSource(...sources) {
+    this.sources.push(...sources);
+    return this;
+  }
+
+  concat(report) {
+    const copy = new Report(this);
+    copy.errors = copy.errors.concat(report.errors);
+    copy.warnings = copy.warnings.concat(report.warnings);
+    copy.sources = copy.sources.concat(report.sources);
+    return copy;
+  }
+
+  size() {
+    return this.errors.length + this.warnings.length;
   }
 }
 
@@ -34,7 +55,6 @@ const {
   ResourceTimeoutError
 } = require('./errors');
 
-const MAX_MAPPING_ERRORS = 100;
 
 function validateMapping(mapping, sourceLines, generatedLines) {
   let origLine;
@@ -112,11 +132,11 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   });
 }
 function validateMappings(sourceMapConsumer, generatedLines) {
-  const errors = [];
+  const report = new Report();
   const sourceCache = {};
 
   sourceMapConsumer.eachMapping((mapping) => {
-    if (errors.length >= MAX_MAPPING_ERRORS) {
+    if (report.size() >= MAX_REPORT_SIZE) {
       return;
     }
 
@@ -141,10 +161,10 @@ function validateMappings(sourceMapConsumer, generatedLines) {
 
     const error = validateMapping(mapping, sourceLines, generatedLines);
     if (error) {
-      errors.push(error);
+      report.pushError(error);
     }
   });
-  return errors;
+  return report;
 }
 
 function getSourceMapLocation(response, body) {
@@ -215,11 +235,9 @@ function validateGeneratedFile(url, callback) {
 
     const resolvedSourceMappingURL = resolveUrl(url, sourceMappingURL);
 
-    validateSourceMap(resolvedSourceMappingURL, response.body, report, (sourceMapErrors, sources) => {
-      if (sourceMapErrors && sourceMapErrors.length) {
-        report.pushError(...sourceMapErrors);
-      }
-      callback(report, sources);
+    validateSourceMap(resolvedSourceMappingURL, response.body, (sourceMapReport) => {
+      const finalReport = report.concat(sourceMapReport);
+      callback(finalReport);
     });
   });
 }
@@ -245,7 +263,8 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
 /**
  * Validates a source map located at the given url
  */
-function validateSourceMap(sourceMapUrl, generatedContent, report, callback) {
+function validateSourceMap(sourceMapUrl, generatedContent, callback) {
+  let report = new Report();
   request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
@@ -289,14 +308,16 @@ function validateSourceMap(sourceMapUrl, generatedContent, report, callback) {
         return [sourceUrl, resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)];
       });
 
-    const validateMappingsCallback = (_sourceMapConsumer, validationErrors = []) => {
+    const validateMappingsCallback = (_sourceMapConsumer, fetchesReport = new Report()) => {
       const generatedLines = generatedContent.split('\n');
-      const mappingErrors = validateMappings(_sourceMapConsumer, generatedLines);
+      const mappingsReport = validateMappings(_sourceMapConsumer, generatedLines);
 
-      report.pushError(...mappingErrors);
-      report.pushError(...validationErrors);
+      report = report
+        .concat(fetchesReport)
+        .concat(mappingsReport)
+        .pushSource(...resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
 
-      callback(report, resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
+      callback(report);
     };
 
     // If every source is inlined inside the source map, go directly to
@@ -311,6 +332,8 @@ function validateSourceMap(sourceMapUrl, generatedContent, report, callback) {
 }
 
 function fetchSources(sourceMapConsumer, resolvedSources, callback) {
+  const report = new Report();
+
   // We're going to generate a new source map consumer, building
   // on top of the existing one
   const generator = SourceMapGenerator.fromSourceMap(sourceMapConsumer);
@@ -351,7 +374,8 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
     // Generate the new source map consumer with updated sources
     const fullSourceMapConsumer = SourceMapConsumer(generator.toJSON());
 
-    callback(fullSourceMapConsumer, validationErrors.filter(_err => _err));
+    report.pushError(...validationErrors.filter(_err => _err));
+    callback(fullSourceMapConsumer, report);
   });
 }
 
