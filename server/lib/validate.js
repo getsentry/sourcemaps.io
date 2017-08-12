@@ -30,6 +30,7 @@ const {
   LineNotFoundError,
   BadTokenError,
   BadContentError,
+  BadColumnError,
   ResourceTimeoutError
 } = require('./errors');
 
@@ -74,6 +75,12 @@ function validateMapping(mapping, sourceLines, generatedLines) {
     return null;
   }
 
+  // If the line _contains_ the expected token somewhere, the source
+  // map will likely work fine (especially for Sentry).
+  const ErrorClass = origLine.indexOf(sourceToken) > -1
+    ? BadColumnError
+    : BadTokenError;
+
   const {generatedColumn} = mapping;
 
   let generatedLine;
@@ -91,7 +98,7 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   // Take 100 chars of context around generated line
   const generatedContext = generatedLine.slice(generatedColumn - 50, generatedColumn + 50);
 
-  return new BadTokenError(mapping.source, {
+  return new ErrorClass(mapping.source, {
     token: sourceToken,
     expected: mapping.name,
     mapping: {
