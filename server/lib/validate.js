@@ -5,6 +5,21 @@ const {SourceMapConsumer, SourceMapGenerator} = require('source-map');
 
 const MAX_TIMEOUT = 5000;
 
+class Report {
+  constructor() {
+    this.warnings = [];
+    this.errors = [];
+  }
+
+  pushError(...errors) {
+    this.errors.push(...errors);
+  }
+
+  pushWarning(...warnings) {
+    this.warnings.push(...warnings);
+  }
+}
+
 const {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
@@ -166,37 +181,38 @@ function resolveUrl(baseUrl, targetUrl) {
  * Validates a target transpiled/minified file located at a given url
  */
 function validateGeneratedFile(url, callback) {
-  const errors = [];
+  const report = new Report();
+
   request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
-        errors.push(new ResourceTimeoutError(url, MAX_TIMEOUT));
-        return void callback(errors);
+        report.pushError(new ResourceTimeoutError(url, MAX_TIMEOUT));
+        return void callback(report);
       }
 
       return void console.log(error);
     }
 
     if (response && response.statusCode !== 200) {
-      errors.push(new UnableToFetchMinifiedError(url));
-      callback(errors);
+      report.pushError(new UnableToFetchMinifiedError(url));
+      callback(report);
       return;
     }
 
     const sourceMappingURL = getSourceMapLocation(response, body);
     if (!sourceMappingURL) {
-      errors.push(new SourceMapNotFoundError(url));
-      callback(errors);
+      report.pushError(new SourceMapNotFoundError(url));
+      callback(report);
       return;
     }
 
     const resolvedSourceMappingURL = resolveUrl(url, sourceMappingURL);
 
-    validateSourceMap(resolvedSourceMappingURL, response.body, (sourceMapErrors, sources) => {
+    validateSourceMap(resolvedSourceMappingURL, response.body, report, (sourceMapErrors, sources) => {
       if (sourceMapErrors && sourceMapErrors.length) {
-        errors.push(...sourceMapErrors);
+        report.pushError(...sourceMapErrors);
       }
-      callback(errors, sources);
+      callback(report, sources);
     });
   });
 }
@@ -222,20 +238,19 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
 /**
  * Validates a source map located at the given url
  */
-function validateSourceMap(sourceMapUrl, generatedContent, callback) {
-  const errors = [];
+function validateSourceMap(sourceMapUrl, generatedContent, report, callback) {
   request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
-        errors.push(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
-        return void callback(errors);
+        report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
+        return void callback(report);
       }
       return void console.log(error);
     }
 
     if (response && response.statusCode !== 200) {
-      errors.push(new UnableToFetchSourceMapError(sourceMapUrl));
-      callback(errors);
+      report.pushError(new UnableToFetchSourceMapError(sourceMapUrl));
+      callback(report);
       return;
     }
 
@@ -243,8 +258,8 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
     try {
       rawSourceMap = JSON.parse(body);
     } catch (err) {
-      errors.push(new InvalidJSONError(sourceMapUrl, err));
-      callback(errors);
+      report.pushError(new InvalidJSONError(sourceMapUrl, err));
+      callback(report);
       return;
     }
 
@@ -252,8 +267,8 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
     try {
       sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
     } catch (err) {
-      errors.push(new InvalidSourceMapFormatError(sourceMapUrl, err));
-      callback(errors);
+      report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
+      callback(report);
     }
 
     // Build array of tuples of [originalUrl, resolvedUrl] for each source
@@ -271,10 +286,10 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
       const generatedLines = generatedContent.split('\n');
       const mappingErrors = validateMappings(_sourceMapConsumer, generatedLines);
 
-      errors.push(...mappingErrors);
-      errors.push(...validationErrors);
+      report.pushError(...mappingErrors);
+      report.pushError(...validationErrors);
 
-      callback(errors, resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
+      callback(report, resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
     };
 
     // If every source is inlined inside the source map, go directly to

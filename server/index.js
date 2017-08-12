@@ -36,7 +36,7 @@ exports.validateGeneratedFile = function (req, res) {
     res.status(500).send('URL not specified');
   }
 
-  validateGeneratedFile(url, (errors, sources) => {
+  validateGeneratedFile(url, (report, sources) => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
@@ -61,12 +61,12 @@ exports.validateGeneratedFile = function (req, res) {
       );
     });
 
-    const report = {
+    const jsonReport = {
       url,
-      errors,
+      errors: report.errors,
       sources: sources || [],
-      warnings: [] // TODO
+      warnings: report.warnings
     };
-    stream.end(JSON.stringify(report));
+    stream.end(JSON.stringify(jsonReport));
   });
 };
