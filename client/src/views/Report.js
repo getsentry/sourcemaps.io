@@ -130,17 +130,16 @@ class Report extends Component {
       ? <Loader />
       : <div>
         {this.renderAlert()}
-        <h2>Report</h2>
+        <h2>Report for <a href={report.url}>{report.url}</a></h2>
 
         {report &&
             <div>
-              <p>
-                <a href={report.url}>
-                  <h4>
-                    {report.url}
-                  </h4>
-                </a>
-              </p>
+              <h3>
+                Source Map
+              </h3>
+              <ul>
+                <li><a href={report.sourceMap}>{report.sourceMap}</a></li>
+              </ul>
               <h3>
                 Sources{' '}
                 <span className="badge badge-success">{report.sources.length}</span>

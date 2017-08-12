@@ -74,7 +74,6 @@ describe('validateTargetFile', () => {
       nock('https://127.0.0.1:8000').get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
 
       validateGeneratedFile(url, (report) => {
-        console.log(report.errors);
         assert.equal(report.errors.length, 0);
         done();
       });
@@ -363,7 +362,7 @@ describe('errors', () => {
   it('should stringify nicely', () => {
     assert.deepEqual(JSON.parse(JSON.stringify(new SourceMapNotFoundError(url))), {
       name: 'SourceMapNotFoundError',
-      message: 'Unable to locate a SourceMap in https://example.org/static/app.js',
+      message: 'Unable to locate a source map in https://example.org/static/app.js',
       resolutions: [
         'Add a <code>//# sourceMappingURL=</code> declaration',
         'Add a SourceMap HTTP response header'

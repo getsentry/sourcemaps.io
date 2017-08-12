@@ -11,6 +11,9 @@ class Report {
     this.warnings = report.warnings || [];
     this.errors = report.errors || [];
     this.sources = report.sources || [];
+
+    this.url = report.url;
+    this.sourceMap = report.sourceMap;
   }
 
   pushError(...errors) {
@@ -33,6 +36,8 @@ class Report {
     copy.errors = copy.errors.concat(report.errors);
     copy.warnings = copy.warnings.concat(report.warnings);
     copy.sources = copy.sources.concat(report.sources);
+    copy.sourceMap = report.sourceMap || copy.sourceMap;
+    copy.url = report.url || copy.url;
     return copy;
   }
 
@@ -213,7 +218,7 @@ function resolveUrl(baseUrl, targetUrl) {
  * Validates a target transpiled/minified file located at a given url
  */
 function validateGeneratedFile(url, callback) {
-  const report = new Report();
+  const report = new Report({url});
 
   request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
@@ -270,6 +275,8 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
  */
 function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   let report = new Report();
+  report.sourceMap = sourceMapUrl;
+
   request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
