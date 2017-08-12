@@ -13,6 +13,7 @@ const {
   UnableToFetchSourceMapError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
+  BadTokenError,
   BadColumnError,
   BadContentError,
   ResourceTimeoutError
@@ -263,19 +264,35 @@ describe('validateTargetFile', () => {
         });
       });
 
-      it("should detect invalid mappings where tokens don't match source content", (
+      it("should detect invalid mappings where tokens aren't located on same line", (
         done
       ) => {
-        const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzinput.js');
+        const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzLines.js');
         const mapFilePath = `${minFilePath}.map`;
 
         nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
         nock(host)
-          .get('/static/add.fuzzinput.js.map')
+          .get('/static/add.fuzzLines.js.map')
           .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
         validateGeneratedFile(url, (report) => {
-          assert.equal(report.errors.length, 0);
+          assert.notEqual(report.errors.length, 0);
+          assert.equal(report.errors[0].constructor, BadTokenError);
+          assert.equal(report.errors[0].message, 'Expected token not in correct location');
+          done();
+        });
+      });
+
+      it('should detect invalid mappings where tokens are on wrong column', (done) => {
+        const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.fuzzColumns.js');
+        const mapFilePath = `${minFilePath}.map`;
+
+        nock(host).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
+        nock(host)
+          .get('/static/add.fuzzColumns.js.map')
+          .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
+
+        validateGeneratedFile(url, (report) => {
           assert.notEqual(report.warnings.length, 0);
           assert.equal(report.warnings[0].constructor, BadColumnError);
           assert.equal(report.warnings[0].message, 'Expected token not in correct location');

@@ -102,7 +102,7 @@ function validateMapping(mapping, sourceLines, generatedLines) {
 
   // If the line _contains_ the expected token somewhere, the source
   // map will likely work fine (especially for Sentry).
-  const ErrorClass = origLine.indexOf(sourceToken) > -1
+  const ErrorClass = origLine.indexOf(mapping.name) > -1
     ? BadColumnError
     : BadTokenError;
 

@@ -32,7 +32,7 @@ function replaceSourceMappingURL(src, sourceMappingURL) {
 }
 
 //------------------------------------------------------
-// case 1: the good case™
+// the good case™
 //
 // end-to-end source map example with properly mapped
 // tokens and sourcesContent
@@ -51,21 +51,40 @@ fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js.map'), output.map);
 
 //------------------------------------------------------
-// case 2: fuzzed input sourcesContent
+// fuzzed lines sourcesContent
 //
 // adds a garbage copyright notice to each input sourcesContent,
 // which will cause token mappings to be incorrect
 //------------------------------------------------------
-const sourceMap = JSON.parse(output.map);
-sourceMap.sourcesContent = sourceMap.sourcesContent.map(src => `/**\n * Copyright 2017 Weyland-Yutani\n * All rights reserved\n */\n${src}`);
+const fuzzedLineSourceMap = JSON.parse(output.map);
+fuzzedLineSourceMap.sourcesContent = fuzzedLineSourceMap.sourcesContent.map(src => `/**\n * Copyright 2017 Weyland-Yutani\n * All rights reserved\n */\n${src}`);
 
-output.code = replaceSourceMappingURL(output.code, 'add.fuzzinput.js.map');
+output.code = replaceSourceMappingURL(output.code, 'add.fuzzLines.js.map');
 
-fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js'), output.code);
-fs.writeFileSync(path.join(buildDir, 'add.fuzzinput.js.map'), JSON.stringify(sourceMap));
+fs.writeFileSync(path.join(buildDir, 'add.fuzzLines.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.fuzzLines.js.map'), JSON.stringify(fuzzedLineSourceMap));
 
 //------------------------------------------------------
-// case 3: no inline sources
+// fuzzed columns sourcesContent
+//
+// adds a garbage copyright notice to each input sourcesContent,
+// which will cause token mappings to be incorrect
+//------------------------------------------------------
+const fuzzedColumnSourceMap = JSON.parse(output.map);
+fuzzedColumnSourceMap.sourcesContent = fuzzedColumnSourceMap.sourcesContent.map((src) => {
+  const lines = src.split('\n');
+  const fuzzedLines = lines.map((line) => { return `     ${line}`; });
+  return fuzzedLines.join('\n');
+});
+
+output.code = replaceSourceMappingURL(output.code, 'add.fuzzColumns.js.map');
+
+fs.writeFileSync(path.join(buildDir, 'add.fuzzColumns.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.fuzzColumns.js.map'), JSON.stringify(fuzzedColumnSourceMap));
+
+
+//------------------------------------------------------
+// no inline sources
 //------------------------------------------------------
 
 output = UglifyJS.minify({
