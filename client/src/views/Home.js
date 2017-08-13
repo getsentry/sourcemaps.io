@@ -70,7 +70,7 @@ class Home extends Component {
       method: 'POST'
     }).then((response) => {
       response.text().then((reportName) => {
-        history.push(`/report?reportName=${encodeURIComponent(reportName)}`);
+        history.push(`/report/${reportName}`);
       });
     });
   }

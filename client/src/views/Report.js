@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
-import queryString from 'query-string';
 
 import Loader from './Loader';
 
@@ -100,13 +99,13 @@ Entry.propTypes = {
 class Report extends Component {
   constructor(props) {
     super(props);
-    const {reportName} = queryString.parse(props.location.search);
+    const reportName = props.match.params.report;
     this.state = {reportName, report: null};
   }
 
   componentDidMount() {
     const {reportName} = this.state;
-    const reportUrl = `${STORAGE_URL}/${reportName}`;
+    const reportUrl = `${STORAGE_URL}/${encodeURIComponent(reportName)}`;
     fetch(reportUrl).then((response) => {
       response.json().then((report) => {
         this.setState({report});
@@ -214,7 +213,8 @@ class Report extends Component {
 }
 
 Report.propTypes = {
-  location: PropTypes.object
+  location: PropTypes.object,
+  match: PropTypes.object
 };
 
 export default Report;
