@@ -69,8 +69,8 @@ class Home extends Component {
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
     }).then((response) => {
-      response.text().then((reportUrl) => {
-        history.push(`/report?reportUrl=${encodeURIComponent(reportUrl)}`);
+      response.text().then((reportName) => {
+        history.push(`/report?reportName=${encodeURIComponent(reportName)}`);
       });
     });
   }

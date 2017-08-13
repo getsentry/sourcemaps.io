@@ -1,19 +1,27 @@
-.PHONY: test test-install client-server backend-server build-www deploy-config deploy-www deploy-data deploy-server deploy
+.PHONY: echo-exports test test-install client-server backend-server build-www deploy-config deploy-www deploy-data deploy-server deploy
 
 # default to sourcemaps.io production values
 #
 GCLOUD_FN_NAME=validateGeneratedFile
 GCLOUD_REGION=us-central1
 GCLOUD_VALIDATE_URL=https://${GCLOUD_REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${GCLOUD_FN_NAME}
+GCLOUD_STORAGE_URL=https://storage.googleapis.com/${GCLOUD_DATA_BUCKET}
 LOCAL_VALIDATE_URL=http://127.0.0.1:3001/${GCLOUD_FN_NAME}
 
+echo-exports:
+	@echo "GCLOUD_PROJECT: ${GCLOUD_PROJECT}"
+	@echo "GCLOUD_REGION: ${GCLOUD_REGION}"
+	@echo "GCLOUD_FN_NAME: ${GCLOUD_FN_NAME}"
+	@echo "GCLOUD_APP_BUCKET: ${GCLOUD_APP_BUCKET}"
+	@echo "GCLOUD_DATA_BUCKET: ${GCLOUD_DATA_BUCKET}"
+	@echo "GCLOUD_WWW_BUCKET: ${GCLOUD_WWW_BUCKET}"
 
 # Run unit tests
 test: test-install
 	node_modules/.bin/eslint server client
 	npm test --prefix ./server
 
-test-install:
+test-install: echo-exports
 	npm install
 	npm install --prefix ./server
 	npm install --prefix ./client
@@ -21,7 +29,7 @@ test-install:
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)
 client-server: test-install
-	REACT_APP_VALIDATE_URL=${LOCAL_VALIDATE_URL} \
+	REACT_APP_VALIDATE_URL=${LOCAL_VALIDATE_URL} REACT_APP_STORAGE_URL=${GCLOUD_STORAGE_URL} \
 		npm run start --prefix ./client
 
 backend-server: test-install deploy-config
@@ -46,13 +54,7 @@ build-www:
 	REACT_APP_VALIDATE_URL=${GCLOUD_VALIDATE_URL} \
 		npm run build --prefix ./client
 
-deploy-config:
-	@echo "GCLOUD_PROJECT: ${GCLOUD_PROJECT}"
-	@echo "GCLOUD_REGION: ${GCLOUD_REGION}"
-	@echo "GCLOUD_FN_NAME: ${GCLOUD_FN_NAME}"
-	@echo "GCLOUD_APP_BUCKET: ${GCLOUD_APP_BUCKET}"
-	@echo "GCLOUD_DATA_BUCKET: ${GCLOUD_DATA_BUCKET}"
-	@echo "GCLOUD_WWW_BUCKET: ${GCLOUD_WWW_BUCKET}"
+deploy-config: echo-exports
 	gcloud config set project ${GCLOUD_PROJECT}
 	echo '{"PROJECT":"${GCLOUD_PROJECT}","STORAGE_BUCKET":"${GCLOUD_DATA_BUCKET}","SENTRY_DSN":"${SENTRY_DSN}"}' > server/config.json
 
