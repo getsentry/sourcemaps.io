@@ -139,17 +139,17 @@ class Report extends Component {
 
   render() {
     const {report} = this.state;
-
     return !report
       ? <Loader />
       : <div>
         {this.renderAlert()}
         <h2>
-            Report for <a href={report.url}>{report.url}</a>
+            Report for <a href={report.url}>{report.url.split('/').pop()}</a>
         </h2>
-
         {report &&
             <div>
+              <h3>URL</h3>
+              <ul><li><a href={report.url}>{report.url}</a></li></ul>
               {report.sourceMap &&
                 <div>
                   <h3>Source Map</h3>
