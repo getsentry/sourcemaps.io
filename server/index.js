@@ -53,12 +53,7 @@ exports.validateGeneratedFile = function (req, res) {
       res.status(500).send(err);
     });
     stream.on('finish', () => {
-      res.status(200).send(
-        // need to encode a second time for inclusion as a URL
-        `https://storage.googleapis.com/${config.STORAGE_BUCKET}/${encodeURIComponent(
-          objectName
-        )}`
-      );
+      res.status(200).send(encodeURIComponent(objectName));
     });
 
     stream.end(JSON.stringify(report));

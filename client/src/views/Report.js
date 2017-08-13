@@ -5,6 +5,8 @@ import queryString from 'query-string';
 
 import Loader from './Loader';
 
+const STORAGE_URL = process.env.REACT_APP_STORAGE_URL;
+
 /**
  * Error entry for token/mapping errors (includes source code context)
  */
@@ -98,12 +100,14 @@ Entry.propTypes = {
 class Report extends Component {
   constructor(props) {
     super(props);
-    const {reportUrl} = queryString.parse(props.location.search);
-    this.state = {reportUrl, report: null};
+    const {reportName} = queryString.parse(props.location.search);
+    this.state = {reportName, report: null};
   }
 
   componentDidMount() {
-    fetch(this.state.reportUrl).then((response) => {
+    const {reportName} = this.state;
+    const reportUrl = `${STORAGE_URL}/${reportName}`;
+    fetch(reportUrl).then((response) => {
       response.json().then((report) => {
         this.setState({report});
       });
