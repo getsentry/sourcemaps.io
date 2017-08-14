@@ -374,16 +374,3 @@ describe('resolveSourceMapSource', () => {
     );
   });
 });
-
-describe('errors', () => {
-  it('should stringify nicely', () => {
-    assert.deepEqual(JSON.parse(JSON.stringify(new SourceMapNotFoundError(url))), {
-      name: 'SourceMapNotFoundError',
-      message: 'Unable to locate a source map in https://example.org/static/app.js',
-      resolutions: [
-        'Add a <code>//# sourceMappingURL=</code> declaration',
-        'Add a SourceMap HTTP response header'
-      ]
-    });
-  });
-});
