@@ -307,6 +307,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
     } catch (err) {
       report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
       callback(report);
+      return;
     }
 
     // Build array of tuples of [originalUrl, resolvedUrl] for each source

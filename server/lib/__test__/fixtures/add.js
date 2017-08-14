@@ -1,3 +1,4 @@
+/*eslint-disable*/
 // Input source file used to generate multiple different dist/map pairings.
 // See ../../webpack.config.js.
 

@@ -5,7 +5,7 @@
     "object-curly-spacing": 0,
     "no-use-before-define": 0,
     "no-plusplus": 0,
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/test/*.js"]}],
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
     "comma-dangle": ["error", {
       "arrays": "ignore",
       "functions": "ignore"

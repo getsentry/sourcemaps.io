@@ -106,6 +106,7 @@ class Report extends Component {
   componentDidMount() {
     const {reportName} = this.state;
     const reportUrl = `${STORAGE_URL}/${encodeURIComponent(reportName)}`;
+
     fetch(reportUrl).then((response) => {
       response.json().then((report) => {
         this.setState({report});

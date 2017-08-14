@@ -7,9 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const UglifyJS = require('uglify-js');
 
-const fixtureDir = path.join(__dirname, 'test', 'fixtures');
-const buildDir = path.join(fixtureDir, 'build');
-const source = fs.readFileSync(path.join(fixtureDir, 'add.js'), 'utf8');
+const buildDir = path.join(__dirname, 'build');
+const source = fs.readFileSync(path.join(__dirname, 'add.js'), 'utf8');
 
 try {
   fs.mkdirSync(buildDir);
