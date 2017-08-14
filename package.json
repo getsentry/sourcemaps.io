@@ -10,7 +10,8 @@
   },
   "scripts": {
     "precommit": "lint-staged",
-    "test": "node_modules/.bin/jest --projects client server"
+    "test": "node_modules/.bin/jest --projects client server --runInBand",
+    "test-watch": "node_modules/.bin/jest --projects client server --watch"
   },
   "lint-staged": {
     "*.js": [

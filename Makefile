@@ -19,7 +19,7 @@ echo-exports:
 # Run unit tests
 test: test-install
 	node_modules/.bin/eslint server client
-	npm test --prefix ./server
+	npm test
 
 test-install: echo-exports
 	npm install
