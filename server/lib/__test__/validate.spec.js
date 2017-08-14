@@ -7,7 +7,7 @@ const {
   validateGeneratedFile,
   validateMappings,
   resolveSourceMapSource
-} = require('../lib/validate');
+} = require('../validate');
 
 const {
   SourceMapNotFoundError,
@@ -20,7 +20,7 @@ const {
   BadColumnError,
   BadContentError,
   ResourceTimeoutError
-} = require('../lib/errors');
+} = require('../errors');
 
 const host = 'https://example.org';
 const appPath = '/static/app.js';

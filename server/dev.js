@@ -12,7 +12,7 @@ const app = express();
 app.post('/validateGeneratedFile', validateGeneratedFile);
 
 
-app.use('/fixtures', express.static(path.join('test', 'fixtures', 'build')));
+app.use('/fixtures', express.static(path.join('lib', '__test__', 'fixtures', 'build')));
 
 app.listen(PORT, () => {
   console.log(`sourcemaps.io local development server running on ${PORT}`);
