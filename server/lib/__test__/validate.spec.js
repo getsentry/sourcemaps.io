@@ -3,11 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const nock = require('nock');
 
-const {
-  validateGeneratedFile,
-  validateMappings,
-  resolveSourceMapSource
-} = require('../validate');
+const validateGeneratedFile = require('../validateGeneratedFile');
+const validateMappings = require('../validateMappings');
+const {resolveSourceMapSource} = require('../utils');
 
 const {
   SourceMapNotFoundError,
