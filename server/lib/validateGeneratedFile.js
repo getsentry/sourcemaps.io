@@ -13,7 +13,10 @@ const {resolveUrl, getSourceMapLocation} = require('./utils');
 
 
 /**
- * Validates a target transpiled/minified file located at a given url
+  * Validates a target transpiled/minified file located at a given url
+ * @param {string} url The target URL of the generated (transpiled) file,
+ *            e.g. https://example.com/static/app.min.js
+ * @param {function} callback Invoked when validation is finished, passed a Report object
  */
 function validateGeneratedFile(url, callback) {
   const report = new Report({url});

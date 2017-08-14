@@ -15,8 +15,12 @@ const {
 } = require('./errors');
 const {MAX_TIMEOUT} = require('./constants');
 
+
 /**
  * Validates a source map located at the given url
+ * @param {string} sourceMapUrl URL containing the source map
+ * @param {string} generatedContent The generated (transpiled) file content
+ * @param {function} callback Invoked after validation is finished, passed a Report object
  */
 function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   let report = new Report();

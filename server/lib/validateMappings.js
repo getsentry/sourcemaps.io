@@ -6,6 +6,13 @@ const {
 } = require('./errors');
 const {MAX_REPORT_SIZE} = require('./constants');
 
+
+/**
+ * Validate a single mapping
+ * @param {object} mapping A single mapping (from SourceMapConsumer)
+ * @param {*} sourceLines An array of source lines from the original file
+ * @param {*} generatedLines An array of source lines from the generated (transpiled) file
+ */
 function validateMapping(mapping, sourceLines, generatedLines) {
   let origLine;
   try {
@@ -81,6 +88,12 @@ function validateMapping(mapping, sourceLines, generatedLines) {
     }
   });
 }
+
+/**
+ * Validate every mapping found in a source map
+ * @param {SourceMapConsumer} sourceMapConsumer Pre-initialized with the source map content
+ * @param {array} generatedLines Array of lines from the generated (transpiled) output
+ */
 function validateMappings(sourceMapConsumer, generatedLines) {
   const report = new Report();
   const sourceCache = {};
