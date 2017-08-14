@@ -22,7 +22,7 @@ function Example(props) {
 Example.propTypes = {
   name: PropTypes.string,
   url: PropTypes.string,
-  version: PropTypes.version,
+  version: PropTypes.string,
   onClick: PropTypes.func
 };
 
