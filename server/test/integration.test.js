@@ -137,7 +137,7 @@ describe('validateTargetFile', () => {
         assert.equal(report.errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js');
         done();
       });
-    }).timeout(6000);
+    });
 
     it('should report a source map that times out', (done) => {
       nock(host).get(appPath).reply(200, '//#sourceMappingURL=app.js.map');
@@ -149,7 +149,7 @@ describe('validateTargetFile', () => {
         assert.equal(report.errors[0].message, 'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map');
         done();
       });
-    }).timeout(6000);
+    });
 
     it('should report a target file does not return 200', (done) => {
       nock(host).get(appPath).reply(401, 'Not Authenticated');
