@@ -5,6 +5,11 @@ const urljoin = require('url-join');
  * e.g. ['https://example.com/', '/some/path'] => 'https://example.com/some/path'
  */
 function resolveUrl(baseUrl, targetUrl) {
+  // Don't mess with data-uris
+  if (targetUrl.startsWith('data:')) {
+    return targetUrl;
+  }
+
   const urlBase = baseUrl.replace(/\/[^/]+$/, '');
 
   // If the target url is already a fully qualified absolute URL,
