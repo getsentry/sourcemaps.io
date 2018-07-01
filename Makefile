@@ -70,7 +70,7 @@ deploy-data: deploy-config
 
 # Deploy server[less] code
 deploy-server: deploy-config
-	gcloud beta functions deploy ${GCLOUD_FN_NAME} --local-path server \
+	gcloud beta functions deploy ${GCLOUD_FN_NAME} --source server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
 	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 
