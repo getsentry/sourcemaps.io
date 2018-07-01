@@ -61,7 +61,7 @@ deploy-config: echo-exports
 # Deploy static website
 deploy-www: deploy-config build-www
 	gsutil -m rsync -R -d client/build gs://${GCLOUD_WWW_BUCKET}
-	gsutil web set -e index.html gs://sourcemapsio-www
+	gsutil web set -e index.html gs://${GCLOUD_WWW_BUCKET}
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_WWW_BUCKET}
 
 # Deploy reports (basically just set perms)
