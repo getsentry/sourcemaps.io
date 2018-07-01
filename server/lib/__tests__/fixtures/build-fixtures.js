@@ -116,4 +116,3 @@ output = UglifyJS.minify({
 
 fs.writeFileSync(path.join(buildDir, 'add.dataUri.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.dataUri.js.map'), output.map);
-fs.writeFileSync(path.join(buildDir, 'add.js'), source);
