@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "fetch-mock": "^5.12.2",
-    "react-scripts": "1.0.10"
+    "react-scripts": "^1.1.4"
   },
   "scripts": {
     "start": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts start",
