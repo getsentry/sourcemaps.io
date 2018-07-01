@@ -69,6 +69,18 @@ describe('source map location', () => {
     });
   });
 
+  it('should resolve sourceMappingURLs that contain data-uri source map data', (done) => {
+    const minFilePath = path.join(__dirname, 'fixtures', 'build', 'add.dataUri.js');
+
+    nock(HOST).get(appPath).reply(200, fs.readFileSync(minFilePath, 'utf-8'));
+
+    validateGeneratedFile(url, (report) => {
+      expect(report.errors).toHaveLength(0);
+      done();
+    });
+  });
+
+
   it("should locate sourceMappingURLs that aren't on the last line", (done) => {
     nock(HOST).get(appPath).reply(200, '//#sourceMappingURL=app.js.map\n\n');
 

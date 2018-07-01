@@ -38,6 +38,7 @@ function validateGeneratedFile(url, callback) {
     }
 
     const sourceMappingURL = getSourceMapLocation(response, body);
+
     if (!sourceMappingURL) {
       report.pushError(new SourceMapNotFoundError(url));
       callback(report);

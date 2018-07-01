@@ -83,9 +83,8 @@ fs.writeFileSync(path.join(buildDir, 'add.fuzzColumns.js.map'), JSON.stringify(f
 
 
 //------------------------------------------------------
-// no inline sources
+// no included sources
 //------------------------------------------------------
-
 output = UglifyJS.minify({
   'add.js': source
 }, {
@@ -100,3 +99,21 @@ fs.writeFileSync(path.join(buildDir, 'add.externals.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.externals.js.map'), output.map);
 fs.writeFileSync(path.join(buildDir, 'add.js'), source);
 
+//------------------------------------------------------
+// inline source map (data-uri)
+//------------------------------------------------------
+output = UglifyJS.minify({
+  'add.js': source
+}, {
+  sourceMap: {
+    filename: 'add.dataUri.js',
+    url: 'add.dataUri.js.map',
+    includeSources: true,
+    content: 'inline',
+    url: 'inline'
+  }
+});
+
+fs.writeFileSync(path.join(buildDir, 'add.dataUri.js'), output.code);
+fs.writeFileSync(path.join(buildDir, 'add.dataUri.js.map'), output.map);
+fs.writeFileSync(path.join(buildDir, 'add.js'), source);

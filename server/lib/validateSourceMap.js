@@ -1,6 +1,7 @@
 const request = require('request');
 const async = require('async');
 const {SourceMapConsumer, SourceMapGenerator} = require('source-map');
+const dataUriToBuffer = require('data-uri-to-buffer');
 
 const validateMappings = require('./validateMappings');
 const Report = require('./report');
@@ -15,6 +16,21 @@ const {
 } = require('./errors');
 const {MAX_TIMEOUT} = require('./constants');
 
+/**
+ * Wrapper around request except it handles source maps contained in data-uris
+ */
+function requestSourceMap(sourceMapUrl, options, callback) {
+  if (sourceMapUrl.startsWith('data:')) {
+    const body = dataUriToBuffer(sourceMapUrl);
+
+    // mock response object; pretend we made a http request
+    callback(null, {
+      statusCode: 200
+    }, body.toString());
+  } else {
+    request(sourceMapUrl, options, callback);
+  }
+}
 
 /**
  * Validates a source map located at the given url
@@ -26,7 +42,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   let report = new Report();
   report.sourceMap = sourceMapUrl;
 
-  request(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
+  requestSourceMap(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
         report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
