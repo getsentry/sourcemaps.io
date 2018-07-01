@@ -28,7 +28,7 @@ function validateGeneratedFile(url, callback) {
         return void callback(report);
       }
 
-      return void console.log(error);
+      return void console.error(error);
     }
 
     if (response && response.statusCode !== 200) {

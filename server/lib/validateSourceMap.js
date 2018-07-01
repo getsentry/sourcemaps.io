@@ -48,7 +48,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
         report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
         return void callback(report);
       }
-      return void console.log(error);
+      return void console.error(error);
     }
 
     if (response && response.statusCode !== 200) {
@@ -125,7 +125,7 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
     return (cb) => {
       request(resolvedUrl, {timeout: MAX_TIMEOUT}, (err, response, body) => {
         if (err) {
-          console.log(err);
+          console.error(err);
         }
         if (!response || response.statusCode !== 200) {
           return void cb(null, new UnableToFetchSourceError(resolvedUrl));
@@ -147,7 +147,7 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
   // open 100+ connections and exhaust cloud function memory)
   async.series(requests, (err, validationErrors) => {
     if (err) {
-      console.log(err);
+      console.error(err);
     }
     // Generate the new source map consumer with updated sources
     const fullSourceMapConsumer = SourceMapConsumer(generator.toJSON());
