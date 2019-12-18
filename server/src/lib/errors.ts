@@ -1,3 +1,4 @@
+
 function SourceMapNotFoundError(url) {
   Error.captureStackTrace(this, this.constructor);
   this.name = this.constructor.name;
