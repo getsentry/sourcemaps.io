@@ -13,12 +13,11 @@
     "@types/node": "^12.12.21",
     "express": "^4.15.3",
     "nock": "^11.7.0",
-    "nodemon": "^1.11.0",
-    "uglify-js": "^3.7.2",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.3",
+    "uglify-js": "^3.7.2"
   },
   "scripts": {
     "build": "tsc && rsync -am --include '*/' --include='*.js' --exclude='*' src/ dist",
-    "start": "node_modules/.bin/nodemon dev.js"
+    "start": "npm run build && node dist/dev.js"
   }
 }
