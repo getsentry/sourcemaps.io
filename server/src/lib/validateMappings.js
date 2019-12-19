@@ -126,7 +126,7 @@ function validateMappings(sourceMapConsumer, generatedLines) {
 
     // Treat bad column errors as warnings (since they'll work fine for
     // most apps)
-    if (error instanceof BadColumnError) {
+    if (error && error.name === 'BadColumnError') {
       report.pushWarning(error);
     } else if (error) {
       report.pushError(error);

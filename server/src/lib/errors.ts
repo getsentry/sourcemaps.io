@@ -2,7 +2,7 @@ class SourceMapNotFoundError extends Error {
   resolutions: Array<string>;
   constructor(url: string) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'SourceMapNotFoundError';
     this.message = `Unable to locate a source map in ${url}`;
     this.resolutions = [
       'Add a <code>//# sourceMappingURL=</code> declaration',
@@ -15,17 +15,30 @@ class UnableToFetchError extends Error {
   resolutions: Array<string>;
   constructor(url: string) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'UnableToFetchError';
     this.message = `Unable to fetch ${url}`;
     this.resolutions = ['Is your URL correct?'];
   }
 }
 
-class UnableToFetchSourceError extends UnableToFetchError {};
-class UnableToFetchMinifiedError extends UnableToFetchError {};
+class UnableToFetchSourceError extends UnableToFetchError {
+  constructor(url: string) {
+    super(url);
+    this.name = 'UnableToFetchSourceError';
+  }
+};
+
+class UnableToFetchMinifiedError extends UnableToFetchError {
+  constructor(url: string) {
+    super(url);
+    this.name = 'UnableToFetchMinifiedError';
+  }
+};
+
 class UnableToFetchSourceMapError extends UnableToFetchError {
   constructor(url: string) {
     super(url);
+    this.name = 'UnableToFetchSourceMapError'
     this.resolutions = ['SourceMap declaration found, but could not load the file.'];
   }
 };
@@ -36,7 +49,7 @@ class InvalidJSONError extends Error {
   constructor(url: string, error: Error) {
     super();
 
-    this.name = this.constructor.name;
+    this.name = 'InvalidJSONError';
     let message: string = 'Does not parse as JSON';
     if (error && error.message) {
       message += `: ${error.message}`;
@@ -51,7 +64,7 @@ class InvalidSourceMapFormatError extends Error {
   constructor(url: string, error: Error) {
     super();
 
-    this.name = this.constructor.name;
+    this.name = 'InvalidSourceMapFormatError';
     let message = 'Invalid SourceMap format';
     if (error && error.message) {
       message += `: ${error.message}`;
@@ -67,7 +80,7 @@ class ResourceTimeoutError extends Error {
 
   constructor(url: string, duration: number) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'ResourceTimeoutError';
     this.message = `Resource timed out (exceeded ${duration}ms): ${url}`;
     this.resolutions = ['Is your URL correct?'];    
   }
@@ -78,7 +91,7 @@ class BadContentError extends Error {
 
   constructor(url: string) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'BadContentError';
     this.message = `File is not JavaScript: ${url}`;
     this.resolutions = [
       'Is this URL accessible externally?',
@@ -95,7 +108,7 @@ class LineNotFoundError extends Error {
 
   constructor(source: string, options: {line: number, column: number}) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'LineNotFoundError';
     this.source = source;
   
     const {line, column} = options;
@@ -115,7 +128,7 @@ class BadTokenError extends Error {
 
   constructor(source: string, options: {token: string, expected: string, mapping: string}) {
     super();
-    this.name = this.constructor.name;
+    this.name = 'BadTokenError';
     this.source = source;
   
     const {token, expected, mapping} = options;
@@ -128,7 +141,12 @@ class BadTokenError extends Error {
   }
 }
 
-class BadColumnError extends Error {};
+class BadColumnError extends BadTokenError {
+  constructor(source: string, options: {token: string, expected: string, mapping: string}) {
+    super(source, options);
+    this.name = 'BadColumnError';
+  }
+};
 
 module.exports = {
   SourceMapNotFoundError,

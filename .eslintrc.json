@@ -17,9 +17,11 @@
     "max-len": 0,
     "arrow-body-style": 0
   },
-  "import/resolver": {
-    "node": {
-      "extensions": [".js", ".jsx", ".ts", ".tsx"]
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
     }
   }
 }

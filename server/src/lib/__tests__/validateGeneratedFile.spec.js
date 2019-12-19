@@ -6,19 +6,6 @@ const nock = require('nock');
 const validateGeneratedFile = require('../validateGeneratedFile');
 
 const {
-  SourceMapNotFoundError,
-  UnableToFetchSourceError,
-  UnableToFetchMinifiedError,
-  UnableToFetchSourceMapError,
-  InvalidSourceMapFormatError,
-  InvalidJSONError,
-  BadTokenError,
-  BadColumnError,
-  BadContentError,
-  ResourceTimeoutError
-} = require('../errors');
-
-const {
   HOST,
   RAW_DEFAULT_SOURCE_MAP,
   RAW_INLINE_SOURCE_MAP,
@@ -85,7 +72,6 @@ describe('source map location', () => {
     nock(HOST).get(appPath).reply(200, '//#sourceMappingURL=app.js.map\n\n');
 
     nock(HOST).get('/static/app.js.map').reply(200, RAW_INLINE_SOURCE_MAP);
-
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(0);
       done();
@@ -122,7 +108,7 @@ describe('source map location', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(SourceMapNotFoundError);
+      expect(report.errors[0].name).toBe('SourceMapNotFoundError');
       done();
     });
   });
@@ -134,7 +120,7 @@ describe('http failures', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(ResourceTimeoutError);
+      expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
         'message',
         'Resource timed out (exceeded 5000ms): https://example.org/static/app.js'
@@ -152,7 +138,7 @@ describe('http failures', () => {
       .reply(200, RAW_DEFAULT_SOURCE_MAP);
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(ResourceTimeoutError);
+      expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
         'message',
         'Resource timed out (exceeded 5000ms): https://example.org/static/app.js.map'
@@ -166,7 +152,7 @@ describe('http failures', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(UnableToFetchMinifiedError);
+      expect(report.errors[0].name).toBe('UnableToFetchMinifiedError');
       done();
     });
   });
@@ -178,7 +164,7 @@ describe('http failures', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(UnableToFetchSourceMapError);
+      expect(report.errors[0].name).toBe('UnableToFetchSourceMapError');
       done();
     });
   });
@@ -198,7 +184,7 @@ describe('http failures', () => {
       // verify all mocked requests satisfied
       scope.done();
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(UnableToFetchSourceError);
+      expect(report.errors[0].name).toBe('UnableToFetchSourceError');
       done();
     });
   });
@@ -212,7 +198,7 @@ describe('parsing failures', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(InvalidJSONError);
+      expect(report.errors[0].name).toBe('InvalidJSONError');
       expect(report.errors[0]).toHaveProperty(
         'message',
         'Does not parse as JSON: Unexpected token ! in JSON at position 0'
@@ -228,7 +214,7 @@ describe('parsing failures', () => {
 
     validateGeneratedFile(url, (report) => {
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(InvalidSourceMapFormatError);
+      expect(report.errors[0].name).toBe('InvalidSourceMapFormatError');
       expect(report.errors[0]).toHaveProperty(
         'message',
         'Invalid SourceMap format: "sources" is a required argument.'
@@ -253,7 +239,7 @@ describe('content failures', () => {
     validateGeneratedFile(url, (report) => {
       scope.done();
       expect(report.errors).toHaveLength(1);
-      expect(report.errors[0]).toBeInstanceOf(BadContentError);
+      expect(report.errors[0].name).toBe('BadContentError');
       expect(report.errors[0]).toHaveProperty(
         'message',
         'File is not JavaScript: https://example.org/static/two.js'
@@ -296,7 +282,7 @@ describe('mappings', () => {
 
       validateGeneratedFile(url, (report) => {
         expect(report.errors).not.toHaveLength(0);
-        expect(report.errors[0]).toBeInstanceOf(BadTokenError);
+        expect(report.errors[0].name).toBe('BadTokenError');
         expect(report.errors[0]).toHaveProperty(
           'message',
           'Expected token not in correct location'
@@ -321,7 +307,7 @@ describe('mappings', () => {
 
       validateGeneratedFile(url, (report) => {
         expect(report.warnings).not.toHaveLength(0);
-        expect(report.warnings[0]).toBeInstanceOf(BadColumnError);
+        expect(report.warnings[0].name).toBe('BadColumnError');
         expect(report.warnings[0]).toHaveProperty(
           'message',
           'Expected token not in correct location'
