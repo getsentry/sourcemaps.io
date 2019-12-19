@@ -8,7 +8,8 @@
     "husky": "^0.14.3",
     "jest": "^20.0.4",
     "lint-staged": "^4.0.2",
-    "ts-jest": "^24.2.0"
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.3"
   },
   "scripts": {
     "precommit": "lint-staged",
