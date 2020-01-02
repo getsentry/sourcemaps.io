@@ -73,58 +73,57 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
         return;
       }
 
-      let sourceMapConsumer;
-      try {
-        sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
-      } catch (err) {
-        report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
-        callback(report);
-        return;
-      }
+      new SourceMapConsumer(rawSourceMap)
+        .then((sourceMapConsumer) => {
+          // Build array of tuples of [originalUrl, resolvedUrl] for each source
+          // [
+          //   ['add.js', 'https://example.com/static/add.js'],
+          //   ['sub.js', 'https://example.com/static/sub.js']
+          // ]
+          const resolvedSources = sourceMapConsumer.sources.map((sourceUrl) => {
+            return [
+              sourceUrl,
+              resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)
+            ];
+          });
 
-      // Build array of tuples of [originalUrl, resolvedUrl] for each source
-      // [
-      //   ['add.js', 'https://example.com/static/add.js'],
-      //   ['sub.js', 'https://example.com/static/sub.js']
-      // ]
+          const validateMappingsCallback = (
+            _sourceMapConsumer,
+            fetchesReport = new Report()
+          ) => {
+            const generatedLines = generatedContent.split('\n');
+            const mappingsReport = validateMappings(
+              _sourceMapConsumer,
+              generatedLines
+            );
 
-      const resolvedSources = sourceMapConsumer.sources.map((sourceUrl) => {
-        return [
-          sourceUrl,
-          resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)
-        ];
-      });
+            report = report
+              .concat(fetchesReport)
+              .concat(mappingsReport)
+              .pushSource(
+                ...resolvedSources.map(([, resolvedUrl]) => resolvedUrl)
+              );
 
-      const validateMappingsCallback = (
-        _sourceMapConsumer,
-        fetchesReport = new Report()
-      ) => {
-        const generatedLines = generatedContent.split('\n');
-        const mappingsReport = validateMappings(
-          _sourceMapConsumer,
-          generatedLines
-        );
+            callback(report);
+          };
 
-        report = report
-          .concat(fetchesReport)
-          .concat(mappingsReport)
-          .pushSource(...resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
+          // If every source is inlined inside the source map, go directly to
+          // validate mappings ...
+          if (sourceMapConsumer.hasContentsOfAllSources()) {
+            return void validateMappingsCallback(sourceMapConsumer);
+          }
 
-        callback(report);
-      };
-
-      // If every source is inlined inside the source map, go directly to
-      // validate mappings ...
-      if (sourceMapConsumer.hasContentsOfAllSources()) {
-        return void validateMappingsCallback(sourceMapConsumer);
-      }
-
-      // ... otherwise, we need to fetch missing sources first.
-      fetchSources(
-        sourceMapConsumer,
-        resolvedSources,
-        validateMappingsCallback
-      );
+          // ... otherwise, we need to fetch missing sources first.
+          fetchSources(
+            sourceMapConsumer,
+            resolvedSources,
+            validateMappingsCallback
+          );
+        })
+        .catch((err) => {
+          report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
+          callback(report);
+        });
     }
   );
 }
@@ -170,10 +169,10 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
       console.error(err);
     }
     // Generate the new source map consumer with updated sources
-    const fullSourceMapConsumer = SourceMapConsumer(generator.toJSON());
-
-    report.pushError(...validationErrors.filter(_err => _err));
-    callback(fullSourceMapConsumer, report);
+    new SourceMapConsumer(generator.toJSON()).then((fullSourceMapConsumer) => {
+      report.pushError(...validationErrors.filter(_err => _err));
+      callback(fullSourceMapConsumer, report);
+    });
   });
 }
 

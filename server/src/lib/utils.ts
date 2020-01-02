@@ -1,4 +1,4 @@
-import { SourceMap } from './interfaces';
+import { RawSourceMap } from 'source-map';
 import { Response } from 'request';
 
 const urljoin = require('url-join');
@@ -30,7 +30,7 @@ function resolveUrl(baseUrl: string, targetUrl: string) {
 function resolveSourceMapSource(
   sourceUrl: string,
   sourceMapUrl: string,
-  rawSourceMap: SourceMap
+  rawSourceMap: RawSourceMap
 ) {
   let resolvedUrl = sourceUrl;
 

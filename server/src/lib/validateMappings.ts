@@ -1,6 +1,5 @@
 const Report = require('./report');
-
-import { SourceMapping } from './interfaces';
+import { SourceMapConsumer, MappingItem } from 'source-map';
 
 import {
   LineNotFoundError,
@@ -15,7 +14,7 @@ const { MAX_REPORT_SIZE } = require('./constants');
  * @param {*} sourceLines An array of source lines from the original file
  * @param {*} generatedLines An array of source lines from the generated (transpiled) file
  */
-function validateMapping(mapping: SourceMapping, sourceLines: Array<string>, generatedLines: Array<string>) {
+function validateMapping(mapping: MappingItem, sourceLines: Array<string>, generatedLines: Array<string>) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
@@ -102,11 +101,11 @@ function validateMapping(mapping: SourceMapping, sourceLines: Array<string>, gen
  * @param {SourceMapConsumer} sourceMapConsumer Pre-initialized with the source map content
  * @param {array} generatedLines Array of lines from the generated (transpiled) output
  */
-function validateMappings(sourceMapConsumer: any, generatedLines: Array<string>) {
+function validateMappings(sourceMapConsumer: SourceMapConsumer, generatedLines: Array<string>) {
   const report = new Report();
   const sourceCache: any = {};
 
-  sourceMapConsumer.eachMapping((mapping: SourceMapping) => {
+  sourceMapConsumer.eachMapping((mapping: MappingItem) => {
     if (report.size() >= MAX_REPORT_SIZE) {
       return;
     }
