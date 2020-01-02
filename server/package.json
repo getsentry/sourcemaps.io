@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@types/node": "^12.12.21",
+    "@types/request": "^2.48.4",
     "express": "^4.15.3",
     "nock": "^11.7.0",
     "typescript": "^3.7.3",
