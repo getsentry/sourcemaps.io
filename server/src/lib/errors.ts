@@ -156,7 +156,7 @@ class BadColumnError extends BadTokenError {
   }
 }
 
-module.exports = {
+export {
   SourceMapNotFoundError,
   UnableToFetchError,
   UnableToFetchMinifiedError,

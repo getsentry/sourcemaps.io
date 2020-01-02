@@ -1,14 +1,14 @@
-const request = require('request');
+import request from 'request';
 
 const validateSourceMap = require('./validateSourceMap');
 const Report = require('./report');
 
-const {
+import {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   ResourceTimeoutError
-} = require('./errors');
-const { MAX_TIMEOUT } = require('./constants');
+} from './errors';
+import { MAX_TIMEOUT } from './constants';
 const { resolveUrl, getSourceMapLocation } = require('./utils');
 
 /**
@@ -17,7 +17,7 @@ const { resolveUrl, getSourceMapLocation } = require('./utils');
  *            e.g. https://example.com/static/app.min.js
  * @param {function} callback Invoked when validation is finished, passed a Report object
  */
-function validateGeneratedFile(url, callback) {
+function validateGeneratedFile(url: string, callback: Function) {
   const report = new Report({ url });
 
   request(url, { timeout: MAX_TIMEOUT }, (error, response, body) => {
@@ -49,7 +49,7 @@ function validateGeneratedFile(url, callback) {
     validateSourceMap(
       resolvedSourceMappingURL,
       response.body,
-      (sourceMapReport) => {
+      (sourceMapReport: any) => {
         const finalReport = report.concat(sourceMapReport);
         callback(finalReport);
       }
