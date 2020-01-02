@@ -1,13 +1,17 @@
-const {resolveSourceMapSource} = require('../utils');
+const { resolveSourceMapSource } = require('../utils');
 
-const {HOST, DEFAULT_SOURCE_MAP} = require('./fixtures/examples');
+const { HOST, DEFAULT_SOURCE_MAP } = require('./fixtures/examples');
 
 describe('resolveSourceMapSource', () => {
   it('should prepend sourceRoot if present', () => {
     const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     sourceMap.sourceRoot = 'https://example2.com/dist/';
     expect(
-      resolveSourceMapSource('one.js', `${HOST}/static/app.min.js.map`, sourceMap)
+      resolveSourceMapSource(
+        'one.js',
+        `${HOST}/static/app.min.js.map`,
+        sourceMap
+      )
     ).toEqual('https://example2.com/dist/one.js');
   });
 
@@ -27,7 +31,11 @@ describe('resolveSourceMapSource', () => {
     const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     delete sourceMap.sourceRoot;
     expect(
-      resolveSourceMapSource('one.js', `${HOST}/static/app.min.js.map`, sourceMap)
+      resolveSourceMapSource(
+        'one.js',
+        `${HOST}/static/app.min.js.map`,
+        sourceMap
+      )
     ).toEqual(`${HOST}/static/one.js`);
   });
 
@@ -35,7 +43,11 @@ describe('resolveSourceMapSource', () => {
     const sourceMap = Object.assign({}, DEFAULT_SOURCE_MAP);
     sourceMap.sourceRoot = '/some/path/'; // completely tossed out, according to spec
     expect(
-      resolveSourceMapSource('one.js', `${HOST}/static/app.min.js.map`, sourceMap)
+      resolveSourceMapSource(
+        'one.js',
+        `${HOST}/static/app.min.js.map`,
+        sourceMap
+      )
     ).toEqual(`${HOST}/static/one.js`);
   });
 

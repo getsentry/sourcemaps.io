@@ -1,11 +1,11 @@
 const request = require('request');
 const async = require('async');
-const {SourceMapConsumer, SourceMapGenerator} = require('source-map');
+const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const dataUriToBuffer = require('data-uri-to-buffer');
 
 const validateMappings = require('./validateMappings');
 const Report = require('./report');
-const {resolveSourceMapSource} = require('./utils');
+const { resolveSourceMapSource } = require('./utils');
 const {
   UnableToFetchSourceMapError,
   UnableToFetchSourceError,
@@ -14,7 +14,7 @@ const {
   BadContentError,
   ResourceTimeoutError
 } = require('./errors');
-const {MAX_TIMEOUT} = require('./constants');
+const { MAX_TIMEOUT } = require('./constants');
 
 /**
  * Wrapper around request except it handles source maps contained in data-uris
@@ -24,9 +24,13 @@ function requestSourceMap(sourceMapUrl, options, callback) {
     const body = dataUriToBuffer(sourceMapUrl);
 
     // mock response object; pretend we made a http request
-    callback(null, {
-      statusCode: 200
-    }, body.toString());
+    callback(
+      null,
+      {
+        statusCode: 200
+      },
+      body.toString()
+    );
   } else {
     request(sourceMapUrl, options, callback);
   }
@@ -42,71 +46,87 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   let report = new Report();
   report.sourceMap = sourceMapUrl;
 
-  requestSourceMap(sourceMapUrl, {timeout: MAX_TIMEOUT}, (error, response, body) => {
-    if (error) {
-      if (error.message === 'ESOCKETTIMEDOUT') {
-        report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
-        return void callback(report);
+  requestSourceMap(
+    sourceMapUrl,
+    { timeout: MAX_TIMEOUT },
+    (error, response, body) => {
+      if (error) {
+        if (error.message === 'ESOCKETTIMEDOUT') {
+          report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
+          return void callback(report);
+        }
+        return void console.error(error);
       }
-      return void console.error(error);
-    }
 
-    if (response && response.statusCode !== 200) {
-      report.pushError(new UnableToFetchSourceMapError(sourceMapUrl));
-      callback(report);
-      return;
-    }
+      if (response && response.statusCode !== 200) {
+        report.pushError(new UnableToFetchSourceMapError(sourceMapUrl));
+        callback(report);
+        return;
+      }
 
-    let rawSourceMap;
-    try {
-      rawSourceMap = JSON.parse(body);
-    } catch (err) {
-      report.pushError(new InvalidJSONError(sourceMapUrl, err));
-      callback(report);
-      return;
-    }
+      let rawSourceMap;
+      try {
+        rawSourceMap = JSON.parse(body);
+      } catch (err) {
+        report.pushError(new InvalidJSONError(sourceMapUrl, err));
+        callback(report);
+        return;
+      }
 
-    let sourceMapConsumer;
-    try {
-      sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
-    } catch (err) {
-      report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
-      callback(report);
-      return;
-    }
+      let sourceMapConsumer;
+      try {
+        sourceMapConsumer = new SourceMapConsumer(rawSourceMap);
+      } catch (err) {
+        report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
+        callback(report);
+        return;
+      }
 
-    // Build array of tuples of [originalUrl, resolvedUrl] for each source
-    // [
-    //   ['add.js', 'https://example.com/static/add.js'],
-    //   ['sub.js', 'https://example.com/static/sub.js']
-    // ]
+      // Build array of tuples of [originalUrl, resolvedUrl] for each source
+      // [
+      //   ['add.js', 'https://example.com/static/add.js'],
+      //   ['sub.js', 'https://example.com/static/sub.js']
+      // ]
 
-    const resolvedSources = sourceMapConsumer.sources
-      .map((sourceUrl) => {
-        return [sourceUrl, resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)];
+      const resolvedSources = sourceMapConsumer.sources.map((sourceUrl) => {
+        return [
+          sourceUrl,
+          resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)
+        ];
       });
 
-    const validateMappingsCallback = (_sourceMapConsumer, fetchesReport = new Report()) => {
-      const generatedLines = generatedContent.split('\n');
-      const mappingsReport = validateMappings(_sourceMapConsumer, generatedLines);
+      const validateMappingsCallback = (
+        _sourceMapConsumer,
+        fetchesReport = new Report()
+      ) => {
+        const generatedLines = generatedContent.split('\n');
+        const mappingsReport = validateMappings(
+          _sourceMapConsumer,
+          generatedLines
+        );
 
-      report = report
-        .concat(fetchesReport)
-        .concat(mappingsReport)
-        .pushSource(...resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
+        report = report
+          .concat(fetchesReport)
+          .concat(mappingsReport)
+          .pushSource(...resolvedSources.map(([, resolvedUrl]) => resolvedUrl));
 
-      callback(report);
-    };
+        callback(report);
+      };
 
-    // If every source is inlined inside the source map, go directly to
-    // validate mappings ...
-    if (sourceMapConsumer.hasContentsOfAllSources()) {
-      return void validateMappingsCallback(sourceMapConsumer);
+      // If every source is inlined inside the source map, go directly to
+      // validate mappings ...
+      if (sourceMapConsumer.hasContentsOfAllSources()) {
+        return void validateMappingsCallback(sourceMapConsumer);
+      }
+
+      // ... otherwise, we need to fetch missing sources first.
+      fetchSources(
+        sourceMapConsumer,
+        resolvedSources,
+        validateMappingsCallback
+      );
     }
-
-    // ... otherwise, we need to fetch missing sources first.
-    fetchSources(sourceMapConsumer, resolvedSources, validateMappingsCallback);
-  });
+  );
 }
 
 function fetchSources(sourceMapConsumer, resolvedSources, callback) {
@@ -123,7 +143,7 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
 
   const requests = missingSources.map(([sourceUrl, resolvedUrl]) => {
     return (cb) => {
-      request(resolvedUrl, {timeout: MAX_TIMEOUT}, (err, response, body) => {
+      request(resolvedUrl, { timeout: MAX_TIMEOUT }, (err, response, body) => {
         if (err) {
           console.error(err);
         }

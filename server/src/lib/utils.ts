@@ -1,5 +1,5 @@
-import {SourceMap} from './interfaces';
-import {Response} from 'request';
+import { SourceMap } from './interfaces';
+import { Response } from 'request';
 
 const urljoin = require('url-join');
 
@@ -27,10 +27,17 @@ function resolveUrl(baseUrl: string, targetUrl: string) {
  * relative to either that source map's `sourceRoot` property (if present)
  * OR failing that relative to the source map's URL
  */
-function resolveSourceMapSource(sourceUrl: string, sourceMapUrl: string, rawSourceMap: SourceMap) {
+function resolveSourceMapSource(
+  sourceUrl: string,
+  sourceMapUrl: string,
+  rawSourceMap: SourceMap
+) {
   let resolvedUrl = sourceUrl;
 
-  if (!resolvedUrl.startsWith('http') && rawSourceMap.sourceRoot !== undefined) {
+  if (
+    !resolvedUrl.startsWith('http') &&
+    rawSourceMap.sourceRoot !== undefined
+  ) {
     resolvedUrl = rawSourceMap.sourceRoot + sourceUrl;
   }
 

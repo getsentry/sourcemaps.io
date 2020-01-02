@@ -26,22 +26,24 @@ class UnableToFetchSourceError extends UnableToFetchError {
     super(url);
     this.name = 'UnableToFetchSourceError';
   }
-};
+}
 
 class UnableToFetchMinifiedError extends UnableToFetchError {
   constructor(url: string) {
     super(url);
     this.name = 'UnableToFetchMinifiedError';
   }
-};
+}
 
 class UnableToFetchSourceMapError extends UnableToFetchError {
   constructor(url: string) {
     super(url);
-    this.name = 'UnableToFetchSourceMapError'
-    this.resolutions = ['SourceMap declaration found, but could not load the file.'];
+    this.name = 'UnableToFetchSourceMapError';
+    this.resolutions = [
+      'SourceMap declaration found, but could not load the file.'
+    ];
   }
-};
+}
 
 class InvalidJSONError extends Error {
   resolutions: Array<string>;
@@ -70,7 +72,7 @@ class InvalidSourceMapFormatError extends Error {
       message += `: ${error.message}`;
     }
     this.message = message;
-  
+
     this.resolutions = ['Everything is broken. Is this really a Source Map?'];
   }
 }
@@ -82,7 +84,7 @@ class ResourceTimeoutError extends Error {
     super();
     this.name = 'ResourceTimeoutError';
     this.message = `Resource timed out (exceeded ${duration}ms): ${url}`;
-    this.resolutions = ['Is your URL correct?'];    
+    this.resolutions = ['Is your URL correct?'];
   }
 }
 
@@ -106,12 +108,12 @@ class LineNotFoundError extends Error {
   line: number;
   resolutions: Array<string>;
 
-  constructor(source: string, options: {line: number, column: number}) {
+  constructor(source: string, options: { line: number; column: number }) {
     super();
     this.name = 'LineNotFoundError';
     this.source = source;
-  
-    const {line, column} = options;
+
+    const { line, column } = options;
     this.line = line;
     this.column = column;
     this.message = 'Line not found in source file';
@@ -123,30 +125,36 @@ class BadTokenError extends Error {
   source: string;
   token: string;
   expected: string;
-  mapping: string
+  mapping: string;
   resolutions: Array<string>;
 
-  constructor(source: string, options: {token: string, expected: string, mapping: string}) {
+  constructor(
+    source: string,
+    options: { token: string; expected: string; mapping: string }
+  ) {
     super();
     this.name = 'BadTokenError';
     this.source = source;
-  
-    const {token, expected, mapping} = options;
+
+    const { token, expected, mapping } = options;
     this.token = token;
     this.expected = expected;
     this.mapping = mapping;
-  
+
     this.message = 'Expected token not in correct location';
     this.resolutions = [];
   }
 }
 
 class BadColumnError extends BadTokenError {
-  constructor(source: string, options: {token: string, expected: string, mapping: string}) {
+  constructor(
+    source: string,
+    options: { token: string; expected: string; mapping: string }
+  ) {
     super(source, options);
     this.name = 'BadColumnError';
   }
-};
+}
 
 module.exports = {
   SourceMapNotFoundError,
