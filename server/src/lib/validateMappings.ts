@@ -1,9 +1,12 @@
 const Report = require('./report');
-const {
+
+import { SourceMapping } from './interfaces';
+
+import {
   LineNotFoundError,
   BadTokenError,
   BadColumnError
-} = require('./errors');
+} from './errors';
 const { MAX_REPORT_SIZE } = require('./constants');
 
 /**
@@ -12,7 +15,7 @@ const { MAX_REPORT_SIZE } = require('./constants');
  * @param {*} sourceLines An array of source lines from the original file
  * @param {*} generatedLines An array of source lines from the generated (transpiled) file
  */
-function validateMapping(mapping, sourceLines, generatedLines) {
+function validateMapping(mapping: SourceMapping, sourceLines: Array<string>, generatedLines: Array<string>) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
@@ -65,7 +68,7 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   } catch (e) {} // eslint-disable-line no-empty
 
   // Take 5 lines of original context
-  const contextLines = [];
+  const contextLines: Array<[number, string]> = [];
   for (
     let i = Math.max(mapping.originalLine - 3, 0);
     i < mapping.originalLine + 2 && i < sourceLines.length;
@@ -75,7 +78,7 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   }
 
   // Take 100 chars of context around generated line
-  const generatedContext = generatedLine.slice(
+  const generatedContext = (generatedLine || '').slice(
     generatedColumn - 50,
     generatedColumn + 50
   );
@@ -99,11 +102,11 @@ function validateMapping(mapping, sourceLines, generatedLines) {
  * @param {SourceMapConsumer} sourceMapConsumer Pre-initialized with the source map content
  * @param {array} generatedLines Array of lines from the generated (transpiled) output
  */
-function validateMappings(sourceMapConsumer, generatedLines) {
+function validateMappings(sourceMapConsumer: any, generatedLines: Array<string>) {
   const report = new Report();
-  const sourceCache = {};
+  const sourceCache: any = {};
 
-  sourceMapConsumer.eachMapping((mapping) => {
+  sourceMapConsumer.eachMapping((mapping: SourceMapping) => {
     if (report.size() >= MAX_REPORT_SIZE) {
       return;
     }

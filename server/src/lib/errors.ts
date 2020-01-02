@@ -1,3 +1,5 @@
+import { ContextMapping } from './interfaces';
+
 class SourceMapNotFoundError extends Error {
   resolutions: Array<string>;
   constructor(url: string) {
@@ -125,12 +127,12 @@ class BadTokenError extends Error {
   source: string;
   token: string;
   expected: string;
-  mapping: string;
+  mapping: ContextMapping;
   resolutions: Array<string>;
 
   constructor(
     source: string,
-    options: { token: string; expected: string; mapping: string }
+    options: { token: string; expected: string; mapping: ContextMapping }
   ) {
     super();
     this.name = 'BadTokenError';
@@ -149,7 +151,7 @@ class BadTokenError extends Error {
 class BadColumnError extends BadTokenError {
   constructor(
     source: string,
-    options: { token: string; expected: string; mapping: string }
+    options: { token: string; expected: string; mapping: ContextMapping }
   ) {
     super(source, options);
     this.name = 'BadColumnError';
