@@ -1,5 +1,6 @@
 import request from 'request';
 const async = require('async');
+
 import {
   SourceMapConsumer,
   SourceMapGenerator,
@@ -8,9 +9,9 @@ import {
 } from 'source-map';
 const dataUriToBuffer = require('data-uri-to-buffer');
 
-const validateMappings = require('./validateMappings');
+import validateMappings from './validateMappings';
 import Report from './report';
-const { resolveSourceMapSource } = require('./utils');
+import { resolveSourceMapSource } from './utils';
 import {
   UnableToFetchSourceMapError,
   UnableToFetchSourceError,
@@ -19,7 +20,7 @@ import {
   BadContentError,
   ResourceTimeoutError
 } from './errors';
-const { MAX_TIMEOUT } = require('./constants');
+import { MAX_TIMEOUT } from './constants';
 
 /**
  * Wrapper around request except it handles source maps contained in data-uris
@@ -51,7 +52,7 @@ function requestSourceMap(
  * @param {string} generatedContent The generated (transpiled) file content
  * @param {function} callback Invoked after validation is finished, passed a Report object
  */
-function validateSourceMap(
+export default function validateSourceMap(
   sourceMapUrl: string,
   generatedContent: string,
   callback: Function
@@ -192,5 +193,3 @@ function fetchSources(
     });
   });
 }
-
-module.exports = validateSourceMap;

@@ -1,6 +1,6 @@
 import request from 'request';
 
-const validateSourceMap = require('./validateSourceMap');
+import validateSourceMap from './validateSourceMap';
 import Report from './report';
 
 import {

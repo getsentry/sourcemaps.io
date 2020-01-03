@@ -5,6 +5,8 @@
     "jest": true
   },
   "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "import/extensions": [".js", ".jsx", ".json", ".ts", ".tsx"]
+
   }
 }

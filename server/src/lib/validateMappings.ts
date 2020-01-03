@@ -1,12 +1,8 @@
 import Report from './report';
 import { SourceMapConsumer, MappingItem } from 'source-map';
 
-import {
-  LineNotFoundError,
-  BadTokenError,
-  BadColumnError
-} from './errors';
-const { MAX_REPORT_SIZE } = require('./constants');
+import { LineNotFoundError, BadTokenError, BadColumnError } from './errors';
+import { MAX_REPORT_SIZE } from './constants';
 
 /**
  * Validate a single mapping
@@ -14,7 +10,11 @@ const { MAX_REPORT_SIZE } = require('./constants');
  * @param {*} sourceLines An array of source lines from the original file
  * @param {*} generatedLines An array of source lines from the generated (transpiled) file
  */
-function validateMapping(mapping: MappingItem, sourceLines: Array<string>, generatedLines: Array<string>) {
+function validateMapping(
+  mapping: MappingItem,
+  sourceLines: Array<string>,
+  generatedLines: Array<string>
+) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
@@ -101,7 +101,10 @@ function validateMapping(mapping: MappingItem, sourceLines: Array<string>, gener
  * @param {SourceMapConsumer} sourceMapConsumer Pre-initialized with the source map content
  * @param {array} generatedLines Array of lines from the generated (transpiled) output
  */
-function validateMappings(sourceMapConsumer: SourceMapConsumer, generatedLines: Array<string>) {
+export default function validateMappings(
+  sourceMapConsumer: SourceMapConsumer,
+  generatedLines: Array<string>
+) {
   const report = new Report();
   const sourceCache: any = {};
 
@@ -141,5 +144,3 @@ function validateMappings(sourceMapConsumer: SourceMapConsumer, generatedLines: 
   });
   return report;
 }
-
-module.exports = validateMappings;

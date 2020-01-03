@@ -1,4 +1,4 @@
-const validateMappings = require('../validateMappings');
+const validateMappings = require('../validateMappings').default;
 
 describe('validateMappings', () => {
   it('should stop at 100 errors', () => {
