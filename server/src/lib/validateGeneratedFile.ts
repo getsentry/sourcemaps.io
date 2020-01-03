@@ -9,7 +9,7 @@ import {
   ResourceTimeoutError
 } from './errors';
 import { MAX_TIMEOUT } from './constants';
-const { resolveUrl, getSourceMapLocation } = require('./utils');
+import { resolveUrl, getSourceMapLocation } from './utils';
 
 /**
  * Validates a target transpiled/minified file located at a given url

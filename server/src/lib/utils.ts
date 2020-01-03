@@ -7,7 +7,7 @@ const urljoin = require('url-join');
  * Resolves a target url relative to a given base url
  * e.g. ['https://example.com/', '/some/path'] => 'https://example.com/some/path'
  */
-function resolveUrl(baseUrl: string, targetUrl: string) {
+export function resolveUrl(baseUrl: string, targetUrl: string) {
   // Don't mess with data-uris
   if (targetUrl.startsWith('data:')) {
     return targetUrl;
@@ -27,7 +27,7 @@ function resolveUrl(baseUrl: string, targetUrl: string) {
  * relative to either that source map's `sourceRoot` property (if present)
  * OR failing that relative to the source map's URL
  */
-function resolveSourceMapSource(
+export function resolveSourceMapSource(
   sourceUrl: string,
   sourceMapUrl: string,
   rawSourceMap: RawSourceMap
@@ -56,12 +56,12 @@ function resolveSourceMapSource(
  * Given an HTTP response of a generated/transpiled/minified JavaScript
  * file, locate that file's source map location if present
  */
-function getSourceMapLocation(response: Response, body: string) {
+export function getSourceMapLocation(response: Response, body: string): string | null {
   // First, look for Source Map HTTP headers
   const sourceMapHeader =
     response.headers['x-sourcemap'] || response.headers.sourcemap;
 
-  if (sourceMapHeader) return sourceMapHeader;
+  if (sourceMapHeader) return Array.isArray(sourceMapHeader) ? sourceMapHeader[0] : sourceMapHeader;
 
   // If no headers, look for a sourceMappingURL directive on the last line
   const lines = body.split(/\n/);
@@ -85,9 +85,3 @@ function getSourceMapLocation(response: Response, body: string) {
 
   return null;
 }
-
-module.exports = {
-  resolveUrl,
-  resolveSourceMapSource,
-  getSourceMapLocation
-};
