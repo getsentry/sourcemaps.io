@@ -1,7 +1,7 @@
 import request from 'request';
 
 const validateSourceMap = require('./validateSourceMap');
-const Report = require('./report');
+import Report from './report';
 
 import {
   SourceMapNotFoundError,

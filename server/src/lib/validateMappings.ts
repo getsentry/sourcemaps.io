@@ -1,4 +1,4 @@
-const Report = require('./report');
+import Report from './report';
 import { SourceMapConsumer, MappingItem } from 'source-map';
 
 import {

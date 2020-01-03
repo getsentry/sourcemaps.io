@@ -9,7 +9,7 @@ import {
 const dataUriToBuffer = require('data-uri-to-buffer');
 
 const validateMappings = require('./validateMappings');
-const Report = require('./report');
+import Report from './report';
 const { resolveSourceMapSource } = require('./utils');
 import {
   UnableToFetchSourceMapError,
