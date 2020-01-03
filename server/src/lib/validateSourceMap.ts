@@ -1,25 +1,34 @@
-const request = require('request');
+import request from 'request';
 const async = require('async');
-const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
+import {
+  SourceMapConsumer,
+  SourceMapGenerator,
+  RawSourceMap,
+  BasicSourceMapConsumer
+} from 'source-map';
 const dataUriToBuffer = require('data-uri-to-buffer');
 
 const validateMappings = require('./validateMappings');
 const Report = require('./report');
 const { resolveSourceMapSource } = require('./utils');
-const {
+import {
   UnableToFetchSourceMapError,
   UnableToFetchSourceError,
   InvalidSourceMapFormatError,
   InvalidJSONError,
   BadContentError,
   ResourceTimeoutError
-} = require('./errors');
+} from './errors';
 const { MAX_TIMEOUT } = require('./constants');
 
 /**
  * Wrapper around request except it handles source maps contained in data-uris
  */
-function requestSourceMap(sourceMapUrl, options, callback) {
+function requestSourceMap(
+  sourceMapUrl: string,
+  options: request.CoreOptions,
+  callback: (error: any, response: Partial<request.Response>, body: any) => void
+) {
   if (sourceMapUrl.startsWith('data:')) {
     const body = dataUriToBuffer(sourceMapUrl);
 
@@ -32,7 +41,7 @@ function requestSourceMap(sourceMapUrl, options, callback) {
       body.toString()
     );
   } else {
-    request(sourceMapUrl, options, callback);
+    request(sourceMapUrl, options, callback as request.RequestCallback);
   }
 }
 
@@ -42,7 +51,11 @@ function requestSourceMap(sourceMapUrl, options, callback) {
  * @param {string} generatedContent The generated (transpiled) file content
  * @param {function} callback Invoked after validation is finished, passed a Report object
  */
-function validateSourceMap(sourceMapUrl, generatedContent, callback) {
+function validateSourceMap(
+  sourceMapUrl: string,
+  generatedContent: string,
+  callback: Function
+) {
   let report = new Report();
   report.sourceMap = sourceMapUrl;
 
@@ -64,7 +77,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
         return;
       }
 
-      let rawSourceMap;
+      let rawSourceMap: RawSourceMap;
       try {
         rawSourceMap = JSON.parse(body);
       } catch (err) {
@@ -74,13 +87,13 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
       }
 
       new SourceMapConsumer(rawSourceMap)
-        .then((sourceMapConsumer) => {
+        .then((sourceMapConsumer: BasicSourceMapConsumer) => {
           // Build array of tuples of [originalUrl, resolvedUrl] for each source
           // [
           //   ['add.js', 'https://example.com/static/add.js'],
           //   ['sub.js', 'https://example.com/static/sub.js']
           // ]
-          const resolvedSources = sourceMapConsumer.sources.map((sourceUrl) => {
+          const resolvedSources: Array<[string,string]> = sourceMapConsumer.sources.map(sourceUrl => {
             return [
               sourceUrl,
               resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)
@@ -88,7 +101,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
           });
 
           const validateMappingsCallback = (
-            _sourceMapConsumer,
+            _sourceMapConsumer: SourceMapConsumer,
             fetchesReport = new Report()
           ) => {
             const generatedLines = generatedContent.split('\n');
@@ -120,7 +133,7 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
             validateMappingsCallback
           );
         })
-        .catch((err) => {
+        .catch(err => {
           report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
           callback(report);
         });
@@ -128,7 +141,11 @@ function validateSourceMap(sourceMapUrl, generatedContent, callback) {
   );
 }
 
-function fetchSources(sourceMapConsumer, resolvedSources, callback) {
+function fetchSources(
+  sourceMapConsumer: BasicSourceMapConsumer,
+  resolvedSources: Array<[string, string]>,
+  callback: Function
+) {
   const report = new Report();
 
   // We're going to generate a new source map consumer, building
@@ -141,7 +158,7 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
   });
 
   const requests = missingSources.map(([sourceUrl, resolvedUrl]) => {
-    return (cb) => {
+    return (cb: Function) => {
       request(resolvedUrl, { timeout: MAX_TIMEOUT }, (err, response, body) => {
         if (err) {
           console.error(err);
@@ -164,12 +181,12 @@ function fetchSources(sourceMapConsumer, resolvedSources, callback) {
 
   // TODO: explore parallelizing requests (want to make sure we don't accidentally
   // open 100+ connections and exhaust cloud function memory)
-  async.series(requests, (err, validationErrors) => {
+  async.series(requests, (err: Error, validationErrors: Array<Error>) => {
     if (err) {
       console.error(err);
     }
     // Generate the new source map consumer with updated sources
-    new SourceMapConsumer(generator.toJSON()).then((fullSourceMapConsumer) => {
+    new SourceMapConsumer(generator.toJSON()).then(fullSourceMapConsumer => {
       report.pushError(...validationErrors.filter(_err => _err));
       callback(fullSourceMapConsumer, report);
     });
