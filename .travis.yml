@@ -14,7 +14,7 @@ jobs:
     - stage: deploy
       language: python
       env:
-        - TRAVIS_NODE_VERSION="6" PATH=$PATH:${HOME}/google-cloud-sdk/bin
+        - TRAVIS_NODE_VERSION="12" PATH=$PATH:${HOME}/google-cloud-sdk/bin
           PYTHONPATH=${PYTHONPATH}:${GAE_PYTHONPATH} CLOUDSDK_CORE_DISABLE_PROMPTS=1
       before_install:
         - if [ "$TRAVIS_BRANCH" != "master" -o "$TRAVIS_PULL_REQUEST" != "false" ]; then travis_terminate 0; fi
