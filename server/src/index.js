@@ -50,7 +50,7 @@ exports.validateGeneratedFile = function (req, res) {
       }
     });
     stream.on('error', (err) => {
-      res.status(500).send(err);
+      res.status(500).send(err.message);
     });
     stream.on('finish', () => {
       res.status(200).send(encodeURIComponent(objectName));
