@@ -1,5 +1,12 @@
-class Report {
-  constructor(report = {}) {
+export default class Report {
+  warnings: Error[];
+  errors: Error[];
+  sources: string[];
+
+  url?: string;
+  sourceMap?: string;
+  
+  constructor(report: Partial<Report> = {}) {
     this.warnings = report.warnings || [];
     this.errors = report.errors || [];
     this.sources = report.sources || [];
@@ -8,22 +15,22 @@ class Report {
     this.sourceMap = report.sourceMap;
   }
 
-  pushError(...errors) {
+  pushError(...errors: Error[]) {
     this.errors.push(...errors);
     return this;
   }
 
-  pushWarning(...warnings) {
+  pushWarning(...warnings: Error[]) {
     this.warnings.push(...warnings);
     return this;
   }
 
-  pushSource(...sources) {
+  pushSource(...sources: string[]) {
     this.sources.push(...sources);
     return this;
   }
 
-  concat(report) {
+  concat(report: Report) {
     const copy = new Report(this);
     copy.errors = copy.errors.concat(report.errors);
     copy.warnings = copy.warnings.concat(report.warnings);
@@ -37,5 +44,3 @@ class Report {
     return this.errors.length + this.warnings.length;
   }
 }
-
-module.exports = Report;

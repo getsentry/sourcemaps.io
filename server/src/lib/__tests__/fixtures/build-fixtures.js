@@ -36,15 +36,18 @@ function replaceSourceMappingURL(src, sourceMappingURL) {
 // end-to-end source map example with properly mapped
 // tokens and sourcesContent
 //------------------------------------------------------
-let output = UglifyJS.minify({
-  'add.js': source
-}, {
-  sourceMap: {
-    filename: 'add.inlineSources.js',
-    url: 'add.inlineSources.js.map',
-    includeSources: true
+let output = UglifyJS.minify(
+  {
+    'add.js': source
+  },
+  {
+    sourceMap: {
+      filename: 'add.inlineSources.js',
+      url: 'add.inlineSources.js.map',
+      includeSources: true
+    }
   }
-});
+);
 
 fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js.map'), output.map);
@@ -56,12 +59,18 @@ fs.writeFileSync(path.join(buildDir, 'add.inlineSources.js.map'), output.map);
 // which will cause token mappings to be incorrect
 //------------------------------------------------------
 const fuzzedLineSourceMap = JSON.parse(output.map);
-fuzzedLineSourceMap.sourcesContent = fuzzedLineSourceMap.sourcesContent.map(src => `/**\n * Copyright 2017 Weyland-Yutani\n * All rights reserved\n */\n${src}`);
+fuzzedLineSourceMap.sourcesContent = fuzzedLineSourceMap.sourcesContent.map(
+  src =>
+    `/**\n * Copyright 2017 Weyland-Yutani\n * All rights reserved\n */\n${src}`
+);
 
 output.code = replaceSourceMappingURL(output.code, 'add.fuzzLines.js.map');
 
 fs.writeFileSync(path.join(buildDir, 'add.fuzzLines.js'), output.code);
-fs.writeFileSync(path.join(buildDir, 'add.fuzzLines.js.map'), JSON.stringify(fuzzedLineSourceMap));
+fs.writeFileSync(
+  path.join(buildDir, 'add.fuzzLines.js.map'),
+  JSON.stringify(fuzzedLineSourceMap)
+);
 
 //------------------------------------------------------
 // fuzzed columns sourcesContent
@@ -70,30 +79,39 @@ fs.writeFileSync(path.join(buildDir, 'add.fuzzLines.js.map'), JSON.stringify(fuz
 // which will cause token mappings to be incorrect
 //------------------------------------------------------
 const fuzzedColumnSourceMap = JSON.parse(output.map);
-fuzzedColumnSourceMap.sourcesContent = fuzzedColumnSourceMap.sourcesContent.map((src) => {
-  const lines = src.split('\n');
-  const fuzzedLines = lines.map((line) => { return `     ${line}`; });
-  return fuzzedLines.join('\n');
-});
+fuzzedColumnSourceMap.sourcesContent = fuzzedColumnSourceMap.sourcesContent.map(
+  src => {
+    const lines = src.split('\n');
+    const fuzzedLines = lines.map(line => {
+      return `     ${line}`;
+    });
+    return fuzzedLines.join('\n');
+  }
+);
 
 output.code = replaceSourceMappingURL(output.code, 'add.fuzzColumns.js.map');
 
 fs.writeFileSync(path.join(buildDir, 'add.fuzzColumns.js'), output.code);
-fs.writeFileSync(path.join(buildDir, 'add.fuzzColumns.js.map'), JSON.stringify(fuzzedColumnSourceMap));
-
+fs.writeFileSync(
+  path.join(buildDir, 'add.fuzzColumns.js.map'),
+  JSON.stringify(fuzzedColumnSourceMap)
+);
 
 //------------------------------------------------------
 // no included sources
 //------------------------------------------------------
-output = UglifyJS.minify({
-  'add.js': source
-}, {
-  sourceMap: {
-    filename: 'add.externals.js',
-    url: 'add.externals.js.map',
-    includeSources: false
+output = UglifyJS.minify(
+  {
+    'add.js': source
+  },
+  {
+    sourceMap: {
+      filename: 'add.externals.js',
+      url: 'add.externals.js.map',
+      includeSources: false
+    }
   }
-});
+);
 
 fs.writeFileSync(path.join(buildDir, 'add.externals.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.externals.js.map'), output.map);
@@ -102,17 +120,20 @@ fs.writeFileSync(path.join(buildDir, 'add.js'), source);
 //------------------------------------------------------
 // inline source map (data-uri)
 //------------------------------------------------------
-output = UglifyJS.minify({
-  'add.js': source
-}, {
-  sourceMap: {
-    filename: 'add.dataUri.js',
-    url: 'add.dataUri.js.map',
-    includeSources: true,
-    content: 'inline',
-    url: 'inline'
+output = UglifyJS.minify(
+  {
+    'add.js': source
+  },
+  {
+    sourceMap: {
+      filename: 'add.dataUri.js',
+      url: 'add.dataUri.js.map',
+      includeSources: true,
+      content: 'inline',
+      url: 'inline'
+    }
   }
-});
+);
 
 fs.writeFileSync(path.join(buildDir, 'add.dataUri.js'), output.code);
 fs.writeFileSync(path.join(buildDir, 'add.dataUri.js.map'), output.map);

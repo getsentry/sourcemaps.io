@@ -1,27 +1,26 @@
-const request = require('request');
+import request from 'request';
 
-const validateSourceMap = require('./validateSourceMap');
-const Report = require('./report');
+import validateSourceMap from './validateSourceMap';
+import Report from './report';
 
-const {
+import {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   ResourceTimeoutError
-} = require('./errors');
-const {MAX_TIMEOUT} = require('./constants');
-const {resolveUrl, getSourceMapLocation} = require('./utils');
-
+} from './errors';
+import { MAX_TIMEOUT } from './constants';
+import { resolveUrl, getSourceMapLocation } from './utils';
 
 /**
-  * Validates a target transpiled/minified file located at a given url
+ * Validates a target transpiled/minified file located at a given url
  * @param {string} url The target URL of the generated (transpiled) file,
  *            e.g. https://example.com/static/app.min.js
  * @param {function} callback Invoked when validation is finished, passed a Report object
  */
-function validateGeneratedFile(url, callback) {
-  const report = new Report({url});
+function validateGeneratedFile(url: string, callback: Function) {
+  const report = new Report({ url });
 
-  request(url, {timeout: MAX_TIMEOUT}, (error, response, body) => {
+  request(url, { timeout: MAX_TIMEOUT }, (error, response, body) => {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
         report.pushError(new ResourceTimeoutError(url, MAX_TIMEOUT));
@@ -47,10 +46,14 @@ function validateGeneratedFile(url, callback) {
 
     const resolvedSourceMappingURL = resolveUrl(url, sourceMappingURL);
 
-    validateSourceMap(resolvedSourceMappingURL, response.body, (sourceMapReport) => {
-      const finalReport = report.concat(sourceMapReport);
-      callback(finalReport);
-    });
+    validateSourceMap(
+      resolvedSourceMappingURL,
+      response.body,
+      (sourceMapReport: any) => {
+        const finalReport = report.concat(sourceMapReport);
+        callback(finalReport);
+      }
+    );
   });
 }
 

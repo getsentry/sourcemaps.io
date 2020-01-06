@@ -1,10 +1,13 @@
+import { RawSourceMap } from 'source-map';
+import { Response } from 'request';
+
 const urljoin = require('url-join');
 
 /**
  * Resolves a target url relative to a given base url
  * e.g. ['https://example.com/', '/some/path'] => 'https://example.com/some/path'
  */
-function resolveUrl(baseUrl, targetUrl) {
+export function resolveUrl(baseUrl: string, targetUrl: string) {
   // Don't mess with data-uris
   if (targetUrl.startsWith('data:')) {
     return targetUrl;
@@ -24,10 +27,17 @@ function resolveUrl(baseUrl, targetUrl) {
  * relative to either that source map's `sourceRoot` property (if present)
  * OR failing that relative to the source map's URL
  */
-function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
+export function resolveSourceMapSource(
+  sourceUrl: string,
+  sourceMapUrl: string,
+  rawSourceMap: RawSourceMap
+) {
   let resolvedUrl = sourceUrl;
 
-  if (!resolvedUrl.startsWith('http') && rawSourceMap.sourceRoot !== undefined) {
+  if (
+    !resolvedUrl.startsWith('http') &&
+    rawSourceMap.sourceRoot !== undefined
+  ) {
     resolvedUrl = rawSourceMap.sourceRoot + sourceUrl;
   }
 
@@ -46,16 +56,16 @@ function resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap) {
  * Given an HTTP response of a generated/transpiled/minified JavaScript
  * file, locate that file's source map location if present
  */
-function getSourceMapLocation(response, body) {
+export function getSourceMapLocation(response: Response, body: string): string | null {
   // First, look for Source Map HTTP headers
   const sourceMapHeader =
     response.headers['x-sourcemap'] || response.headers.sourcemap;
 
-  if (sourceMapHeader) return sourceMapHeader;
+  if (sourceMapHeader) return Array.isArray(sourceMapHeader) ? sourceMapHeader[0] : sourceMapHeader;
 
   // If no headers, look for a sourceMappingURL directive on the last line
   const lines = body.split(/\n/);
-  if (!lines.length > 0) {
+  if (!lines.length) {
     return null;
   }
 
@@ -69,15 +79,9 @@ function getSourceMapLocation(response, body) {
 
   while (last.length) {
     line = last.pop();
-    match = line.match(DIRECTIVE_RE);
+    match = line && line.match(DIRECTIVE_RE);
     if (match) return match[1];
   }
 
   return null;
 }
-
-module.exports = {
-  resolveUrl,
-  resolveSourceMapSource,
-  getSourceMapLocation
-};

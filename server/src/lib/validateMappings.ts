@@ -1,11 +1,8 @@
-const Report = require('./report');
-const {
-  LineNotFoundError,
-  BadTokenError,
-  BadColumnError
-} = require('./errors');
-const {MAX_REPORT_SIZE} = require('./constants');
+import Report from './report';
+import { SourceMapConsumer, MappingItem } from 'source-map';
 
+import { LineNotFoundError, BadTokenError, BadColumnError } from './errors';
+import { MAX_REPORT_SIZE } from './constants';
 
 /**
  * Validate a single mapping
@@ -13,7 +10,11 @@ const {MAX_REPORT_SIZE} = require('./constants');
  * @param {*} sourceLines An array of source lines from the original file
  * @param {*} generatedLines An array of source lines from the generated (transpiled) file
  */
-function validateMapping(mapping, sourceLines, generatedLines) {
+function validateMapping(
+  mapping: MappingItem,
+  sourceLines: Array<string>,
+  generatedLines: Array<string>
+) {
   let origLine;
   try {
     origLine = sourceLines[mapping.originalLine - 1];
@@ -28,10 +29,9 @@ function validateMapping(mapping, sourceLines, generatedLines) {
     });
   }
 
-  let sourceToken = origLine.slice(
-    mapping.originalColumn,
-    mapping.originalColumn + mapping.name.length
-  ).trim();
+  let sourceToken = origLine
+    .slice(mapping.originalColumn, mapping.originalColumn + mapping.name.length)
+    .trim();
 
   // Token matches what we expect; everything looks good, bail out
   if (sourceToken === mapping.name) {
@@ -41,11 +41,13 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   // Start of token starts with a quote or apostrophe. This might be
   // a bug in Uglify where it maps a token to the string of a token
   // incorrectly - but it should still be fine for end users.
-  if (sourceToken.startsWith('\'') || sourceToken.startsWith('"')) {
-    sourceToken = origLine.slice(
-      mapping.originalColumn + 1,
-      mapping.originalColumn + mapping.name.length + 1
-    ).trim();
+  if (sourceToken.startsWith("'") || sourceToken.startsWith('"')) {
+    sourceToken = origLine
+      .slice(
+        mapping.originalColumn + 1,
+        mapping.originalColumn + mapping.name.length + 1
+      )
+      .trim();
   }
 
   if (sourceToken === mapping.name) {
@@ -54,11 +56,10 @@ function validateMapping(mapping, sourceLines, generatedLines) {
 
   // If the line _contains_ the expected token somewhere, the source
   // map will likely work fine (especially for Sentry).
-  const ErrorClass = origLine.indexOf(mapping.name) > -1
-    ? BadColumnError
-    : BadTokenError;
+  const ErrorClass =
+    origLine.indexOf(mapping.name) > -1 ? BadColumnError : BadTokenError;
 
-  const {generatedColumn} = mapping;
+  const { generatedColumn } = mapping;
 
   let generatedLine;
   try {
@@ -66,14 +67,20 @@ function validateMapping(mapping, sourceLines, generatedLines) {
   } catch (e) {} // eslint-disable-line no-empty
 
   // Take 5 lines of original context
-  const contextLines = [];
-  for (let i = Math.max(mapping.originalLine - 3, 0); i < mapping.originalLine + 2 && i < sourceLines.length; i++) {
+  const contextLines: Array<[number, string]> = [];
+  for (
+    let i = Math.max(mapping.originalLine - 3, 0);
+    i < mapping.originalLine + 2 && i < sourceLines.length;
+    i++
+  ) {
     contextLines.push([i + 1, sourceLines[i]]);
   }
 
-
   // Take 100 chars of context around generated line
-  const generatedContext = generatedLine.slice(generatedColumn - 50, generatedColumn + 50);
+  const generatedContext = (generatedLine || '').slice(
+    generatedColumn - 50,
+    generatedColumn + 50
+  );
 
   return new ErrorClass(mapping.source, {
     token: sourceToken,
@@ -94,11 +101,14 @@ function validateMapping(mapping, sourceLines, generatedLines) {
  * @param {SourceMapConsumer} sourceMapConsumer Pre-initialized with the source map content
  * @param {array} generatedLines Array of lines from the generated (transpiled) output
  */
-function validateMappings(sourceMapConsumer, generatedLines) {
+export default function validateMappings(
+  sourceMapConsumer: SourceMapConsumer,
+  generatedLines: Array<string>
+) {
   const report = new Report();
-  const sourceCache = {};
+  const sourceCache: any = {};
 
-  sourceMapConsumer.eachMapping((mapping) => {
+  sourceMapConsumer.eachMapping((mapping: MappingItem) => {
     if (report.size() >= MAX_REPORT_SIZE) {
       return;
     }
@@ -108,7 +118,7 @@ function validateMappings(sourceMapConsumer, generatedLines) {
       return;
     }
 
-    const {source} = mapping;
+    const { source } = mapping;
     let sourceLines;
     if ({}.hasOwnProperty.call(sourceCache, source)) {
       sourceLines = sourceCache[source];
@@ -126,7 +136,7 @@ function validateMappings(sourceMapConsumer, generatedLines) {
 
     // Treat bad column errors as warnings (since they'll work fine for
     // most apps)
-    if (error instanceof BadColumnError) {
+    if (error && error.name === 'BadColumnError') {
       report.pushWarning(error);
     } else if (error) {
       report.pushError(error);
@@ -134,5 +144,3 @@ function validateMappings(sourceMapConsumer, generatedLines) {
   });
   return report;
 }
-
-module.exports = validateMappings;

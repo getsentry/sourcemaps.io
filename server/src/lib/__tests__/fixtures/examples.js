@@ -6,7 +6,8 @@ const DEFAULT_SOURCE_MAP = {
   names: ['bar', 'baz', 'n'],
   sources: ['one.js', 'two.js'],
   sourceRoot: `${HOST}/static/`,
-  mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
+  mappings:
+    'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
 const RAW_DEFAULT_SOURCE_MAP = JSON.stringify(DEFAULT_SOURCE_MAP);
 

@@ -12,7 +12,7 @@ var someMap = {
  *   add(1, 2, 3) // returns 6
  */
 module.exports = function add() {
-  return [].slice(arguments).reduce(function (sum, x) {
+  return [].slice(arguments).reduce(function(sum, x) {
     return sum + x;
   }, 0);
 };

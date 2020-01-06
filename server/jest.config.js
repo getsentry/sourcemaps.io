@@ -1,6 +1,9 @@
-require('./lib/__tests__/fixtures/build-fixtures');
+const path = require('path');
 
 module.exports = {
-  testMatch: ['**/__tests__/**/*.spec.js?(x)'],
+  testMatch: [path.join(__dirname, '/dist/**/__tests__/**/*.spec.js?(x)')],
+  setupFiles: [
+    path.join(__dirname, '/dist/lib/__tests__/fixtures/build-fixtures')
+  ],
   rootDir: __dirname
 };

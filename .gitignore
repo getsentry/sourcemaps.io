@@ -60,3 +60,4 @@ typings/
 .DS_Store
 config.json
 **/fixtures/build
+**/dist
