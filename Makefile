@@ -71,6 +71,7 @@ deploy-data: deploy-config
 
 # Deploy server[less] code
 deploy-server: deploy-config
+	npm install --prefix ./server
 	npm run build
 	gcloud functions deploy ${GCLOUD_FN_NAME} --source server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
