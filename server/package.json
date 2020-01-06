@@ -19,6 +19,6 @@
   },
   "scripts": {
     "build": "tsc && rsync -am --include '*/' --include='*.js' --exclude='*' src/ dist",
-    "start": "npm run build && node dist/dev.js"
+    "start": "npm run build && node dev.js"
   }
 }
