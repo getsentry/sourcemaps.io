@@ -7,7 +7,7 @@ try {
   // NOTE: this must use `require` (vs fs.readFile[Sync]) or gcloud
   //       won't transfer config.json as part of a function deployment
   /* eslint import/no-dynamic-require:0 */
-  config = require(path.join(__dirname, '/config.json'));
+  config = require(path.join(__dirname, '..', 'config.json'));
 } catch (e) {
   throw new Error('Missing config.json; see README');
 }
