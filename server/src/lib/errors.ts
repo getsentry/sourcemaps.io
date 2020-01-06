@@ -90,6 +90,17 @@ class ResourceTimeoutError extends Error {
   }
 }
 
+class ConnectionRefusedError extends Error {
+  resolutions: Array<string>;
+
+  constructor(url: string) {
+    super();
+    this.name = 'ConnectionRefusedError';
+    this.message = `Connection refused: ${url}`;
+    this.resolutions = ['Is your URL correct?'];
+  }
+}
+
 class BadContentError extends Error {
   resolutions: Array<string>;
 
@@ -170,5 +181,6 @@ export {
   BadTokenError,
   BadContentError,
   BadColumnError,
-  ResourceTimeoutError
+  ResourceTimeoutError,
+  ConnectionRefusedError as SocketRefusedError
 };

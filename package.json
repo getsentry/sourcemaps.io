@@ -19,7 +19,7 @@
   "lint-staged": {
     "*.js": [
       "prettier --write \"server/src/**/*.{js,ts}\"",
-      "npm run build",
+      "cd server && npm build",
       "eslint --fix",
       "git add"
     ]

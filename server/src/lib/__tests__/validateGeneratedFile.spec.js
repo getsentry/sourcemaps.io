@@ -187,6 +187,24 @@ describe('http failures', () => {
     });
   });
 
+  it('should report a target file does not return a connection', (done) => {
+    nock(HOST)
+      .get(appPath)
+      .replyWithError({
+        errno: 'ECONNREFUSED',
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+        address: '127.0.0.1',
+        port: 1337
+      });
+
+    validateGeneratedFile(url, (report) => {
+      expect(report.errors).toHaveLength(1);
+      expect(report.errors[0].name).toBe('ConnectionRefusedError');
+      done();
+    });
+  });
+
   it('should report a source map file does not return 200', (done) => {
     nock(HOST)
       .get(appPath)
