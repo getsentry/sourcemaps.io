@@ -32,7 +32,7 @@ client-server: test-install
 	REACT_APP_VALIDATE_URL=${LOCAL_VALIDATE_URL} REACT_APP_STORAGE_URL=${GCLOUD_STORAGE_URL} \
 		npm run start --prefix ./client
 
-backend-server: test-install deploy-config
+backend-server: test-install deploy-data
 	npm run start --prefix ./server
 
 #------------------------------------------------------------------
@@ -67,12 +67,12 @@ deploy-www: deploy-config build-www
 # Deploy reports (basically just set perms)
 deploy-data: deploy-config
 	gsutil acl ch -u AllUsers:R gs://${GCLOUD_DATA_BUCKET}
+	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 
 # Deploy server[less] code
 deploy-server: deploy-config
 	gcloud beta functions deploy ${GCLOUD_FN_NAME} --source server \
 		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
-	gsutil cors set server/cors.json gs://${GCLOUD_DATA_BUCKET}
 
 # Deploy all
 deploy: build-www deploy-config deploy-server deploy-data deploy-www
