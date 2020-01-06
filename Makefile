@@ -18,7 +18,7 @@ echo-exports:
 
 # Run unit tests
 test: test-install
-	node_modules/.bin/eslint server client
+	npm run lint
 	npm test
 
 test-install: echo-exports

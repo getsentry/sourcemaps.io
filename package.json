@@ -11,12 +11,15 @@
   },
   "scripts": {
     "precommit": "lint-staged",
-    "test": "npm run --prefix server build && jest --projects client server --runInBand",
+    "build": "npm run --prefix server build",
+    "lint": "npm run build && eslint server client",
+    "test": "npm run build && jest --projects client server --runInBand",
     "test-watch": "jest --projects client server --watch"
   },
   "lint-staged": {
     "*.js": [
       "prettier --write \"server/src/**/*.{js,ts}\"",
+      "npm run build",
       "eslint --fix",
       "git add"
     ]
