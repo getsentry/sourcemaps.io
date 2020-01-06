@@ -6,7 +6,8 @@ import Report from './report';
 import {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
-  ResourceTimeoutError
+  ResourceTimeoutError,
+  SocketRefusedError
 } from './errors';
 import { MAX_TIMEOUT } from './constants';
 import { resolveUrl, getSourceMapLocation } from './utils';
@@ -24,6 +25,9 @@ function validateGeneratedFile(url: string, callback: Function) {
     if (error) {
       if (error.message === 'ESOCKETTIMEDOUT') {
         report.pushError(new ResourceTimeoutError(url, MAX_TIMEOUT));
+        return void callback(report);
+      } else if (error.code === 'ECONNREFUSED') {
+        report.pushError(new SocketRefusedError(url));
         return void callback(report);
       }
 
