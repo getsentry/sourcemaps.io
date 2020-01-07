@@ -1,9 +1,9 @@
 /**
  * Local test server for development
  */
-const express = require('express');
-const path = require('path');
-const { validateGeneratedFile } = require('.');
+import express from 'express';
+import path from 'path';
+import { validateGeneratedFile } from '.';
 
 const PORT = 3001;
 

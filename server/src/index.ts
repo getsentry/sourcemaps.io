@@ -1,13 +1,16 @@
-const path = require('path');
-const validateGeneratedFile = require('./dist/lib/validateGeneratedFile').default;
-const Storage = require('@google-cloud/storage');
+import path from 'path';
+import {Request, Response} from 'express';
+import {Storage} from '@google-cloud/storage';
 
-let config = null;
+import _validateGeneratedFile from './lib/validateGeneratedFile';
+
+
+let config: { [key: string]: string };
 try {
   // NOTE: this must use `require` (vs fs.readFile[Sync]) or gcloud
   //       won't transfer config.json as part of a function deployment
   /* eslint import/no-dynamic-require:0 */
-  config = require(path.join(__dirname, 'config.json'));
+  config = require(path.join(__dirname, '..', 'config.json'));
 } catch (e) {
   throw new Error('Missing config.json; see README');
 }
@@ -17,7 +20,7 @@ if (config.SENTRY_DSN) {
   Raven.config(config.SENTRY_DSN).install();
 }
 
-const storage = Storage({
+const storage = new Storage({
   projectId: config.PROJECT
 });
 
@@ -27,7 +30,7 @@ const storage = Storage({
  * @param {object} event The Cloud Functions event.
  * @param {function} The callback function.
  */
-exports.validateGeneratedFile = function (req, res) {
+export function validateGeneratedFile (req: Request, res: Response) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
@@ -36,7 +39,7 @@ exports.validateGeneratedFile = function (req, res) {
     res.status(500).send('URL not specified');
   }
 
-  validateGeneratedFile(url, (report) => {
+  _validateGeneratedFile(url, (report) => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
