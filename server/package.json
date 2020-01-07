@@ -10,6 +10,7 @@
     "url-join": "^2.0.2"
   },
   "devDependencies": {
+    "@types/async": "^3.0.3",
     "@types/node": "^12.12.21",
     "@types/request": "^2.48.4",
     "express": "^4.15.3",

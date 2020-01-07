@@ -1,5 +1,9 @@
 import request from 'request';
-const async = require('async');
+import async, {
+  AsyncResultArrayCallback,
+  AsyncResultCallback,
+  AsyncFunction
+} from 'async';
 
 import {
   SourceMapConsumer,
@@ -94,7 +98,10 @@ export default function validateSourceMap(
           //   ['add.js', 'https://example.com/static/add.js'],
           //   ['sub.js', 'https://example.com/static/sub.js']
           // ]
-          const resolvedSources: Array<[string,string]> = sourceMapConsumer.sources.map(sourceUrl => {
+          const resolvedSources: Array<[
+            string,
+            string
+          ]> = sourceMapConsumer.sources.map(sourceUrl => {
             return [
               sourceUrl,
               resolveSourceMapSource(sourceUrl, sourceMapUrl, rawSourceMap)
@@ -158,38 +165,52 @@ function fetchSources(
     return !sourceMapConsumer.sourceContentFor(sourceUrl, true);
   });
 
-  const requests = missingSources.map(([sourceUrl, resolvedUrl]) => {
-    return (cb: Function) => {
-      request(resolvedUrl, { timeout: MAX_TIMEOUT }, (err, response, body) => {
-        if (err) {
-          console.error(err);
-        }
-        if (!response || response.statusCode !== 200) {
-          return void cb(null, new UnableToFetchSourceError(resolvedUrl));
-        }
+  const requests: AsyncFunction<Error, Error>[] = missingSources.map(
+    ([sourceUrl, resolvedUrl]) => {
+      return (cb: AsyncResultCallback<Error>) => {
+        request(
+          resolvedUrl,
+          { timeout: MAX_TIMEOUT },
+          (err, response, body) => {
+            if (err) {
+              console.error(err);
+            }
+            if (!response || response.statusCode !== 200) {
+              cb(null, new UnableToFetchSourceError(resolvedUrl));
+              return void 0;
+            }
 
-        // Did the source return HTML?
-        const bodyStart = body.slice(0, 200).trim();
-        if (/^<!doctype/i.test(bodyStart)) {
-          return void cb(null, new BadContentError(resolvedUrl));
-        }
+            // Did the source return HTML?
+            const bodyStart = body.slice(0, 200).trim();
+            if (/^<!doctype/i.test(bodyStart)) {
+              return void cb(null, new BadContentError(resolvedUrl));
+            }
 
-        generator.setSourceContent(sourceUrl, body);
-        cb(null);
-      });
-    };
-  });
+            generator.setSourceContent(sourceUrl, body);
+            cb(null, undefined);
+          }
+        );
+      };
+    }
+  );
 
   // TODO: explore parallelizing requests (want to make sure we don't accidentally
   // open 100+ connections and exhaust cloud function memory)
-  async.series(requests, (err: Error, validationErrors: Array<Error>) => {
-    if (err) {
-      console.error(err);
+  async.series(
+    requests,
+    (err?: Error | null, validationErrors?: Array<Error | undefined>) => {
+      if (err || !validationErrors) {
+        return void console.error(err);
+      }
+      // Generate the new source map consumer with updated sources
+      new SourceMapConsumer(generator.toJSON()).then(fullSourceMapConsumer => {
+        report.pushError(
+          ...validationErrors.filter(
+            (_err): _err is Error => _err !== undefined
+          )
+        ); // Filter out undefined values
+        callback(fullSourceMapConsumer, report);
+      });
     }
-    // Generate the new source map consumer with updated sources
-    new SourceMapConsumer(generator.toJSON()).then(fullSourceMapConsumer => {
-      report.pushError(...validationErrors.filter(_err => _err));
-      callback(fullSourceMapConsumer, report);
-    });
-  });
+  );
 }
