@@ -16,6 +16,7 @@ import {
 
 import validateMappings from './validateMappings';
 import Report from './report';
+import {ReportCallback} from './interfaces';
 import { resolveSourceMapSource } from './utils';
 import {
   UnableToFetchSourceMapError,
@@ -54,14 +55,14 @@ function requestSourceMap(
 
 /**
  * Validates a source map located at the given url
- * @param {string} sourceMapUrl URL containing the source map
- * @param {string} generatedContent The generated (transpiled) file content
- * @param {function} callback Invoked after validation is finished, passed a Report object
+ * @param sourceMapUrl URL containing the source map
+ * @param generatedContent The generated (transpiled) file content
+ * @param reportCallback Invoked after validation is finished, passed a Report object
  */
 export default function validateSourceMap(
   sourceMapUrl: string,
   generatedContent: string,
-  callback: Function
+  reportCallback: ReportCallback
 ) {
   let report = new Report();
   report.sourceMap = sourceMapUrl;
@@ -73,14 +74,14 @@ export default function validateSourceMap(
       if (error) {
         if (error.message === 'ESOCKETTIMEDOUT') {
           report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
-          return void callback(report);
+          return void reportCallback(report);
         }
         return void console.error(error);
       }
 
       if (response && response.statusCode !== 200) {
         report.pushError(new UnableToFetchSourceMapError(sourceMapUrl));
-        callback(report);
+        reportCallback(report);
         return;
       }
 
@@ -89,7 +90,7 @@ export default function validateSourceMap(
         rawSourceMap = JSON.parse(body);
       } catch (err) {
         report.pushError(new InvalidJSONError(sourceMapUrl, err));
-        callback(report);
+        reportCallback(report);
         return;
       }
 
@@ -127,7 +128,7 @@ export default function validateSourceMap(
                 ...resolvedSources.map(([, resolvedUrl]) => resolvedUrl)
               );
 
-            callback(report);
+            reportCallback(report);
           };
 
           // If every source is inlined inside the source map, go directly to
@@ -145,16 +146,24 @@ export default function validateSourceMap(
         })
         .catch(err => {
           report.pushError(new InvalidSourceMapFormatError(sourceMapUrl, err));
-          callback(report);
+          reportCallback(report);
         });
     }
   );
 }
 
+
+/**
+ * Given a source map consumer and list of resolved source URLs, fetch each source
+ * whose source content isn't already present in the consumer.
+ * @param sourceMapConsumer Initialized source map consumer
+ * @param resolvedSources An array of [sourceUrl, resolvedUrl] tuples
+ * @param validateMappingsCallback Invoked after source content is fetched
+ */
 function fetchSources(
   sourceMapConsumer: BasicSourceMapConsumer,
   resolvedSources: Array<[string, string]>,
-  callback: Function
+  validateMappingsCallback: (sourceMapConsumer: SourceMapConsumer, fetchesReport: Report) => void
 ) {
   const report = new Report();
 
@@ -211,7 +220,7 @@ function fetchSources(
             (_err): _err is Error => _err !== undefined
           )
         ); // Filter out undefined values
-        callback(fullSourceMapConsumer, report);
+        validateMappingsCallback(fullSourceMapConsumer, report);
       });
     }
   );
