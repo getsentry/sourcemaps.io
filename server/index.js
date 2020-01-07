@@ -1,5 +1,5 @@
 const path = require('path');
-const validateGeneratedFile = require('./dist/lib/validateGeneratedFile');
+const validateGeneratedFile = require('./dist/lib/validateGeneratedFile').default;
 const Storage = require('@google-cloud/storage');
 
 let config = null;
