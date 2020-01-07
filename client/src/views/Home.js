@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {withRouter} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 import Loader from './Loader';
 
@@ -9,7 +9,7 @@ const VALIDATE_URL = process.env.REACT_APP_VALIDATE_URL;
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
 function Example(props) {
-  const {name, url, version, onClick} = props;
+  const { name, url, version, onClick } = props;
   return (
     <li>
       <a href={url} onClick={onClick}>
@@ -62,9 +62,9 @@ class Home extends Component {
     evt.preventDefault();
 
     const url = this.state.targetUrl || TARGET_URL_PLACEHOLDER;
-    const {history} = this.props;
+    const { history } = this.props;
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
@@ -78,15 +78,16 @@ class Home extends Component {
   handleExampleClick(evt, url) {
     evt.preventDefault();
 
-    this.setState({targetUrl: url}, () => {
+    this.setState({ targetUrl: url }, () => {
       this.handleSubmit(evt);
     });
   }
 
   render() {
-    return this.state.loading
-      ? <Loader />
-      : <div>
+    return this.state.loading ? (
+      <Loader />
+    ) : (
+      <div>
         <div className="row">
           <form action="/validate" onSubmit={evt => this.handleSubmit(evt)}>
             <div className="col-md-10 form-group">
@@ -95,8 +96,10 @@ class Home extends Component {
                 className="form-control"
                 name="url"
                 value={this.state.targetUrl}
-                onChange={evt => this.setState({targetUrl: evt.target.value})}
+                onChange={evt => this.setState({ targetUrl: evt.target.value })}
                 placeholder={TARGET_URL_PLACEHOLDER}
+                title="Fully qualified URL prefixed with http or https"
+                pattern="https?://.+"
               />
             </div>
             <div className="col-md-2">
@@ -106,11 +109,16 @@ class Home extends Component {
         </div>
         <h2>Examples</h2>
         <ul>
-          {EXAMPLES.map((ex, index) =>
-            <Example key={index} {...ex} onClick={evt => this.handleExampleClick(evt, ex.url)} />
-          )}
+          {EXAMPLES.map((ex, index) => (
+            <Example
+              key={index}
+              {...ex}
+              onClick={evt => this.handleExampleClick(evt, ex.url)}
+            />
+          ))}
         </ul>
-      </div>;
+      </div>
+    );
   }
 }
 
