@@ -17,11 +17,12 @@
     "@types/request": "^2.48.4",
     "express": "^4.15.3",
     "nock": "^11.7.0",
+    "ts-jest": "^24.3.0",
     "typescript": "^3.7.3",
     "uglify-js": "^3.7.2"
   },
   "scripts": {
-    "build": "tsc && rsync -am --include '*/' --include='*.js' --exclude='*' src/ dist",
+    "build": "tsc",
     "start": "npm run build && node dev.js"
   }
 }
