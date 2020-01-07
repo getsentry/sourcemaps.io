@@ -1,4 +1,4 @@
-const { SourceMapNotFoundError } = require('../errors');
+import { SourceMapNotFoundError } from '../errors';
 
 describe('errors', () => {
   it('should stringify nicely', () => {

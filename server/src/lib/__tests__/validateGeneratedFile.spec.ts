@@ -1,9 +1,9 @@
 /* eslint newline-per-chained-call:0 */
-const fs = require('fs');
-const path = require('path');
-const nock = require('nock');
+import fs from 'fs';
+import path from 'path';
+import nock from 'nock';
 
-const validateGeneratedFile = require('../validateGeneratedFile');
+import validateGeneratedFile from '../validateGeneratedFile';
 
 const {
   HOST,
@@ -32,7 +32,7 @@ it('should download the target minified file, source maps, and external source f
     scope.done();
 
     expect(report.errors).toHaveLength(0);
-    expect(report.sources).toEqual(report.sources, [
+    expect(report.sources).toEqual([
       `${HOST}/static/one.js`, // note: source-map resolves these
       `${HOST}/static/two.js`
     ]);

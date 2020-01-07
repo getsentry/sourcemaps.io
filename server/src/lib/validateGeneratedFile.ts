@@ -18,7 +18,7 @@ import { resolveUrl, getSourceMapLocation } from './utils';
  *            e.g. https://example.com/static/app.min.js
  * @param {function} callback Invoked when validation is finished, passed a Report object
  */
-function validateGeneratedFile(url: string, callback: Function) {
+export default function validateGeneratedFile(url: string, callback: (report: Report) => void) {
   const report = new Report({ url });
 
   request(url, { timeout: MAX_TIMEOUT }, (error, response, body) => {
@@ -60,5 +60,3 @@ function validateGeneratedFile(url: string, callback: Function) {
     );
   });
 }
-
-module.exports = validateGeneratedFile;

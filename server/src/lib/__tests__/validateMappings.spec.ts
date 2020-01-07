@@ -1,9 +1,10 @@
-const validateMappings = require('../validateMappings').default;
+import validateMappings from '../validateMappings';
+import { RawSourceMap, MappedPosition, MappingItem } from 'source-map';
 
 describe('validateMappings', () => {
   it('should stop at 100 errors', () => {
     const sourceMapConsumer = {
-      eachMapping(callback) {
+      eachMapping(callback: (mapping: MappingItem) => void) {
         // mock source map consumer with 200 entries;
         // each one should fail
         for (let i = 0; i < 200; i++) {
@@ -12,7 +13,7 @@ describe('validateMappings', () => {
             name: 'foo',
             originalLine: 10,
             originalColumn: 10
-          });
+          } as any);
         }
       },
       sourceContentFor() {
@@ -20,7 +21,7 @@ describe('validateMappings', () => {
       }
     };
     // assert `validateMappings` stopped at 100 entries
-    const report = validateMappings(sourceMapConsumer);
+    const report = validateMappings(sourceMapConsumer as any, ['a', 'b', 'c']);
     expect(report.errors).toHaveLength(100);
   });
 });

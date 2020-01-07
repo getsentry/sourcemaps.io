@@ -1,4 +1,4 @@
-const { resolveSourceMapSource } = require('../utils');
+import { resolveSourceMapSource } from '../utils';
 
 const { HOST, DEFAULT_SOURCE_MAP } = require('./fixtures/examples');
 
