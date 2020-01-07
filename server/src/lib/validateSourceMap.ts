@@ -1,4 +1,6 @@
 import request from 'request';
+import dataUriToBuffer from 'data-uri-to-buffer';
+
 import async, {
   AsyncResultArrayCallback,
   AsyncResultCallback,
@@ -11,7 +13,6 @@ import {
   RawSourceMap,
   BasicSourceMapConsumer
 } from 'source-map';
-const dataUriToBuffer = require('data-uri-to-buffer');
 
 import validateMappings from './validateMappings';
 import Report from './report';
@@ -24,6 +25,7 @@ import {
   BadContentError,
   ResourceTimeoutError
 } from './errors';
+
 import { MAX_TIMEOUT } from './constants';
 
 /**
