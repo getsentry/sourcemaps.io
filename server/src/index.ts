@@ -5,14 +5,14 @@ import {Storage} from '@google-cloud/storage';
 import _validateGeneratedFile from './lib/validateGeneratedFile';
 
 
-let config: { [key: string]: string };
+let config: { [key: string]: string } = {};
 try {
   // NOTE: this must use `require` (vs fs.readFile[Sync]) or gcloud
   //       won't transfer config.json as part of a function deployment
   /* eslint import/no-dynamic-require:0 */
   config = require(path.join(__dirname, '..', 'config.json'));
 } catch (e) {
-  throw new Error('Missing config.json; see README');
+  console.error('Missing config.json; see README');
 }
 
 if (config.SENTRY_DSN) {
