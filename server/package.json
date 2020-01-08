@@ -1,7 +1,8 @@
 {
   "private": true,
+  "main": "dist",
   "dependencies": {
-    "@google-cloud/storage": "^1.2.0",
+    "@google-cloud/storage": "^4.2.0",
     "async": "^2.5.0",
     "data-uri-to-buffer": "^3.0.0",
     "raven": "^2.1.0",
@@ -11,18 +12,20 @@
   },
   "devDependencies": {
     "@types/async": "^3.0.3",
+    "@types/express": "^4.17.2",
     "@types/jest": "^24.0.25",
     "@types/nock": "^11.1.0",
     "@types/node": "^12.12.21",
     "@types/request": "^2.48.4",
     "express": "^4.15.3",
     "nock": "^11.7.0",
+    "stream-buffers": "^3.0.2",
     "ts-jest": "^24.3.0",
     "typescript": "^3.7.3",
     "uglify-js": "^3.7.2"
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node dev.js"
+    "start": "npm run build && node dist/dev.js"
   }
 }

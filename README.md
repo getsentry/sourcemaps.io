@@ -44,16 +44,18 @@ make backend-server
 
 ## Deploy to Google Cloud Platform
 
-This repository is already configured to automatically deploy to http://v2.sourcemaps.io. But for posterity, this documents how to configure your own Google Cloud deployment environment and how to use the deploy scripts.
+This repository is already configured to automatically deploy to https://sourcemaps.io. But for posterity, this documents how to configure your own Google Cloud deployment environment and how to use the deploy scripts.
 
 ### Configure your Project
 
 1. Create a new project in [Google Cloud Platform](https://cloud.google.com/), e.g. `myproject`
-2. Enable Cloud Functions (currently in beta)
+2. Enable Cloud Functions
 3. Create **3 buckets** in Cloud Storage, for:
     1. staging the **cloud function** (e.g. `myproject-server`)
     1. storing **report data** (e.g. `myproject-reports`)
     1. storing **static web content** (e.g. `myproject-web`)
+
+NOTE: Your deployed cloud function must be configured to use [Cloud Functions Node 10 runtime](https://cloud.google.com/functions/docs/concepts/nodejs-10-runtime) (or newer).
 
 ### Deploying
 
