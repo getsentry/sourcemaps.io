@@ -184,7 +184,7 @@ function fetchSources(
           { timeout: MAX_TIMEOUT },
           (err, response, body) => {
             if (err) {
-              console.error(err);
+              console.warn('Fetch failure:', err);
             }
             if (!response || response.statusCode !== 200) {
               cb(null, new UnableToFetchSourceError(resolvedUrl));
