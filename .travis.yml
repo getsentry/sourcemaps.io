@@ -11,6 +11,8 @@ jobs:
         - make test
     - stage: deploy
       language: python
+      python:
+        - "3.8"
       env:
         - PATH=$PATH:${HOME}/google-cloud-sdk/bin
           PYTHONPATH=${PYTHONPATH}:${GAE_PYTHONPATH} CLOUDSDK_CORE_DISABLE_PROMPTS=1
