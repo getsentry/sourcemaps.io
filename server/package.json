@@ -27,5 +27,8 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node dist/dev.js"
+  },
+  "engines": {
+    "node": ">=12.22.11 <14"
   }
 }
