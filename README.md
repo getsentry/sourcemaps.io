@@ -57,6 +57,11 @@ This repository is already configured to automatically deploy to https://sourcem
 
 NOTE: Your deployed cloud function must be configured to use [Cloud Functions Node 10 runtime](https://cloud.google.com/functions/docs/concepts/nodejs-10-runtime) (or newer).
 
+
+### Install the gcloud CLI
+
+Follow Google Cloud's instructions for [installing the gcloud CLI](https://cloud.google.com/sdk/docs/install).
+
 ### Deploying
 
 First authenticate with Google Cloud Platform:

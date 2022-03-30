@@ -18,9 +18,9 @@ jobs:
           PYTHONPATH=${PYTHONPATH}:${GAE_PYTHONPATH} CLOUDSDK_CORE_DISABLE_PROMPTS=1
       before_install:
         - sudo apt-get install gcc python3-dev python3-setuptools
-        - sudo pip3 uninstall crcmod
-        - sudo pip3 install --no-cache-dir -U crcmod
-        - sudo pip3 install httplib2
+        - sudo pip uninstall crcmod
+        - sudo pip install --no-cache-dir -U crcmod
+        - sudo pip install httplib2
         - if [ "$TRAVIS_BRANCH" != "master" -o "$TRAVIS_PULL_REQUEST" != "false" ]; then travis_terminate 0; fi
         - openssl aes-256-cbc -K $encrypted_3108ac7e9a1f_key -iv $encrypted_3108ac7e9a1f_iv
           -in .travis/credentials.tar.gz.enc -out credentials.tar.gz -d
