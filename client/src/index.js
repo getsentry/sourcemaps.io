@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
+import { SentryReplay } from '@sentry/replay';
 
 import './index.css';
 import App from './App';
@@ -9,7 +11,9 @@ import registerServiceWorker from './registerServiceWorker';
 if (process.env.REACT_APP_SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,
-    release: process.env.REACT_APP_GIT_SHA
+    release: process.env.REACT_APP_GIT_SHA,
+    integrations: [new BrowserTracing(), new SentryReplay()],
+    tracesSampleRate: 1.0
   });
 }
 
