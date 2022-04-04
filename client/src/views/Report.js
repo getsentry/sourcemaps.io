@@ -70,7 +70,7 @@ function Entry(props, index) {
   return (
     <li className="entry" key={index}>
       <h4>{name}</h4>
-      {message && <p dangerouslySetInnerHTML={{ __html: htmlMessage }} />}
+      {message && <p className="rr-block" dangerouslySetInnerHTML={{ __html: htmlMessage }} />}
       {resolutions && resolutions.length > 0 && (
         <div>
           <h5>Resolutions</h5>
@@ -146,14 +146,14 @@ class Report extends Component {
       <div>
         {this.renderAlert()}
         <h2>
-          Report for <a href={report.url}>{report.url.split('/').pop()}</a>
+          Report for <a href={report.url} className="rr-mask">{report.url.split('/').pop()}</a>
         </h2>
         {report && (
           <div>
             <h3>URL</h3>
             <ul>
               <li>
-                <a href={report.url}>{report.url}</a>
+                <a href={report.url} className="rr-mask">{report.url}</a>
               </li>
             </ul>
             {report.sourceMap && (
@@ -161,7 +161,7 @@ class Report extends Component {
                 <h3>Source Map</h3>
                 <ul>
                   <li>
-                    <a href={report.sourceMap}>{report.sourceMap}</a>
+                    <a href={report.sourceMap} className="rr-mask">{report.sourceMap}</a>
                   </li>
                 </ul>
               </div>
@@ -177,7 +177,7 @@ class Report extends Component {
                 <ul>
                   {report.sources.map(src => (
                     <li key={src}>
-                      <a href={src}>{src}</a>
+                      <a href={src} className="rr-mask">{src}</a>
                     </li>
                   ))}
                 </ul>
