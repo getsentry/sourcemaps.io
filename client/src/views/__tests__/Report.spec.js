@@ -13,7 +13,7 @@ const exampleReport = {
 };
 
 it('should fetch the report URL corresponding to the route param', (done) => {
-  fetchMock.get('undefined/report.json', () => {
+  fetchMock.get('http://example.com/storage/report.json', () => {
     fetchMock.restore();
     return JSON.stringify(exampleReport);
   });
