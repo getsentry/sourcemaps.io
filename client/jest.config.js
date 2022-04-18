@@ -23,5 +23,5 @@ const config = createJestConfig(
 );
 
 module.exports = Object.assign(config, {
-  testEnvironment: 'jsdom'
+  testEnvironment: 'jest-environment-jsdom-sixteen'
 });
