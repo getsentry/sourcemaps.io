@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@testing-library/react": "^13.1.1",
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
@@ -27,6 +28,10 @@
     "singleQuote": true
   },
   "engines": {
-    "node": ">=12.22.11 <14"
+    "node": "16.14.2"
+  },
+  "volta": {
+    "node": "16.14.2",
+    "npm": "6.14.6"
   }
 }
