@@ -27,6 +27,6 @@
     "singleQuote": true
   },
   "engines": {
-    "node": "12.22.12"
+    "node": ">=12.22.11 <14"
   }
 }
