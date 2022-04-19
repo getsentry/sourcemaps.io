@@ -29,6 +29,10 @@
     "start": "npm run build && node dist/dev.js"
   },
   "engines": {
-    "node": ">=12.22.11 <14"
+    "node": "16.14.2"
+  },
+  "volta": {
+    "node": "16.14.2",
+    "npm": "8.5.0"
   }
 }
