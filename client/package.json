@@ -3,15 +3,14 @@
   "dependencies": {
     "@sentry/browser": "^6.19.3",
     "@sentry/react": "^6.19.3",
-    "@sentry/replay": "^0.2.0-5",
+    "@sentry/replay": "^0.2.0-6",
     "@sentry/tracing": "^6.19.3",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-router-dom": "^4.1.2",
     "react-spinkit": "^3.0.0",
-    "react-tooltip": "^3.8.1",
-    "rrweb": "^1.1.2"
+    "react-tooltip": "^3.8.1"
   },
   "devDependencies": {
     "fetch-mock": "^5.12.2",
