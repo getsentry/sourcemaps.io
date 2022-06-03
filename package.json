@@ -28,5 +28,8 @@
   },
   "engines": {
     "node": "12.22.12"
+  },
+  "dependencies": {
+    "@sentry/replay": "^0.2.0-14"
   }
 }
