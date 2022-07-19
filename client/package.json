@@ -3,7 +3,7 @@
   "dependencies": {
     "@sentry/browser": "^6.19.3",
     "@sentry/react": "^6.19.3",
-    "@sentry/replay": "^0.4.1",
+    "@sentry/replay": "^0.4.0",
     "@sentry/tracing": "^6.19.3",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
