@@ -1,10 +1,10 @@
 {
   "private": true,
   "dependencies": {
-    "@sentry/browser": "^6.19.3",
-    "@sentry/react": "^6.19.3",
+    "@sentry/browser": "^7.7.0",
+    "@sentry/react": "^7.7.0",
     "@sentry/replay": "^0.4.1",
-    "@sentry/tracing": "^6.19.3",
+    "@sentry/tracing": "^7.7.0",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
