@@ -17,3 +17,11 @@ if (process.env.REACT_APP_SENTRY_DSN) {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      registration.unregister();
+    });
+  });
+}
