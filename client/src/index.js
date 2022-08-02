@@ -9,6 +9,7 @@ import App from './App';
 
 if (process.env.REACT_APP_SENTRY_DSN) {
   Sentry.init({
+    debug: true,
     dsn: process.env.REACT_APP_SENTRY_DSN,
     release: process.env.REACT_APP_GIT_SHA,
     integrations: [new BrowserTracing(), new SentryReplay({stickySession: true})],
