@@ -1,11 +1,7 @@
 import request from 'request';
 import dataUriToBuffer from 'data-uri-to-buffer';
 
-import async, {
-  AsyncResultArrayCallback,
-  AsyncResultCallback,
-  AsyncFunction
-} from 'async';
+import async, { AsyncResultCallback, AsyncFunction } from 'async';
 
 import {
   SourceMapConsumer,
@@ -16,7 +12,7 @@ import {
 
 import validateMappings from './validateMappings';
 import Report from './report';
-import {ReportCallback} from './interfaces';
+import { ReportCallback } from './interfaces';
 import { resolveSourceMapSource } from './utils';
 import {
   UnableToFetchSourceMapError,
@@ -152,7 +148,6 @@ export default function validateSourceMap(
   );
 }
 
-
 /**
  * Given a source map consumer and list of resolved source URLs, fetch each source
  * whose source content isn't already present in the consumer.
@@ -163,7 +158,10 @@ export default function validateSourceMap(
 function fetchSources(
   sourceMapConsumer: BasicSourceMapConsumer,
   resolvedSources: Array<[string, string]>,
-  validateMappingsCallback: (sourceMapConsumer: SourceMapConsumer, fetchesReport: Report) => void
+  validateMappingsCallback: (
+    sourceMapConsumer: SourceMapConsumer,
+    fetchesReport: Report
+  ) => void
 ) {
   const report = new Report();
 
