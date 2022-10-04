@@ -15,9 +15,11 @@ try {
   console.error('Missing config.json; see README');
 }
 
-if (config.SENTRY_DSN) {
-  Sentry.init({ dsn: config.SENTRY_DSN });
+if (!config.SENTRY_DSN) {
+  throw new Error('SENTRY_DSN was not set in config.json');
 }
+
+Sentry.init({ dsn: config.SENTRY_DSN });
 
 const storage = new Storage({
   projectId: config.PROJECT
@@ -30,13 +32,20 @@ const storage = new Storage({
  * @param {function} The callback function.
  */
 export function validateGeneratedFile(req: Request, res: Response) {
+  const transaction = Sentry.startTransaction({
+    name: 'validateGeneratedFile'
+  });
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
+    transaction.finish();
+    return;
   }
+
+  transaction.setTag('sourcemap_url', url);
 
   _validateGeneratedFile(url, report => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
@@ -59,5 +68,6 @@ export function validateGeneratedFile(req: Request, res: Response) {
     });
 
     stream.end(JSON.stringify(report));
+    transaction.finish();
   });
 }
