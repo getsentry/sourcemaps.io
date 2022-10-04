@@ -65,12 +65,14 @@ export function validateGeneratedFile(req: Request, res: Response) {
     });
     stream.on('error', err => {
       res.status(500).send(err.message);
+      Sentry.captureException(err);
+      if (transaction) transaction.finish();
     });
     stream.on('finish', () => {
       res.status(200).send(encodeURIComponent(objectName));
+      if (transaction) transaction.finish();
     });
 
     stream.end(JSON.stringify(report));
-    if (transaction) transaction.finish();
   });
 }
