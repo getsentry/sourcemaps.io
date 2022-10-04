@@ -20,7 +20,7 @@
     "express": "^4.15.3",
     "nock": "^11.7.0",
     "stream-buffers": "^3.0.2",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^29.0.3",
     "typescript": "^3.7.3",
     "uglify-js": "^3.7.2"
   },
