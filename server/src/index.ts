@@ -2,6 +2,7 @@ import path from 'path';
 import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
 import * as Sentry from '@sentry/node';
+// import '@sentry/tracing';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
 
@@ -15,9 +16,11 @@ try {
   console.error('Missing config.json; see README');
 }
 
-if (config.SENTRY_DSN) {
-  Sentry.init({ dsn: config.SENTRY_DSN });
+if (!config.SENTRY_DSN) {
+  throw new Error('SENTRY_DSN was not set in config.json');
 }
+
+Sentry.init({ dsn: config.SENTRY_DSN });
 
 const storage = new Storage({
   projectId: config.PROJECT
@@ -30,12 +33,21 @@ const storage = new Storage({
  * @param {function} The callback function.
  */
 export function validateGeneratedFile(req: Request, res: Response) {
+  const transaction = Sentry.startTransaction({
+    name: 'validateGeneratedFile'
+  });
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
+    if (transaction) transaction.finish();
+    return;
+  }
+
+  if (transaction) {
+    transaction.setTag('sourcemap_url', url);
   }
 
   _validateGeneratedFile(url, report => {
@@ -53,9 +65,12 @@ export function validateGeneratedFile(req: Request, res: Response) {
     });
     stream.on('error', err => {
       res.status(500).send(err.message);
+      Sentry.captureException(err);
+      if (transaction) transaction.finish();
     });
     stream.on('finish', () => {
       res.status(200).send(encodeURIComponent(objectName));
+      if (transaction) transaction.finish();
     });
 
     stream.end(JSON.stringify(report));
