@@ -2,6 +2,7 @@ import path from 'path';
 import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
 import * as Sentry from '@sentry/node';
+// import '@sentry/tracing';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
 
@@ -41,11 +42,13 @@ export function validateGeneratedFile(req: Request, res: Response) {
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
-    transaction.finish();
+    if (transaction) transaction.finish();
     return;
   }
 
-  transaction.setTag('sourcemap_url', url);
+  if (transaction) {
+    transaction.setTag('sourcemap_url', url);
+  }
 
   _validateGeneratedFile(url, report => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
@@ -68,6 +71,6 @@ export function validateGeneratedFile(req: Request, res: Response) {
     });
 
     stream.end(JSON.stringify(report));
-    transaction.finish();
+    if (transaction) transaction.finish();
   });
 }
