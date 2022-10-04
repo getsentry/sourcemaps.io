@@ -63,14 +63,16 @@ export function validateGeneratedFile(req: Request, res: Response) {
         contentType: 'text/plain; charset=utf-8'
       }
     });
-    stream.on('error', err => {
+    stream.on('error', async err => {
       res.status(500).send(err.message);
       Sentry.captureException(err);
       if (transaction) transaction.finish();
+      await Sentry.flush(5000);
     });
-    stream.on('finish', () => {
+    stream.on('finish', async () => {
       res.status(200).send(encodeURIComponent(objectName));
       if (transaction) transaction.finish();
+      await Sentry.flush(5000);
     });
 
     stream.end(JSON.stringify(report));
