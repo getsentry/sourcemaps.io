@@ -1,9 +1,9 @@
 import path from 'path';
-import {Request, Response} from 'express';
-import {Storage} from '@google-cloud/storage';
+import { Request, Response } from 'express';
+import { Storage } from '@google-cloud/storage';
+import * as Sentry from '@sentry/node';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
-
 
 let config: { [key: string]: string } = {};
 try {
@@ -16,8 +16,7 @@ try {
 }
 
 if (config.SENTRY_DSN) {
-  const Raven = require('raven');
-  Raven.config(config.SENTRY_DSN).install();
+  Sentry.init({ dsn: config.SENTRY_DSN });
 }
 
 const storage = new Storage({
@@ -30,7 +29,7 @@ const storage = new Storage({
  * @param {object} event The Cloud Functions event.
  * @param {function} The callback function.
  */
-export function validateGeneratedFile (req: Request, res: Response) {
+export function validateGeneratedFile(req: Request, res: Response) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
@@ -39,7 +38,7 @@ export function validateGeneratedFile (req: Request, res: Response) {
     res.status(500).send('URL not specified');
   }
 
-  _validateGeneratedFile(url, (report) => {
+  _validateGeneratedFile(url, report => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
@@ -52,7 +51,7 @@ export function validateGeneratedFile (req: Request, res: Response) {
         contentType: 'text/plain; charset=utf-8'
       }
     });
-    stream.on('error', (err) => {
+    stream.on('error', err => {
       res.status(500).send(err.message);
     });
     stream.on('finish', () => {
@@ -61,4 +60,4 @@ export function validateGeneratedFile (req: Request, res: Response) {
 
     stream.end(JSON.stringify(report));
   });
-};
+}
