@@ -16,7 +16,7 @@ try {
 }
 
 if (config.SENTRY_DSN) {
-  Sentry.init({ dsn: config.SENTRY_DSN });
+  Sentry.init({ dsn: config.SENTRY_DSN, tracesSampleRate: 1 });
 }
 
 const storage = new Storage({
