@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {render, waitFor, screen, waitForElementToBeRemoved} from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 
 import Report from '../Report';
@@ -14,10 +14,15 @@ const exampleReport = {
 
 it('should fetch the report URL corresponding to the route param', (done) => {
   fetchMock.get('http://example.com/storage/report.json', () => {
-    done();
     fetchMock.restore();
     return JSON.stringify(exampleReport);
   });
-  const div = document.createElement('div');
-  ReactDOM.render(<Report match={{params: { report: 'report.json' }}}/>, div);
+
+  const {container} = render(<Report match={{params: { report: 'report.json' }}}/>);
+  waitFor(() => screen.getByTestId('loader')).then(() => {
+    waitForElementToBeRemoved(() => screen.getByTestId('loader')).then(() => {
+      expect(container.firstChild).toMatchSnapshot();
+      done();
+    });
+  });
 });

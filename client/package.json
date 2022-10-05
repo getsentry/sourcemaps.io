@@ -1,6 +1,7 @@
 {
   "private": true,
   "dependencies": {
+    "jest-environment-jsdom-sixteen": "^2.0.0",
     "@sentry/browser": "^7.7.0",
     "@sentry/react": "^7.7.0",
     "@sentry/replay": "^0.6.0",
@@ -13,13 +14,15 @@
     "react-tooltip": "^3.8.1"
   },
   "devDependencies": {
+    "@testing-library/react": "^12.1.5",
     "fetch-mock": "^5.12.2",
-    "react-scripts": "^3.3.0"
+    "react-scripts": "^3.3.0",
+    "react-test-renderer": "^15.6.1"
   },
   "scripts": {
     "start": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts start",
     "build": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
     "eject": "react-scripts eject"
   },
   "browserslist": {
@@ -35,10 +38,10 @@
     ]
   },
   "engines": {
-    "node": "12.22.12"
+    "node": "16.14.2"
   },
   "volta": {
-    "node": "12.22.12",
-    "npm": "6.14.16"
+    "node": "16.14.2",
+    "npm": "8.5.0"
   }
 }
