@@ -2,7 +2,7 @@ import path from 'path';
 import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
 import * as Sentry from '@sentry/node';
-// import '@sentry/tracing';
+import '@sentry/tracing';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
 
