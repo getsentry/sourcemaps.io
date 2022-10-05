@@ -19,7 +19,7 @@ exports[`should fetch the report URL corresponding to the route param 1`] = `
     Report for 
     <!-- /react-text -->
     <a
-      class="rr-mask"
+      class="sr-mask"
       href=""
     />
   </h2>
@@ -30,7 +30,7 @@ exports[`should fetch the report URL corresponding to the route param 1`] = `
     <ul>
       <li>
         <a
-          class="rr-mask"
+          class="sr-mask"
           href=""
         />
       </li>
