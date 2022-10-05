@@ -1,9 +1,10 @@
 import path from 'path';
-import {Request, Response} from 'express';
-import {Storage} from '@google-cloud/storage';
+import { Request, Response } from 'express';
+import { Storage } from '@google-cloud/storage';
+import * as Sentry from '@sentry/node';
+// import '@sentry/tracing';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
-
 
 let config: { [key: string]: string } = {};
 try {
@@ -15,10 +16,11 @@ try {
   console.error('Missing config.json; see README');
 }
 
-if (config.SENTRY_DSN) {
-  const Raven = require('raven');
-  Raven.config(config.SENTRY_DSN).install();
+if (!config.SENTRY_DSN) {
+  throw new Error('SENTRY_DSN was not set in config.json');
 }
+
+Sentry.init({ dsn: config.SENTRY_DSN, tracesSampleRate: 1 });
 
 const storage = new Storage({
   projectId: config.PROJECT
@@ -30,16 +32,25 @@ const storage = new Storage({
  * @param {object} event The Cloud Functions event.
  * @param {function} The callback function.
  */
-export function validateGeneratedFile (req: Request, res: Response) {
+export function validateGeneratedFile(req: Request, res: Response) {
+  const transaction = Sentry.startTransaction({
+    name: 'validateGeneratedFile'
+  });
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');
 
   const url = req.query.url;
   if (!url) {
     res.status(500).send('URL not specified');
+    if (transaction) transaction.finish();
+    return;
   }
 
-  _validateGeneratedFile(url, (report) => {
+  if (transaction) {
+    transaction.setTag('sourcemap_url', url);
+  }
+
+  _validateGeneratedFile(url, report => {
     const bucket = storage.bucket(config.STORAGE_BUCKET);
 
     // object names can't contain most symbols, so encode as a URI component
@@ -52,13 +63,18 @@ export function validateGeneratedFile (req: Request, res: Response) {
         contentType: 'text/plain; charset=utf-8'
       }
     });
-    stream.on('error', (err) => {
+    stream.on('error', async err => {
       res.status(500).send(err.message);
+      Sentry.captureException(err);
+      if (transaction) transaction.finish();
+      await Sentry.flush(5000);
     });
-    stream.on('finish', () => {
+    stream.on('finish', async () => {
       res.status(200).send(encodeURIComponent(objectName));
+      if (transaction) transaction.finish();
+      await Sentry.flush(5000);
     });
 
     stream.end(JSON.stringify(report));
   });
-};
+}
