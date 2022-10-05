@@ -85,7 +85,9 @@ export default function validateSourceMap(
       try {
         rawSourceMap = JSON.parse(body);
       } catch (err) {
-        report.pushError(new InvalidJSONError(sourceMapUrl, err));
+        report.pushError(
+          new InvalidJSONError(sourceMapUrl, (err as unknown) as Error)
+        );
         reportCallback(report);
         return;
       }

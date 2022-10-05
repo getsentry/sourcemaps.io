@@ -46,6 +46,10 @@ export function validateGeneratedFile(req: Request, res: Response) {
     return;
   }
 
+  if (typeof url !== 'string') {
+    throw new TypeError('url is not a string');
+  }
+
   if (transaction) {
     transaction.setTag('sourcemap_url', url);
   }
