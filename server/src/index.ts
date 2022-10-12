@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
 import _validateGeneratedFile from './lib/validateGeneratedFile';
 
@@ -20,7 +21,13 @@ if (!config.SENTRY_DSN) {
   throw new Error('SENTRY_DSN was not set in config.json');
 }
 
-Sentry.init({ dsn: config.SENTRY_DSN, tracesSampleRate: 1 });
+Sentry.init({
+  dsn: config.SENTRY_DSN,
+  tracesSampleRate: 1,
+  // @ts-expect-error this is not part of the node options lib yet
+  profilesSampleRate: 1,
+  integrations: [new ProfilingIntegration()]
+});
 
 const storage = new Storage({
   projectId: config.PROJECT
