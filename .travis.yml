@@ -1,18 +1,29 @@
-sudo: false
+dist: xenial
+language: python
+os: linux
+addons:
+  homebrew:
+    update: true
+    packages:
+      - npm
+      - pyenv
 cache:
   directories:
     - node_modules
-    - "$HOME/google-cloud-sdk/"
+    - '$HOME/google-cloud-sdk/'
 jobs:
   include:
-    - stage: test
-      language: node_js
+    - name: test
+      python: 3.8
+      node_js: 16.17.1
+      language: python
+      env: NODE_GYP_FORCE_PYTHON=python3
       script:
         - make test
-    - stage: deploy
+    - name: deploy
       language: python
-      python:
-        - "3.8"
+      python: 3.8
+      node_js: 16.17.1
       env:
         - PATH=$PATH:${HOME}/google-cloud-sdk/bin
           PYTHONPATH=${PYTHONPATH}:${GAE_PYTHONPATH} CLOUDSDK_CORE_DISABLE_PROMPTS=1
