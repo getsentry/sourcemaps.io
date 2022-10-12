@@ -34,8 +34,5 @@
   "volta": {
     "node": "16.14.2",
     "npm": "8.5.0"
-  },
-  "dependencies": {
-    "@sentry/profiling-node": "^0.0.0-alpha.6"
   }
 }
