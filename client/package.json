@@ -1,11 +1,11 @@
 {
   "private": true,
   "dependencies": {
-    "jest-environment-jsdom-sixteen": "^2.0.0",
     "@sentry/browser": "^7.7.0",
     "@sentry/react": "^7.7.0",
-    "@sentry/replay": "^0.6.1",
+    "@sentry/replay": "^0.6.4-0",
     "@sentry/tracing": "^7.7.0",
+    "jest-environment-jsdom-sixteen": "^2.0.0",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
