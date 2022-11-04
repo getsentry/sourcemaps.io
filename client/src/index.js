@@ -12,7 +12,9 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     debug: true,
     dsn: process.env.REACT_APP_SENTRY_DSN,
     release: process.env.REACT_APP_GIT_SHA,
-    integrations: [new BrowserTracing(), new Replay()],
+    integrations: [new BrowserTracing(), new Replay({
+      sessionSampleRate: 1.0,
+    })],
     tracesSampleRate: 1.0
   });
 }

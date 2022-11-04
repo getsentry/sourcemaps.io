@@ -3,7 +3,7 @@
   "dependencies": {
     "@sentry/browser": "^7.7.0",
     "@sentry/react": "^7.7.0",
-    "@sentry/replay": "^0.6.10",
+    "@sentry/replay": "^0.6.11-0",
     "@sentry/tracing": "^7.7.0",
     "jest-environment-jsdom-sixteen": "^2.0.0",
     "prop-types": "^15.5.10",
