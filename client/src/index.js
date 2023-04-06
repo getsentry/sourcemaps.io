@@ -17,7 +17,7 @@ if (process.env.REACT_APP_SENTRY_DSN) {
         tracingOrigins: ['sourcemaps.io']
       }),
       new Sentry.Replay()
-    ],
+    ]
   });
 }
 
