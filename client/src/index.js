@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
-import { Replay } from '@sentry/replay';
 
 import './index.css';
 import App from './App';
@@ -12,15 +10,14 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     debug: true,
     dsn: process.env.REACT_APP_SENTRY_DSN,
     release: process.env.REACT_APP_GIT_SHA,
+    replaysSessionSampleRate: 1.0,
+    tracesSampleRate: 1.0,
     integrations: [
-      new BrowserTracing({
+      new Sentry.BrowserTracing({
         tracingOrigins: ['sourcemaps.io']
       }),
-      new Replay({
-        sessionSampleRate: 1.0
-      })
+      new Sentry.Replay()
     ],
-    tracesSampleRate: 1.0
   });
 }
 
