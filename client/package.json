@@ -20,7 +20,7 @@
   "devDependencies": {
     "@testing-library/react": "^12.1.5",
     "fetch-mock": "^5.12.2",
-    "react-scripts": "^3.3.0",
+    "react-scripts": "^5.0.1",
     "react-test-renderer": "^15.6.1"
   },
   "scripts": {
