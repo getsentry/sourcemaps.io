@@ -66,11 +66,12 @@
   "devDependencies": {
     "@testing-library/react": "^12.1.5",
     "fetch-mock": "^5.12.2",
-    "react-test-renderer": "^15.6.1"
+    "react-test-renderer": "^15.6.1",
+    "webpack-stats-plugin": "^1.1.3"
   },
   "scripts": {
     "start": "REACT_APP_GIT_SHA=`git rev-parse HEAD` node scripts/start.js",
-    "build": "REACT_APP_GIT_SHA=`git rev-parse HEAD` node scripts/build.js --profile --json=compilation-stats.json",
+    "build": "REACT_APP_GIT_SHA=`git rev-parse HEAD` node scripts/build.js",
     "test": "node scripts/test.js --env=jest-environment-jsdom-sixteen"
   },
   "browserslist": {
