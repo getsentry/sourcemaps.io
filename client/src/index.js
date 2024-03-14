@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as Sentry from '@sentry/react';
+import * as Sentry from '@sentry/browser';
 
 import './index.css';
 import App from './App';
@@ -13,10 +13,18 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     replaysSessionSampleRate: 1.0,
     tracesSampleRate: 1.0,
     integrations: [
-      new Sentry.BrowserTracing({
+      new Sentry.browserTracingIntegration({
         tracingOrigins: ['sourcemaps.io']
       }),
-      new Sentry.Replay()
+      new Sentry.replayIntegration(),
+      new Sentry.feedbackIntegration({
+        colorScheme: 'light',
+        isNameRequired: false,
+        isEmailRequired: false,
+        showScreenshot: true
+      }),
+      new Sentry.feedbackModalIntegration(),
+      new Sentry.feedbackScreenshotIntegration(),
     ]
   });
 }
