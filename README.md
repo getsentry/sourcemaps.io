@@ -73,10 +73,22 @@ gcloud auth login
 Then initiate the deploy:
 
 ```bash
+# Used for deploy
 export GCLOUD_PROJECT=myproject
 export GCLOUD_APP_BUCKET=myproject-server
 export GCLOUD_DATA_BUCKET=myproject-reports
 export GCLOUD_WWW_BUCKET=myproject-web
+export GCLOUD_SERVICE_KEY=<base64 encoded service-key json object>
+
+# Used for reporting errors back to your sentry instance:
+export REACT_APP_SENTRY_DSN=https://public@sentry.example.com/1
+export SENTRY_DSN=https://public@sentry.example.com/1
+
+# Used for creating a new release in your sentry instance:
+export SENTRY_AUTH_TOKEN=sntrys_abcxyz
+export SENTRY_CLIENT_PROJECT=MY-PROJECT
+export SENTRY_ORG=MY-ORG
+
 make deploy
 ```
 
