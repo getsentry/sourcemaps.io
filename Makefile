@@ -73,8 +73,12 @@ deploy-data: deploy-config
 deploy-server: deploy-config
 	npm install --prefix ./server
 	npm run build
-	gcloud functions deploy ${GCLOUD_FN_NAME} --source server \
-		--stage-bucket ${GCLOUD_APP_BUCKET} --trigger-http --verbosity debug
+	gcloud functions deploy ${GCLOUD_FN_NAME} \
+		--source server \
+		--stage-bucket ${GCLOUD_APP_BUCKET} \
+		--trigger-http \
+		--verbosity debug \
+		--runtime nodejs18
 
 # Deploy all
 deploy: build-www deploy-config deploy-server deploy-data deploy-www
