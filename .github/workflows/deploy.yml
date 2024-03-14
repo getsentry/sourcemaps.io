@@ -32,7 +32,7 @@ jobs:
         name: 'Auth gcloud'
         env:
           SERVICE_KEY_BASE64: ${{ secrets.GCLOUD_SERVICE_KEY }}
-        run: |  
+        run: |
           echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
           gcloud auth activate-service-account --key-file service-key.json
 
@@ -42,7 +42,7 @@ jobs:
 
       - id: deploy
         name: 'Deploy to GCP Cloud Functions'
-        env:        
+        env:
           GCLOUD_APP_BUCKET: ${{ secrets.GCLOUD_APP_BUCKET }}
           GCLOUD_DATA_BUCKET: ${{ secrets.GCLOUD_DATA_BUCKET }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
@@ -53,7 +53,5 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         run: |
-          curl https://get.volta.sh | bash
-          volta setup
           make deploy
           .github/sentry-release.sh
