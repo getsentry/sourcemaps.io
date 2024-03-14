@@ -25,13 +25,14 @@ jobs:
         env:
           SERVICE_KEY_BASE64: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: |
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
+          echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
+
+          sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
           curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
-
-          echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
-          gcloud version
+          sudo apt-get update -y && sudo apt-get install -y google-cloud-cli
+  
+          gcloud version || true
           gcloud auth activate-service-account --key-file service-key.json
 
       - id: checkout
