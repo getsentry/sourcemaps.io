@@ -1,4 +1,4 @@
-# sourcemaps.io [![Build Status](https://travis-ci.org/getsentry/sourcemaps.io.svg?branch=master)](https://travis-ci.org/getsentry/sourcemaps.io)
+# sourcemaps.io [![deploy & test](https://github.com/getsentry/sourcemaps.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/getsentry/sourcemaps.io/actions/workflows/deploy.yml)
 
 _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-validator) using React, Node, and Google Cloud Functions._
 

@@ -21,19 +21,18 @@ jobs:
     runs-on: 'ubuntu-latest'
     environment: 'gcp - project=sourcemapsio'
     steps:
-      - id: gcp-auth
-        name: 'Authenticate with GCP'
+      - id: setup-gcloud
+        name: 'Setup gcloud'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 400.0.0'
+
+      - id: auth-gcloud
+        name: 'Auth gcloud'
         env:
           SERVICE_KEY_BASE64: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          TEST_STRING_BASE64: ${{ secrets.TEST_STRING }}
-        run: |
+        run: |  
           echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
-
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update -y && sudo apt-get install -y google-cloud-cli
-  
-          gcloud version || true
           gcloud auth activate-service-account --key-file service-key.json
 
       - id: checkout
