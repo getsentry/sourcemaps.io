@@ -19,15 +19,24 @@ jobs:
   deploy:
     needs: test
     runs-on: 'ubuntu-latest'
+    environment: 'gcp - project=sourcemapsio'
     steps:
       - id: gcp-auth
         name: 'Authenticate with GCP'
         env:
           SERVICE_KEY_BASE64: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          TEST_STRING_BASE64: ${{ secrets.TEST_STRING }}
         run: |
-          echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
+          set +x
+          
+          echo $TEST_STRING_BASE64 | base64 --decode > test_string.json
+          cat test_string.json
 
-          sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+          set -x
+
+          echo $SERVICE_KEY_BASE64 | base64 --decode > service-key.json
+          cat service-key.json
+
           curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
           sudo apt-get update -y && sudo apt-get install -y google-cloud-cli
