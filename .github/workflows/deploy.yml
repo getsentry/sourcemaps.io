@@ -17,8 +17,8 @@ jobs:
       - run: make test
 
   deploy:
-    # needs: test
-    # if: github.ref == 'refs/heads/master'
+    needs: test
+    if: github.ref == 'refs/heads/master'
     runs-on: 'ubuntu-latest'
     environment: 'gcp - project=sourcemapsio'
     steps:

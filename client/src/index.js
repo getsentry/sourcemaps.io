@@ -13,18 +13,18 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     replaysSessionSampleRate: 1.0,
     tracesSampleRate: 1.0,
     integrations: [
-      new Sentry.browserTracingIntegration({
+      Sentry.browserTracingIntegration({
         tracingOrigins: ['sourcemaps.io']
       }),
-      new Sentry.replayIntegration(),
-      new Sentry.feedbackIntegration({
+      Sentry.replayIntegration(),
+      Sentry.feedbackIntegration({
         colorScheme: 'light',
         isNameRequired: false,
         isEmailRequired: false,
         showScreenshot: true
       }),
-      new Sentry.feedbackModalIntegration(),
-      new Sentry.feedbackScreenshotIntegration(),
+      Sentry.feedbackModalIntegration(),
+      Sentry.feedbackScreenshotIntegration(),
     ]
   });
 }
