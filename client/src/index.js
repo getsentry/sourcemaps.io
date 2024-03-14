@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as Sentry from '@sentry/browser';
-import { feedbackIntegration, feedbackModalIntegration, feedbackScreenshotIntegration } from "@sentry-internal/feedback";
-
+import { feedbackIntegration, feedbackModalIntegration, feedbackScreenshotIntegration } from '@sentry-internal/feedback';
 
 import './index.css';
 import App from './App';
