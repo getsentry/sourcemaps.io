@@ -22,9 +22,9 @@ test: test-install
 	npm test
 
 test-install: echo-exports
-	npm install
-	npm install --prefix ./server
-	npm install --prefix ./client
+	npm install --legacy-peer-deps
+	npm install --legacy-peer-deps --prefix ./server
+	npm install --legacy-peer-deps --prefix ./client
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)
