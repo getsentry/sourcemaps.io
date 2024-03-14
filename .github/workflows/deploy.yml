@@ -1,0 +1,51 @@
+name: deploy & test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=4096'
+
+jobs:
+  test:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - run: make test
+    
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: test
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'gcp-auth'
+        name: 'Authenticate with GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+          service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+        
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - id: 'deploy'
+        name: 'Deploy to GCP Cloud Functions'
+        run: |
+          # sudo apt-get install apt-transport-https ca-certificates gnupg curl
+          # curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          # echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          # sudo apt-get update && sudo apt-get install google-cloud-cli
+
+          # pip uninstall crcmod
+          # pip install --no-cache-dir -U crcmod
+          # pip install httplib2
+          # openssl aes-256-cbc -K $encrypted_3108ac7e9a1f_key -iv $encrypted_3108ac7e9a1f_iv -in .github/credentials.tar.gz.enc -out credentials.tar.gz -d
+          # gcloud version || true
+          # if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; curl https://sdk.cloud.google.com | bash; fi
+          # source /home/travis/google-cloud-sdk/path.bash.inc
+          # tar -xzf credentials.tar.gz
+          # gcloud auth activate-service-account --key-file client-secret.json
+          make deploy
+          .travis/sentry-release.sh
