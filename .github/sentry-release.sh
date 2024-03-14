@@ -12,7 +12,6 @@ fi
 
 echo "SENTRY_ORG: ${SENTRY_ORG}"
 echo "SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN_PUBLIC}"
-echo "SENTRY_SERVER_PROJECT: ${SENTRY_SERVER_PROJECT}"
 echo "SENTRY_CLIENT_PROJECT: ${SENTRY_CLIENT_PROJECT}"
 echo "SOURCEMAPSIO_REPO: ${SOURCEMAPSIO_REPO}"
 echo "GITHUB_SHA: ${GITHUB_SHA}"
@@ -28,5 +27,5 @@ curl https://sentry.io/api/0/organizations/${SENTRY_ORG}/releases/ \
         \"repository\":\"${SOURCEMAPSIO_REPO}\",
         \"commit\":\"${GITHUB_SHA}\"
     }],
-    \"projects\":[\"${SENTRY_SERVER_PROJECT}\", \"${SENTRY_CLIENT_PROJECT}\"]
+    \"projects\":[\"${SENTRY_CLIENT_PROJECT}\"]
 }"
