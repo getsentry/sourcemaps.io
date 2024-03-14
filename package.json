@@ -29,7 +29,7 @@
     "singleQuote": true
   },
   "engines": {
-    "node": "16.14.2"
+    "node": ">=16.14.2"
   },
   "volta": {
     "node": "16.14.2",
