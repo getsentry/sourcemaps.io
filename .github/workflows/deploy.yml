@@ -36,10 +36,21 @@ jobs:
           gcloud auth activate-service-account --key-file service-key.json
 
       - id: checkout
+        name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - id: deploy
         name: 'Deploy to GCP Cloud Functions'
+        env:        
+          GCLOUD_APP_BUCKET: ${{ secrets.GCLOUD_APP_BUCKET }}
+          GCLOUD_DATA_BUCKET: ${{ secrets.GCLOUD_DATA_BUCKET }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
+          GCLOUD_WWW_BUCKET: ${{ secrets.GCLOUD_WWW_BUCKET }}
+          REACT_APP_SENTRY_DSN: ${{ vars.REACT_APP_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_CLIENT_PROJECT: ${{ secrets.SENTRY_CLIENT_PROJECT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         run: |
           make deploy
           .github/sentry-release.sh
