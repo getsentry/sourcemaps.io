@@ -1,8 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "@sentry-internal/feedback": "^8.0.0-alpha.4",
-    "@sentry/browser": "^8.0.0-alpha.4",
+    "@sentry-internal/feedback": "^8.0.0-alpha.5",
+    "@sentry/browser": "^8.0.0-alpha.5",
     "jest-environment-jsdom-sixteen": "^2.0.0",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
