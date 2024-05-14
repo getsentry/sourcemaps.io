@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as Sentry from '@sentry/browser';
-import { feedbackIntegration, feedbackModalIntegration, feedbackScreenshotIntegration } from '@sentry-internal/feedback';
 
 import './index.css';
 import App from './App';
@@ -18,14 +17,11 @@ if (process.env.REACT_APP_SENTRY_DSN) {
         tracingOrigins: ['sourcemaps.io']
       }),
       Sentry.replayIntegration(),
-      feedbackIntegration({
+      Sentry.feedbackIntegration({
         colorScheme: 'light',
         isNameRequired: false,
-        isEmailRequired: false,
-        showScreenshot: true
+        isEmailRequired: false
       }),
-      feedbackModalIntegration(),
-      feedbackScreenshotIntegration(),
     ]
   });
 }
