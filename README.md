@@ -10,7 +10,7 @@ _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-v
 * Both the transpiled/minified file and source map file are reachable via HTTP
 * The resolved source map is valid JSON, and parses using Mozilla's [source-map](https://github.com/mozilla/source-map) library
 * Lines and columns line up as expected
-* ... and more, see [tests](/tests)
+* ... and more, see [tests](/server/test/test.js)
 
 ## Development
 
