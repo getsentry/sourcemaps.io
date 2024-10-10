@@ -16,7 +16,7 @@ it('should fetch the report URL corresponding to the route param', (done) => {
   fetchMock.get('http://example.com/storage/report.json', () => {
     fetchMock.restore();
     return JSON.stringify(exampleReport);
-  });
+  }, {delay: 1});
 
   const {container} = render(<Report match={{params: { report: 'report.json' }}}/>);
   waitFor(() => screen.getByTestId('loader')).then(() => {

@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^12.1.5",
-    "fetch-mock": "^5.12.2",
+    "fetch-mock": "^9.11.0",
     "react-scripts": "^3.3.0",
     "react-test-renderer": "^15.6.1"
   },
