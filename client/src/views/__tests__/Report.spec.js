@@ -1,5 +1,7 @@
 import React from 'react';
-import {render, waitFor, screen, waitForElementToBeRemoved} from '@testing-library/react';
+import {
+  render, waitFor, screen, waitForElementToBeRemoved
+} from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 
 import Report from '../Report';
@@ -12,7 +14,7 @@ const exampleReport = {
   url: ''
 };
 
-it('should fetch the report URL corresponding to the route param', (done) => {
+it('should fetch the report URL corresponding to the route param', done => {
   fetchMock.get('http://example.com/storage/report.json', () => {
     fetchMock.restore();
     return JSON.stringify(exampleReport);

@@ -22,6 +22,7 @@
     "React": false
   },
   "rules": {
-     "react/jsx-uses-vars": 1
+     "react/jsx-uses-vars": 1,
+     "arrow-parens": ["error", "as-needed"]
   }
 }

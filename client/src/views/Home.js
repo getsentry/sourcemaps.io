@@ -9,7 +9,9 @@ const VALIDATE_URL = process.env.REACT_APP_VALIDATE_URL;
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
 function Example(props) {
-  const { name, url, version, onClick } = props;
+  const {
+    name, url, version, onClick
+  } = props;
   return (
     <li>
       <a href={url} onClick={onClick}>
@@ -68,8 +70,8 @@ class Home extends Component {
 
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
-    }).then((response) => {
-      response.text().then((reportName) => {
+    }).then(response => {
+      response.text().then(reportName => {
         history.push(`/report/${reportName}`);
       });
     });

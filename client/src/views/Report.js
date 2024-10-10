@@ -10,7 +10,9 @@ const STORAGE_URL = process.env.REACT_APP_STORAGE_URL;
  * Error entry for token/mapping errors (includes source code context)
  */
 function BadTokenEntry(props, index) {
-  const { source, expected, token, mapping } = props;
+  const {
+    source, expected, token, mapping
+  } = props;
   const {
     originalContext,
     originalLine,
@@ -107,8 +109,8 @@ class Report extends Component {
     const { reportName } = this.state;
     const reportUrl = `${STORAGE_URL}/${encodeURIComponent(reportName)}`;
 
-    fetch(reportUrl).then((response) => {
-      response.json().then((report) => {
+    fetch(reportUrl).then(response => {
+      response.json().then(report => {
         this.setState({ report });
       });
     });
@@ -124,7 +126,7 @@ class Report extends Component {
           <strong>Bingo.</strong> Everything looks good.
         </div>
       );
-    } else if (report.errors.length > 0) {
+    } if (report.errors.length > 0) {
       return (
         <div className="alert alert-danger">
           <strong>Ouch.</strong> Check the errors below.
