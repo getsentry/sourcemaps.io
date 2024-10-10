@@ -5,7 +5,7 @@ export default class Report {
 
   url?: string;
   sourceMap?: string;
-  
+
   constructor(report: Partial<Report> = {}) {
     this.warnings = report.warnings || [];
     this.errors = report.errors || [];

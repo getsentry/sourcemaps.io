@@ -16,7 +16,7 @@ const {
 const appPath = '/static/app.js';
 const url = `${HOST}${appPath}`;
 
-it('should download the target minified file, source maps, and external source files', (done) => {
+it('should download the target minified file, source maps, and external source files', done => {
   const scope = nock(HOST)
     .get(appPath)
     .reply(200, '//#sourceMappingURL=app.js.map')
@@ -27,7 +27,7 @@ it('should download the target minified file, source maps, and external source f
     .get('/static/two.js')
     .reply(200, TWO_JS);
 
-  validateGeneratedFile(url, (report) => {
+  validateGeneratedFile(url, report => {
     // verify all mocked requests satisfied
     scope.done();
 
@@ -41,7 +41,7 @@ it('should download the target minified file, source maps, and external source f
 });
 
 describe('source map location', () => {
-  it('should resolve absolute sourceMappingURLs', (done) => {
+  it('should resolve absolute sourceMappingURLs', done => {
     nock(HOST)
       .get(appPath)
       .reply(
@@ -53,13 +53,13 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
   });
 
-  it('should resolve sourceMappingURLs that contain data-uri source map data', (done) => {
+  it('should resolve sourceMappingURLs that contain data-uri source map data', done => {
     const minFilePath = path.join(
       __dirname,
       'fixtures',
@@ -71,13 +71,13 @@ describe('source map location', () => {
       .get(appPath)
       .reply(200, fs.readFileSync(minFilePath, 'utf-8'));
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
   });
 
-  it("should locate sourceMappingURLs that aren't on the last line", (done) => {
+  it("should locate sourceMappingURLs that aren't on the last line", done => {
     nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map\n\n');
@@ -85,12 +85,12 @@ describe('source map location', () => {
     nock(HOST)
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
   });
-  it('should resolve SourceMap headers', (done) => {
+  it('should resolve SourceMap headers', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, 'function(){}();', {
@@ -101,13 +101,13 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
   });
 
-  it('should resolve X-SourceMap headers', (done) => {
+  it('should resolve X-SourceMap headers', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, 'function(){}();', {
@@ -118,18 +118,18 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
   });
 
-  it('should report missing sourceMappingURL', (done) => {
+  it('should report missing sourceMappingURL', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, 'function(){}();');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('SourceMapNotFoundError');
       done();
@@ -138,13 +138,13 @@ describe('source map location', () => {
 }); // source map location
 
 describe('http failures', () => {
-  it('should report a target file that times out', (done) => {
+  it('should report a target file that times out', done => {
     nock(HOST)
       .get(appPath)
       .socketDelay(5001)
       .reply(200, '<html></html>');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
@@ -155,7 +155,7 @@ describe('http failures', () => {
     });
   });
 
-  it('should report a source map that times out', (done) => {
+  it('should report a source map that times out', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map');
@@ -164,7 +164,7 @@ describe('http failures', () => {
       .get('/static/app.js.map')
       .socketDelay(5001)
       .reply(200, RAW_DEFAULT_SOURCE_MAP);
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
@@ -175,19 +175,19 @@ describe('http failures', () => {
     });
   });
 
-  it('should report a target file does not return 200', (done) => {
+  it('should report a target file does not return 200', done => {
     nock(HOST)
       .get(appPath)
       .reply(401, 'Not Authenticated');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('UnableToFetchMinifiedError');
       done();
     });
   });
 
-  it('should report a target file does not return a connection', (done) => {
+  it('should report a target file does not return a connection', done => {
     nock(HOST)
       .get(appPath)
       .replyWithError({
@@ -198,14 +198,14 @@ describe('http failures', () => {
         port: 1337
       });
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ConnectionRefusedError');
       done();
     });
   });
 
-  it('should report a source map file does not return 200', (done) => {
+  it('should report a source map file does not return 200', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map');
@@ -214,14 +214,14 @@ describe('http failures', () => {
       .get('/static/app.js.map')
       .reply(401, 'Not Authenticated');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('UnableToFetchSourceMapError');
       done();
     });
   });
 
-  it('should report a source file that does not return 200', (done) => {
+  it('should report a source file that does not return 200', done => {
     const scope = nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map')
@@ -232,7 +232,7 @@ describe('http failures', () => {
       .get('/static/two.js')
       .reply(401, 'Not authenticated');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       // verify all mocked requests satisfied
       scope.done();
       expect(report.errors).toHaveLength(1);
@@ -243,7 +243,7 @@ describe('http failures', () => {
 }); // http failures
 
 describe('parsing failures', () => {
-  it('should report a source map file that is no valid JSON', (done) => {
+  it('should report a source map file that is no valid JSON', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map');
@@ -252,7 +252,7 @@ describe('parsing failures', () => {
       .get('/static/app.js.map')
       .reply(200, '!@#(!*@#(*&@');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('InvalidJSONError');
       expect(report.errors[0]).toHaveProperty(
@@ -263,7 +263,7 @@ describe('parsing failures', () => {
     });
   });
 
-  it('should report a source map file that does not parse as a Source Map', (done) => {
+  it('should report a source map file that does not parse as a Source Map', done => {
     nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map');
@@ -272,7 +272,7 @@ describe('parsing failures', () => {
       .get('/static/app.js.map')
       .reply(200, '{"version":"3"}');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('InvalidSourceMapFormatError');
       expect(report.errors[0]).toHaveProperty(
@@ -285,7 +285,7 @@ describe('parsing failures', () => {
 }); // parsing failures
 
 describe('content failures', () => {
-  it('should report source files that are not JavaScript', (done) => {
+  it('should report source files that are not JavaScript', done => {
     const scope = nock(HOST)
       .get(appPath)
       .reply(200, '//#sourceMappingURL=app.js.map')
@@ -296,7 +296,7 @@ describe('content failures', () => {
       .get('/static/two.js')
       .reply(200, '         \n\n\n<!DOCTYPE html><html>lol</html>');
 
-    validateGeneratedFile(url, (report) => {
+    validateGeneratedFile(url, report => {
       scope.done();
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('BadContentError');
@@ -311,7 +311,7 @@ describe('content failures', () => {
 
 describe('mappings', () => {
   describe('inline sources', () => {
-    it('should parse and validate every mapping', (done) => {
+    it('should parse and validate every mapping', done => {
       const minFilePath = path.join(
         __dirname,
         'fixtures',
@@ -327,13 +327,13 @@ describe('mappings', () => {
         .get('/static/add.inlineSources.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, (report) => {
+      validateGeneratedFile(url, report => {
         expect(report.errors).toHaveLength(0);
         done();
       });
     });
 
-    it("should detect invalid mappings where tokens aren't located on same line", (done) => {
+    it("should detect invalid mappings where tokens aren't located on same line", done => {
       const minFilePath = path.join(
         __dirname,
         'fixtures',
@@ -349,7 +349,7 @@ describe('mappings', () => {
         .get('/static/add.fuzzLines.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, (report) => {
+      validateGeneratedFile(url, report => {
         expect(report.errors).not.toHaveLength(0);
         expect(report.errors[0].name).toBe('BadTokenError');
         expect(report.errors[0]).toHaveProperty(
@@ -360,7 +360,7 @@ describe('mappings', () => {
       });
     });
 
-    it('should detect invalid mappings where tokens are on wrong column', (done) => {
+    it('should detect invalid mappings where tokens are on wrong column', done => {
       const minFilePath = path.join(
         __dirname,
         'fixtures',
@@ -376,7 +376,7 @@ describe('mappings', () => {
         .get('/static/add.fuzzColumns.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, (report) => {
+      validateGeneratedFile(url, report => {
         expect(report.warnings).not.toHaveLength(0);
         expect(report.warnings[0].name).toBe('BadColumnError');
         expect(report.warnings[0]).toHaveProperty(

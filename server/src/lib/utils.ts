@@ -56,12 +56,18 @@ export function resolveSourceMapSource(
  * Given an HTTP response of a generated/transpiled/minified JavaScript
  * file, locate that file's source map location if present
  */
-export function getSourceMapLocation(response: Response, body: string): string | null {
+export function getSourceMapLocation(
+  response: Response,
+  body: string
+): string | null {
   // First, look for Source Map HTTP headers
   const sourceMapHeader =
     response.headers['x-sourcemap'] || response.headers.sourcemap;
 
-  if (sourceMapHeader) return Array.isArray(sourceMapHeader) ? sourceMapHeader[0] : sourceMapHeader;
+  if (sourceMapHeader)
+    return Array.isArray(sourceMapHeader)
+      ? sourceMapHeader[0]
+      : sourceMapHeader;
 
   // If no headers, look for a sourceMappingURL directive on the last line
   const lines = body.split(/\n/);
