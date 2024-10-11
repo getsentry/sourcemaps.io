@@ -10,6 +10,8 @@
     "precommit": "lint-staged",
     "build": "npm run --prefix server build",
     "lint": "npm run build && eslint server client",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
     "test": "npm run build && jest --projects client server --runInBand",
     "test-watch": "jest --projects client server --watch"
   },
@@ -17,13 +19,15 @@
     "*.js": [
       "prettier --write \"server/src/**/*.{js,ts}\"",
       "cd server && npm build",
-      "eslint --fix",
+      "cd client && npm run lint --fix",
+      "cd server && npm run lint --fix",
       "git add"
     ],
     "*.ts": [
       "prettier --write \"server/src/**/*.{js,ts}\"",
       "cd server && npm build",
-      "eslint --fix",
+      "cd client && npm run lint --fix",
+      "cd server && npm run lint --fix",
       "git add"
     ]
   },
