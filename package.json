@@ -1,9 +1,6 @@
 {
   "devDependencies": {
     "@testing-library/react": "^13.1.1",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-react": "^7.37.1",
     "jest": "^24.9.0",
     "lint-staged": "^15.2.10",
     "prettier": "^1.19.1",
@@ -12,7 +9,9 @@
   "scripts": {
     "precommit": "lint-staged",
     "build": "npm run --prefix server build",
-    "lint": "npm run build && eslint server client",
+    "lint": "npm run build && npm run lint:client && npm run lint:server",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
     "test": "npm run build && jest --projects client server --runInBand",
     "test-watch": "jest --projects client server --watch"
   },
@@ -20,7 +19,15 @@
     "*.js": [
       "prettier --write \"server/src/**/*.{js,ts}\"",
       "cd server && npm build",
-      "eslint --fix",
+      "cd client && npm run lint --fix",
+      "cd server && npm run lint --fix",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write \"server/src/**/*.{js,ts}\"",
+      "cd server && npm build",
+      "cd client && npm run lint --fix",
+      "cd server && npm run lint --fix",
       "git add"
     ]
   },

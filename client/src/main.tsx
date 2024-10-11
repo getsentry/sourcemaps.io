@@ -1,21 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/browser';
 
-import './index.css';
-import App from './App';
+import './index.css'
+import App from './App.tsx'
 
-if (process.env.REACT_APP_SENTRY_DSN) {
+if (import.meta.env.REACT_APP_SENTRY_DSN) {
   Sentry.init({
     debug: true,
-    dsn: process.env.REACT_APP_SENTRY_DSN,
-    release: process.env.REACT_APP_GIT_SHA,
+    dsn: import.meta.env.REACT_APP_SENTRY_DSN,
+    release: import.meta.env.REACT_APP_GIT_SHA,
     replaysSessionSampleRate: 1.0,
     tracesSampleRate: 1.0,
     integrations: [
-      Sentry.browserTracingIntegration({
-        tracingOrigins: ['sourcemaps.io']
-      }),
+      Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
       Sentry.feedbackIntegration({
         colorScheme: 'light',
@@ -26,7 +24,13 @@ if (process.env.REACT_APP_SENTRY_DSN) {
   });
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {

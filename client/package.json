@@ -1,26 +1,21 @@
 {
+  "name": "client",
   "private": true,
-  "dependencies": {
-    "@sentry/browser": "^8.0.0",
-    "jest-environment-jsdom-sixteen": "^2.0.0",
-    "prop-types": "^15.5.10",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-router-dom": "^4.1.2",
-    "react-spinkit": "^3.0.0",
-    "react-tooltip": "^3.8.1"
-  },
-  "devDependencies": {
-    "@testing-library/react": "^12.1.5",
-    "fetch-mock": "^9.11.0",
-    "react-scripts": "^3.3.0",
-    "react-test-renderer": "^15.6.1"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts start",
-    "build": "REACT_APP_GIT_SHA=`git rev-parse HEAD` react-scripts build",
-    "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "engines": {
+    "node": "^22.5.1",
+    "npm": "^10.5.0"
+  },
+  "volta": {
+    "node": "22.5.1",
+    "npm": "10.5.0"
   },
   "browserslist": {
     "production": [
@@ -34,12 +29,27 @@
       "last 1 safari version"
     ]
   },
-  "engines": {
-    "node": "^18.19.1",
-    "npm": "^10.2.4"
+  "dependencies": {
+    "@sentry/browser": "^8.34.0",
+    "@testing-library/react": "^16.0.1",
+    "fetch-mock": "^11.1.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-loader-spinner": "^6.1.6",
+    "react-router-dom": "^6.26.2",
+    "react-tooltip": "^5.28.0"
   },
-  "volta": {
-    "node": "18.19.1",
-    "npm": "10.2.4"
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "globals": "^15.9.0",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.7.0",
+    "vite": "^5.4.8"
   }
 }
