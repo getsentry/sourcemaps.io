@@ -24,7 +24,7 @@ test: test-install
 test-install: echo-exports
 	npm install --legacy-peer-deps
 	npm install --legacy-peer-deps --prefix ./server
-	npm install --legacy-peer-deps --prefix ./client
+	npm install --prefix ./client
 
 # Launch a local development server for working on the
 # React www app (points at deployed/production validation fn)

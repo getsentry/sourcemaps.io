@@ -47,7 +47,6 @@ function registerValidSW(swUrl) {
   navigator.serviceWorker
     .register(swUrl)
     .then(registration => {
-      // eslint-disable-next-line no-param-reassign
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         installingWorker.onstatechange = () => {
@@ -57,13 +56,11 @@ function registerValidSW(swUrl) {
               // the fresh content will have been added to the cache.
               // It's the perfect time to display a "New content is
               // available; please refresh." message in your web app.
-              // eslint-disable-next-line no-console
               console.log('New content is available; please refresh.');
             } else {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
-              // eslint-disable-next-line no-console
               console.log('Content is cached for offline use.');
             }
           }
@@ -71,7 +68,6 @@ function registerValidSW(swUrl) {
       };
     })
     .catch(error => {
-      // eslint-disable-next-line no-console
       console.error('Error during service worker registration:', error);
     });
 }
@@ -97,7 +93,6 @@ function checkValidServiceWorker(swUrl) {
       }
     })
     .catch(() => {
-      // eslint-disable-next-line no-console
       console.log(
         'No internet connection found. App is running in offline mode.'
       );

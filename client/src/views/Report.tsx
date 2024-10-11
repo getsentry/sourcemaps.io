@@ -149,7 +149,7 @@ export default function Report() {
   useEffect(() => {
     const reportUrl = `${STORAGE_URL}/${encodeURIComponent(reportName ?? '')}`;
     fetch(reportUrl).then(response => response.json()).then(setReport);
-  }, [report]);
+  }, [report, reportName]);
   
   if (!report) {
     return <Loader />;

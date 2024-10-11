@@ -1,10 +1,31 @@
 {
-  "extends": "../.eslintrc.json",
+  "extends": "airbnb-base",
   "env": {
     "node": true,
     "jest": true
   },
   "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
+    "global-require": 0,
+    "object-curly-spacing": 0,
+    "no-use-before-define": 0,
+    "no-plusplus": 0,
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "comma-dangle": ["error", {
+      "arrays": "ignore",
+      "functions": "ignore"
+    }],
+    "func-names": 0,
+    "consistent-return": ["error", {"treatUndefinedAsUnspecified": true}],
+    "no-void": 0,
+    "class-methods-use-this" : 0,
+    "max-len": 0,
+    "arrow-body-style": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }
