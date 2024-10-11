@@ -30,6 +30,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "lint": "eslint",
     "start": "npm run build && node dist/dev.js"
   },
   "engines": {
