@@ -9,10 +9,10 @@ export default defineConfig({
     outDir: './build',
   },
   define: {
-    PUBLIC_URL: process.env.PUBLIC_URL,
-    REACT_APP_SENTRY_DSN: process.env.REACT_APP_SENTRY_DSN,
-    REACT_APP_GIT_SHA: process.env.REACT_APP_GIT_SHA,
-    REACT_APP_VALIDATE_URL: process.env.REACT_APP_VALIDATE_URL,
-    REACT_APP_STORAGE_URL: process.env.REACT_APP_STORAGE_URL,
+    PUBLIC_URL: JSON.stringify(process.env.PUBLIC_URL),
+    REACT_APP_SENTRY_DSN: JSON.stringify(process.env.REACT_APP_SENTRY_DSN),
+    REACT_APP_GIT_SHA: JSON.stringify(process.env.REACT_APP_GIT_SHA),
+    REACT_APP_VALIDATE_URL: JSON.stringify(process.env.REACT_APP_VALIDATE_URL),
+    REACT_APP_STORAGE_URL: JSON.stringify(process.env.REACT_APP_STORAGE_URL),
   }
 })
