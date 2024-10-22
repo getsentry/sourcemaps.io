@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "REACT_APP_GIT_SHA=`git rev-parse HEAD` vite",
+    "build": "tsc -b && REACT_APP_GIT_SHA=`git rev-parse HEAD` vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
