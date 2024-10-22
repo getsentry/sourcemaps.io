@@ -53,10 +53,11 @@ export default function Home() {
   const navigate = useNavigate();
   
   const handleSubmit = useCallback(() => {
-    const url = targetUrl || TARGET_URL_PLACEHOLDER;
+    const url = encodeURIComponent(targetUrl || TARGET_URL_PLACEHOLDER);
 
     setIsLoading(true);
 
+    // Encode the url again to match whats saved on the server
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
     }).then(response => {

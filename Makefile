@@ -30,7 +30,7 @@ test-install: echo-exports
 # React www app (points at deployed/production validation fn)
 client-server: test-install
 	REACT_APP_VALIDATE_URL=${LOCAL_VALIDATE_URL} REACT_APP_STORAGE_URL=${GCLOUD_STORAGE_URL} \
-		npm run start --prefix ./client
+		npm run dev --prefix ./client
 
 backend-server: test-install deploy-data
 	npm run start --prefix ./server
