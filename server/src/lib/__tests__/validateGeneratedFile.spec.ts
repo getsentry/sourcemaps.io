@@ -257,7 +257,7 @@ describe('parsing failures', () => {
       expect(report.errors[0].name).toBe('InvalidJSONError');
       expect(report.errors[0]).toHaveProperty(
         'message',
-        'Does not parse as JSON: Unexpected token ! in JSON at position 0'
+        expect.stringContaining('Does not parse as JSON: Unexpected token')
       );
       done();
     });

@@ -15,7 +15,7 @@
     "@types/express": "^4.17.2",
     "@types/jest": "^24.0.25",
     "@types/nock": "^11.1.0",
-    "@types/node": "^16.11.7",
+    "@types/node": "^18",
     "@types/request": "^2.48.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-react": "^7.37.1",
@@ -32,12 +32,7 @@
     "lint": "eslint",
     "start": "SENTRY_DISABLED=1 npm run build && node dist/dev.js"
   },
-  "engines": {
-    "node": "^18.19.1",
-    "npm": "^10.2.4"
-  },
   "volta": {
-    "node": "18.19.1",
-    "npm": "10.2.4"
+    "extends": "../package.json"
   }
 }
