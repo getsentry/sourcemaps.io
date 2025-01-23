@@ -3,8 +3,7 @@
   "main": "dist",
   "dependencies": {
     "@google-cloud/storage": "^4.2.0",
-    "@sentry/node": "^7.14.0",
-    "@sentry/tracing": "^7.14.1",
+    "@sentry/node": "^9.0.0-alpha.0",
     "async": "^2.5.0",
     "data-uri-to-buffer": "^3.0.0",
     "request": "^2.84.0",
@@ -31,7 +30,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint",
-    "start": "npm run build && node dist/dev.js"
+    "start": "SENTRY_DISABLED=1 npm run build && node dist/dev.js"
   },
   "engines": {
     "node": "^18.19.1",

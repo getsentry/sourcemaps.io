@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "@sentry/browser": "^8.34.0",
+    "@sentry/react": "^9.0.0-alpha.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22.7.5",
     "fetch-mock": "^11.1.5",

@@ -47,7 +47,6 @@ jobs:
           GCLOUD_DATA_BUCKET: ${{ secrets.GCLOUD_DATA_BUCKET }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
           GCLOUD_WWW_BUCKET: ${{ secrets.GCLOUD_WWW_BUCKET }}
-          REACT_APP_SENTRY_DSN: ${{ vars.REACT_APP_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_CLIENT_PROJECT: ${{ secrets.SENTRY_CLIENT_PROJECT }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}

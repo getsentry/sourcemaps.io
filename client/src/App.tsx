@@ -1,21 +1,24 @@
-import {BrowserRouter, Route, Routes} from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import './App.css'
+import './App.css';
 
 import Home from './views/Home';
 import Report from './views/Report';
 import NotFound from './views/NotFound';
+import * as Sentry from '@sentry/react';
+
+const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <SentryRoutes>
         <Route path="/" element={<Home />} />
         <Route path="/report/:reportName" element={<Report />} />
         <Route element={<NotFound />} />
-      </Routes>
+      </SentryRoutes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
