@@ -9,13 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "engines": {
-    "node": "^22.5.1",
-    "npm": "^10.5.0"
-  },
   "volta": {
-    "node": "22.5.1",
-    "npm": "10.5.0"
+    "extends": "../package.json"
   },
   "browserslist": {
     "production": [
@@ -30,9 +25,9 @@
     ]
   },
   "dependencies": {
-    "@sentry/browser": "^8.34.0",
+    "@sentry/react": "^9.0.0-alpha.0",
     "@testing-library/react": "^16.0.1",
-    "@types/node": "^22.7.5",
+    "@types/node": "^18",
     "fetch-mock": "^11.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

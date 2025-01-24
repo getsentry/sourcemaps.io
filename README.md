@@ -6,11 +6,11 @@ _A re-write of [sourcemap-validator](https://github.com/mattrobenolt/sourcemap-v
 
 [sourcemaps.io](http://v2.sourcemaps.io) is a web application that takes a URL for a target transpiled/minified JavaScript file (e.g. `https://example.com/js/app.min.js`), and verifies:
 
-* `sourceMappingURL` or `[X-]SourceMap` header is present
-* Both the transpiled/minified file and source map file are reachable via HTTP
-* The resolved source map is valid JSON, and parses using Mozilla's [source-map](https://github.com/mozilla/source-map) library
-* Lines and columns line up as expected
-* ... and more, see [tests](/tests)
+- `sourceMappingURL` or `[X-]SourceMap` header is present
+- Both the transpiled/minified file and source map file are reachable via HTTP
+- The resolved source map is valid JSON, and parses using Mozilla's [source-map](https://github.com/mozilla/source-map) library
+- Lines and columns line up as expected
+- ... and more, see [tests](/tests)
 
 ## Development
 
@@ -51,12 +51,11 @@ This repository is already configured to automatically deploy to https://sourcem
 1. Create a new project in [Google Cloud Platform](https://cloud.google.com/), e.g. `myproject`
 2. Enable Cloud Functions
 3. Create **3 buckets** in Cloud Storage, for:
-    1. staging the **cloud function** (e.g. `myproject-server`)
-    1. storing **report data** (e.g. `myproject-reports`)
-    1. storing **static web content** (e.g. `myproject-web`)
+   1. staging the **cloud function** (e.g. `myproject-server`)
+   1. storing **report data** (e.g. `myproject-reports`)
+   1. storing **static web content** (e.g. `myproject-web`)
 
 NOTE: Your deployed cloud function must be configured to use [Cloud Functions Node 10 runtime](https://cloud.google.com/functions/docs/concepts/nodejs-10-runtime) (or newer).
-
 
 ### Install the gcloud CLI
 
@@ -79,10 +78,6 @@ export GCLOUD_APP_BUCKET=myproject-server
 export GCLOUD_DATA_BUCKET=myproject-reports
 export GCLOUD_WWW_BUCKET=myproject-web
 export GCLOUD_SERVICE_KEY=<base64 encoded service-key json object>
-
-# Used for reporting errors back to your sentry instance:
-export REACT_APP_SENTRY_DSN=https://public@sentry.example.com/1
-export SENTRY_DSN=https://public@sentry.example.com/1
 
 # Used for creating a new release in your sentry instance:
 export SENTRY_AUTH_TOKEN=sntrys_abcxyz
