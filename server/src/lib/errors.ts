@@ -169,6 +169,17 @@ class BadColumnError extends BadTokenError {
   }
 }
 
+class UnknownError extends Error {
+  resolutions: Array<string>;
+
+  constructor(url: string) {
+    super();
+    this.name = 'UnknownError';
+    this.message = `An unknown error occurred for url: ${url}`;
+    this.resolutions = ['Try again.'];
+  }
+}
+
 export {
   SourceMapNotFoundError,
   UnableToFetchError,
@@ -182,5 +193,6 @@ export {
   BadContentError,
   BadColumnError,
   ResourceTimeoutError,
-  ConnectionRefusedError as SocketRefusedError
+  ConnectionRefusedError as SocketRefusedError,
+  UnknownError
 };

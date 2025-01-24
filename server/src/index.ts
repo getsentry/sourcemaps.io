@@ -10,7 +10,7 @@ Sentry.init({
 import path from 'path';
 import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
-import _validateGeneratedFile from './lib/validateGeneratedFile';
+import { validateMinifiedFileAtUrl } from './lib/validateGeneratedFile';
 
 let config: { [key: string]: string } = {};
 try {
@@ -33,49 +33,44 @@ const storage = new Storage({
  * @param {function} The callback function.
  */
 export function validateGeneratedFile(req: Request, res: Response) {
-  return Sentry.startSpan(
-    {
-      name: 'validateGeneratedFile'
-    },
-    () => {
-      res.set('Access-Control-Allow-Origin', '*');
-      res.set('Access-Control-Allow-Methods', 'POST');
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST');
 
-      const url = req.query.url;
-      if (!url) {
-        res.status(500).send('URL not specified');
-        return;
+  const url = req.query.url;
+  if (!url) {
+    res.status(500).send('URL not specified');
+    return;
+  }
+
+  if (typeof url !== 'string') {
+    throw new TypeError('url is not a string');
+  }
+
+  Sentry.setTag('sourcemap_url', url);
+
+  validateMinifiedFileAtUrl(url, report => {
+    const bucket = storage.bucket(config.STORAGE_BUCKET);
+
+    // object names can't contain most symbols, so encode as a URI component
+    const objectName = `${Date.now()}_${encodeURIComponent(url)}`;
+    const file = bucket.file(objectName);
+
+    const stream = file.createWriteStream({
+      gzip: true,
+      metadata: {
+        contentType: 'text/plain; charset=utf-8'
       }
+    });
 
-      if (typeof url !== 'string') {
-        throw new TypeError('url is not a string');
-      }
+    stream.on('error', async err => {
+      res.status(500).send(err.message);
+      Sentry.captureException(err);
+    });
 
-      Sentry.setTag('sourcemap_url', url);
+    stream.on('finish', async () => {
+      res.status(200).send(encodeURIComponent(objectName));
+    });
 
-      _validateGeneratedFile(url, report => {
-        const bucket = storage.bucket(config.STORAGE_BUCKET);
-
-        // object names can't contain most symbols, so encode as a URI component
-        const objectName = `${Date.now()}_${encodeURIComponent(url)}`;
-        const file = bucket.file(objectName);
-
-        const stream = file.createWriteStream({
-          gzip: true,
-          metadata: {
-            contentType: 'text/plain; charset=utf-8'
-          }
-        });
-        stream.on('error', async err => {
-          res.status(500).send(err.message);
-          Sentry.captureException(err);
-        });
-        stream.on('finish', async () => {
-          res.status(200).send(encodeURIComponent(objectName));
-        });
-
-        stream.end(JSON.stringify(report));
-      });
-    }
-  );
+    stream.end(JSON.stringify(report));
+  });
 }
