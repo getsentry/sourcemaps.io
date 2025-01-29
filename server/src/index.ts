@@ -33,44 +33,51 @@ const storage = new Storage({
  * @param {function} The callback function.
  */
 export function validateGeneratedFile(req: Request, res: Response) {
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'POST');
+  return Sentry.startSpan(
+    {
+      name: 'validateGeneratedFile'
+    },
+    () => {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Methods', 'POST');
 
-  const url = req.query.url;
-  if (!url) {
-    res.status(500).send('URL not specified');
-    return;
-  }
-
-  if (typeof url !== 'string') {
-    throw new TypeError('url is not a string');
-  }
-
-  Sentry.setTag('sourcemap_url', url);
-
-  validateMinifiedFileAtUrl(url, report => {
-    const bucket = storage.bucket(config.STORAGE_BUCKET);
-
-    // object names can't contain most symbols, so encode as a URI component
-    const objectName = `${Date.now()}_${encodeURIComponent(url)}`;
-    const file = bucket.file(objectName);
-
-    const stream = file.createWriteStream({
-      gzip: true,
-      metadata: {
-        contentType: 'text/plain; charset=utf-8'
+      const url = req.query.url;
+      if (!url) {
+        res.status(500).send('URL not specified');
+        return;
       }
-    });
 
-    stream.on('error', async err => {
-      res.status(500).send(err.message);
-      Sentry.captureException(err);
-    });
+      if (typeof url !== 'string') {
+        throw new TypeError('url is not a string');
+      }
 
-    stream.on('finish', async () => {
-      res.status(200).send(encodeURIComponent(objectName));
-    });
+      Sentry.setTag('sourcemap_url', url);
 
-    stream.end(JSON.stringify(report));
-  });
+      validateMinifiedFileAtUrl(url, report => {
+        const bucket = storage.bucket(config.STORAGE_BUCKET);
+
+        // object names can't contain most symbols, so encode as a URI component
+        const objectName = `${Date.now()}_${encodeURIComponent(url)}`;
+        const file = bucket.file(objectName);
+
+        const stream = file.createWriteStream({
+          gzip: true,
+          metadata: {
+            contentType: 'text/plain; charset=utf-8'
+          }
+        });
+
+        stream.on('error', async err => {
+          res.status(500).send(err.message);
+          Sentry.captureException(err);
+        });
+
+        stream.on('finish', async () => {
+          res.status(200).send(encodeURIComponent(objectName));
+        });
+
+        stream.end(JSON.stringify(report));
+      });
+    }
+  );
 }
