@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import nock from 'nock';
 
-import validateGeneratedFile from '../validateGeneratedFile';
+import { validateMinifiedFileAtUrl } from '../validateGeneratedFile';
 
 const {
   HOST,
@@ -27,7 +27,7 @@ it('should download the target minified file, source maps, and external source f
     .get('/static/two.js')
     .reply(200, TWO_JS);
 
-  validateGeneratedFile(url, report => {
+  validateMinifiedFileAtUrl(url, report => {
     // verify all mocked requests satisfied
     scope.done();
 
@@ -53,7 +53,7 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
@@ -71,7 +71,7 @@ describe('source map location', () => {
       .get(appPath)
       .reply(200, fs.readFileSync(minFilePath, 'utf-8'));
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
@@ -85,7 +85,7 @@ describe('source map location', () => {
     nock(HOST)
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
@@ -101,7 +101,7 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
@@ -118,7 +118,7 @@ describe('source map location', () => {
       .get('/static/app.js.map')
       .reply(200, RAW_INLINE_SOURCE_MAP);
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(0);
       done();
     });
@@ -129,7 +129,7 @@ describe('source map location', () => {
       .get(appPath)
       .reply(200, 'function(){}();');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('SourceMapNotFoundError');
       done();
@@ -144,7 +144,7 @@ describe('http failures', () => {
       .socketDelay(5001)
       .reply(200, '<html></html>');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
@@ -164,7 +164,7 @@ describe('http failures', () => {
       .get('/static/app.js.map')
       .socketDelay(5001)
       .reply(200, RAW_DEFAULT_SOURCE_MAP);
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ResourceTimeoutError');
       expect(report.errors[0]).toHaveProperty(
@@ -180,7 +180,7 @@ describe('http failures', () => {
       .get(appPath)
       .reply(401, 'Not Authenticated');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('UnableToFetchMinifiedError');
       done();
@@ -198,7 +198,7 @@ describe('http failures', () => {
         port: 1337
       });
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('ConnectionRefusedError');
       done();
@@ -214,7 +214,7 @@ describe('http failures', () => {
       .get('/static/app.js.map')
       .reply(401, 'Not Authenticated');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('UnableToFetchSourceMapError');
       done();
@@ -232,7 +232,7 @@ describe('http failures', () => {
       .get('/static/two.js')
       .reply(401, 'Not authenticated');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       // verify all mocked requests satisfied
       scope.done();
       expect(report.errors).toHaveLength(1);
@@ -252,7 +252,7 @@ describe('parsing failures', () => {
       .get('/static/app.js.map')
       .reply(200, '!@#(!*@#(*&@');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('InvalidJSONError');
       expect(report.errors[0]).toHaveProperty(
@@ -272,7 +272,7 @@ describe('parsing failures', () => {
       .get('/static/app.js.map')
       .reply(200, '{"version":"3"}');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('InvalidSourceMapFormatError');
       expect(report.errors[0]).toHaveProperty(
@@ -296,7 +296,7 @@ describe('content failures', () => {
       .get('/static/two.js')
       .reply(200, '         \n\n\n<!DOCTYPE html><html>lol</html>');
 
-    validateGeneratedFile(url, report => {
+    validateMinifiedFileAtUrl(url, report => {
       scope.done();
       expect(report.errors).toHaveLength(1);
       expect(report.errors[0].name).toBe('BadContentError');
@@ -327,7 +327,7 @@ describe('mappings', () => {
         .get('/static/add.inlineSources.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, report => {
+      validateMinifiedFileAtUrl(url, report => {
         expect(report.errors).toHaveLength(0);
         done();
       });
@@ -349,7 +349,7 @@ describe('mappings', () => {
         .get('/static/add.fuzzLines.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, report => {
+      validateMinifiedFileAtUrl(url, report => {
         expect(report.errors).not.toHaveLength(0);
         expect(report.errors[0].name).toBe('BadTokenError');
         expect(report.errors[0]).toHaveProperty(
@@ -376,7 +376,7 @@ describe('mappings', () => {
         .get('/static/add.fuzzColumns.js.map')
         .reply(200, fs.readFileSync(mapFilePath, 'utf-8'));
 
-      validateGeneratedFile(url, report => {
+      validateMinifiedFileAtUrl(url, report => {
         expect(report.warnings).not.toHaveLength(0);
         expect(report.warnings[0].name).toBe('BadColumnError');
         expect(report.warnings[0]).toHaveProperty(

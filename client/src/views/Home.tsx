@@ -7,13 +7,13 @@ const VALIDATE_URL = import.meta.env.REACT_APP_VALIDATE_URL;
 const TARGET_URL_PLACEHOLDER = 'http://code.jquery.com/jquery-1.9.1.min.js';
 
 interface ExampleProps {
-  name: string,
-  url: string,
-  version: string,
-  onClick: React.MouseEventHandler<HTMLAnchorElement>,
+  name: string;
+  url: string;
+  version: string;
+  onClick: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
-function Example({name, url, version, onClick}: ExampleProps) {
+function Example({ name, url, version, onClick }: ExampleProps) {
   return (
     <li>
       <a href={url} onClick={onClick}>
@@ -51,13 +51,12 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-  
+
   const handleSubmit = useCallback(() => {
-    const url = encodeURIComponent(targetUrl || TARGET_URL_PLACEHOLDER);
+    const url = targetUrl || TARGET_URL_PLACEHOLDER;
 
     setIsLoading(true);
 
-    // Encode the url again to match whats saved on the server
     fetch(`${VALIDATE_URL}?url=${encodeURIComponent(url)}`, {
       method: 'POST'
     }).then(response => {
@@ -74,10 +73,13 @@ export default function Home() {
   return (
     <div>
       <div className="row">
-        <form action="/validate" onSubmit={(event: React.FormEvent) => {
-          event.preventDefault();
-          handleSubmit();
-        }}>
+        <form
+          action="/validate"
+          onSubmit={(event: React.FormEvent) => {
+            event.preventDefault();
+            handleSubmit();
+          }}
+        >
           <div className="col-md-10 form-group">
             <input
               type="text"
@@ -101,7 +103,7 @@ export default function Home() {
           <Example
             key={index}
             {...example}
-            onClick={(event) => {
+            onClick={event => {
               event.preventDefault();
 
               setTargetUrl(example.url);

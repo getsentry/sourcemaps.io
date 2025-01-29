@@ -10,7 +10,7 @@ Sentry.init({
 import path from 'path';
 import { Request, Response } from 'express';
 import { Storage } from '@google-cloud/storage';
-import _validateGeneratedFile from './lib/validateGeneratedFile';
+import { validateMinifiedFileAtUrl } from './lib/validateGeneratedFile';
 
 let config: { [key: string]: string } = {};
 try {
@@ -53,7 +53,7 @@ export function validateGeneratedFile(req: Request, res: Response) {
 
       Sentry.setTag('sourcemap_url', url);
 
-      _validateGeneratedFile(url, report => {
+      validateMinifiedFileAtUrl(url, report => {
         const bucket = storage.bucket(config.STORAGE_BUCKET);
 
         // object names can't contain most symbols, so encode as a URI component
@@ -66,10 +66,12 @@ export function validateGeneratedFile(req: Request, res: Response) {
             contentType: 'text/plain; charset=utf-8'
           }
         });
+
         stream.on('error', async err => {
           res.status(500).send(err.message);
           Sentry.captureException(err);
         });
+
         stream.on('finish', async () => {
           res.status(200).send(encodeURIComponent(objectName));
         });

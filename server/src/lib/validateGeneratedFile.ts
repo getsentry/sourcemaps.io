@@ -7,10 +7,12 @@ import {
   SourceMapNotFoundError,
   UnableToFetchMinifiedError,
   ResourceTimeoutError,
-  SocketRefusedError
+  SocketRefusedError,
+  UnknownError
 } from './errors';
 import { MAX_TIMEOUT } from './constants';
 import { resolveUrl, getSourceMapLocation } from './utils';
+import { setTag } from '@sentry/node';
 
 /**
  * Validates a target transpiled/minified file located at a given url
@@ -18,7 +20,7 @@ import { resolveUrl, getSourceMapLocation } from './utils';
  *            e.g. https://example.com/static/app.min.js
  * @param {function} callback Invoked when validation is finished, passed a Report object
  */
-export default function validateGeneratedFile(
+export function validateMinifiedFileAtUrl(
   url: string,
   callback: (report: Report) => void
 ) {
@@ -26,15 +28,18 @@ export default function validateGeneratedFile(
 
   request(url, { timeout: MAX_TIMEOUT }, (error, response, body) => {
     if (error) {
+      setTag('outgoing_request_had_error', true);
+
       if (error.message === 'ESOCKETTIMEDOUT') {
         report.pushError(new ResourceTimeoutError(url, MAX_TIMEOUT));
-        return void callback(report);
       } else if (error.code === 'ECONNREFUSED') {
         report.pushError(new SocketRefusedError(url));
-        return void callback(report);
+      } else {
+        report.pushError(new UnknownError(url));
       }
 
-      return void console.error(error);
+      callback(report);
+      return;
     }
 
     if (response && response.statusCode !== 200) {

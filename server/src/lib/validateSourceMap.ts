@@ -20,7 +20,8 @@ import {
   InvalidSourceMapFormatError,
   InvalidJSONError,
   BadContentError,
-  ResourceTimeoutError
+  ResourceTimeoutError,
+  UnknownError
 } from './errors';
 
 import { MAX_TIMEOUT } from './constants';
@@ -70,9 +71,11 @@ export default function validateSourceMap(
       if (error) {
         if (error.message === 'ESOCKETTIMEDOUT') {
           report.pushError(new ResourceTimeoutError(sourceMapUrl, MAX_TIMEOUT));
-          return void reportCallback(report);
+        } else {
+          report.pushError(new UnknownError(sourceMapUrl));
         }
-        return void console.error(error);
+        reportCallback(report);
+        return;
       }
 
       if (response && response.statusCode !== 200) {
