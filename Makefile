@@ -78,7 +78,7 @@ deploy-server: deploy-config
 		--stage-bucket ${GCLOUD_APP_BUCKET} \
 		--trigger-http \
 		--verbosity debug \
-		--runtime nodejs18
+		--runtime nodejs24
 
 # Deploy all
 deploy: build-www deploy-config deploy-server deploy-data deploy-www
