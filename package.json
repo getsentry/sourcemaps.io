@@ -35,11 +35,11 @@
     "singleQuote": true
   },
   "engines": {
-    "node": "^18.19.1",
+    "node": "^24.22.1",
     "npm": "^10.2.4"
   },
   "volta": {
-    "node": "18.19.1",
+    "node": "24.22.1",
     "npm": "10.2.4"
   },
   "dependencies": {
